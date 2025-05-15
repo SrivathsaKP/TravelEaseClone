@@ -268,6 +268,9 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
       });
     }
   };
+  
+  // Available cities for source/destination dropdowns in other tabs
+  const cities = popularCities.map(city => city.name);
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
@@ -491,8 +494,8 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                         )}
                       />
                     </FormControl>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-                      POPULAR CITIES
+                    <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#008cff' }}>
+                      Tap to add a city
                     </Typography>
                   </Box>
                 </Grid>
