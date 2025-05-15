@@ -287,17 +287,24 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
           variant="scrollable"
           scrollButtons="auto"
           sx={{ 
-            background: 'white',
+            background: '#ffcc00',
             borderRadius: '8px 8px 0 0',
             borderBottom: '1px solid #eaeaea',
+            display: 'flex',
+            justifyContent: 'space-between',
+            '& .MuiTabs-flexContainer': {
+              display: 'flex',
+              justifyContent: 'space-evenly',
+              width: '100%'
+            },
             '& .MuiTab-root': { 
-              color: '#4a4a4a',
+              color: '#333',
               fontSize: '0.85rem',
               fontWeight: 500,
               p: 1.5,
-              minWidth: 100,
+              flex: 1,
+              maxWidth: 'none',
               transition: 'all 0.2s ease',
-              margin: '0 2px',
               textTransform: 'none',
               display: 'flex',
               flexDirection: 'column',
@@ -305,9 +312,9 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
               borderBottom: '3px solid transparent'
             },
             '& .Mui-selected': { 
-              color: '#008cff',
-              fontWeight: 600,
-              borderBottom: '3px solid #008cff'
+              color: '#333',
+              fontWeight: 700,
+              background: '#ffcc00'
             },
             '& .MuiTabs-indicator': { 
               display: 'none'
@@ -422,15 +429,20 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
               </Box>
             </Box>
 
-            <Box sx={{ px: 2 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ 
-                    p: 2, 
-                    border: '1px solid #e0e0e0', 
-                    borderRadius: 1,
-                    '&:hover': { borderColor: '#008cff' }
-                  }}>
+            <Box sx={{ px: 2, py: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
                     <FormControl fullWidth sx={{ border: 'none' }}>
                       <Autocomplete
@@ -500,7 +512,12 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                   </Box>
                 </Grid>
 
-                <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  px: 2
+                }}>
                   <IconButton 
                     onClick={() => swapLocations('flight')}
                     color="primary"
@@ -513,15 +530,15 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                   >
                     <SwapVert />
                   </IconButton>
-                </Grid>
+                </Box>
 
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ 
-                    p: 2, 
-                    border: '1px solid #e0e0e0', 
-                    borderRadius: 1,
-                    '&:hover': { borderColor: '#008cff' }
-                  }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderLeft: '1px solid #e0e0e0',
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TO</Typography>
                     <FormControl fullWidth sx={{ border: 'none' }}>
                       <Autocomplete
