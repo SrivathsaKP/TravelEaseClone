@@ -128,7 +128,7 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
       renderCell: (params: GridRenderCellParams) => (
         <Box sx={{ textAlign: 'center' }}>
           <Typography variant="body2">
-            {formatDuration(params.row.durationMinutes)}
+            {formatDuration(params.row.duration)}
           </Typography>
           <Box sx={{ 
             display: 'flex', 
@@ -169,11 +169,17 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
       headerName: 'Arrival', 
       width: 130,
       renderCell: (params: GridRenderCellParams) => {
-        const arrivalTime = calculateArrivalTime(params.row.departureTime, params.row.durationMinutes);
+        // Use arrival time directly if available, otherwise calculate it
+        const displayTime = params.row.arrivalTime 
+          ? formatTime(params.row.arrivalTime)
+          : params.row.duration 
+            ? calculateArrivalTime(params.row.departureTime, params.row.duration)
+            : "N/A";
+            
         return (
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {arrivalTime}
+              {displayTime}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {formatDate(params.row.departureTime)}
@@ -268,10 +274,11 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
   const rows = flights.map((flight) => ({
     id: flight.id,
     airline: flight.airline,
-    airlineLogo: flight.airlineLogo,
+    airlineLogo: flight.airline.logo, // Use airline.logo from the Flight type
     flightNumber: flight.flightNumber,
     departureTime: flight.departureTime,
-    durationMinutes: flight.durationMinutes,
+    arrivalTime: flight.arrivalTime,
+    duration: flight.duration,
     stops: flight.stops,
     price: flight.price,
     cabinClass: flight.cabinClass
@@ -364,10 +371,14 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
       <DataGrid
         rows={rows}
         columns={columns}
-        pageSize={pageSize}
-        rowsPerPageOptions={[5, 10, 20]}
-        onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-        disableSelectionOnClick
+        initialState={{
+          pagination: {
+            paginationModel: { pageSize, page: 0 },
+          },
+        }}
+        pageSizeOptions={[5, 10, 20]}
+        onPaginationModelChange={(model) => setPageSize(model.pageSize)}
+        disableRowSelectionOnClick
         getRowHeight={() => 'auto'}
         sx={{
           '& .MuiDataGrid-cell': {
