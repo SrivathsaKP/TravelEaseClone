@@ -48,10 +48,22 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
   };
 
   // Format duration (e.g., "2h 15m")
-  const formatDuration = (minutes: number) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+  const formatDuration = (duration: string) => {
+    // If duration is already in the right format like "2h 10m", return it
+    if (duration.includes('h') && duration.includes('m')) {
+      return duration;
+    }
+    
+    // If duration might be in minutes (though our Flight type uses string)
+    const minutes = parseInt(duration, 10);
+    if (!isNaN(minutes)) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours}h ${mins}m`;
+    }
+    
+    // Default return the original
+    return duration;
   };
 
   // Calculate and format the arrival time

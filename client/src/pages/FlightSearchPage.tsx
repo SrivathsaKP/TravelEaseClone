@@ -18,7 +18,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { Flight } from '@/lib/types';
-import { selectFlightSearch, updateFlightSearch } from '@/store/searchSlice';
+import { selectFlightSearch, setFlightSearch } from '@/store/searchSlice';
 import FlightSearchDataGrid from '@/components/FlightSearchDataGrid';
 import FlightResults from '@/components/FlightResults';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -48,14 +48,18 @@ const FlightSearchPage = () => {
   const [returnDate, setReturnDate] = useState(flightSearchParams.returnDate || dayjs().add(7, 'day').format('YYYY-MM-DD'));
   const [travelers, setTravelers] = useState(flightSearchParams.travelers || 1);
   const [cabinClass, setCabinClass] = useState(flightSearchParams.class || 'Economy');
-  const [tripType, setTripType] = useState<'one-way' | 'round-trip'>(flightSearchParams.tripType || 'round-trip');
+  const [tripType, setTripType] = useState<'one-way' | 'round-trip'>(
+    flightSearchParams.tripType === 'one-way' || flightSearchParams.tripType === 'round-trip' 
+    ? flightSearchParams.tripType 
+    : 'round-trip'
+  );
   
   // Handle form submission
   const handleSearch = () => {
     setLoading(true);
     
     // Update Redux store with current search parameters
-    dispatch(updateFlightSearch({
+    dispatch(setFlightSearch({
       source,
       destination,
       departureDate,
@@ -136,8 +140,8 @@ const FlightSearchPage = () => {
             />
           </Tabs>
           
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={2.5}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ flex: '1 1 240px', minWidth: '200px' }}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel>From</InputLabel>
                 <Select
@@ -150,9 +154,9 @@ const FlightSearchPage = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={12} md={0.5} sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center' }}>
               <IconButton 
                 onClick={handleSwapCities}
                 sx={{ 
@@ -163,9 +167,9 @@ const FlightSearchPage = () => {
               >
                 <SwapHorizIcon />
               </IconButton>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={2.5}>
+            <Box sx={{ flex: '1 1 240px', minWidth: '200px' }}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel>To</InputLabel>
                 <Select
@@ -178,9 +182,9 @@ const FlightSearchPage = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={tripType === 'one-way' ? 2.5 : 1.5}>
+            <Box sx={{ flex: tripType === 'one-way' ? '1 1 240px' : '1 1 160px', minWidth: '150px' }}>
               <FormControl fullWidth variant="outlined" size="small">
                 <TextField
                   type="date"
@@ -191,10 +195,10 @@ const FlightSearchPage = () => {
                   size="small"
                 />
               </FormControl>
-            </Grid>
+            </Box>
             
             {tripType === 'round-trip' && (
-              <Grid item xs={12} sm={6} md={1.5}>
+              <Box sx={{ flex: '1 1 160px', minWidth: '150px' }}>
                 <FormControl fullWidth variant="outlined" size="small">
                   <TextField
                     type="date"
@@ -205,10 +209,10 @@ const FlightSearchPage = () => {
                     size="small"
                   />
                 </FormControl>
-              </Grid>
+              </Box>
             )}
             
-            <Grid item xs={12} sm={6} md={1.5}>
+            <Box sx={{ flex: '1 1 140px', minWidth: '120px' }}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel>Travelers</InputLabel>
                 <Select
@@ -221,9 +225,9 @@ const FlightSearchPage = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={6} md={2}>
+            <Box sx={{ flex: '1 1 180px', minWidth: '150px' }}>
               <FormControl fullWidth variant="outlined" size="small">
                 <InputLabel>Class</InputLabel>
                 <Select
@@ -237,9 +241,9 @@ const FlightSearchPage = () => {
                   <MenuItem value="First">First Class</MenuItem>
                 </Select>
               </FormControl>
-            </Grid>
+            </Box>
             
-            <Grid item xs={12} sm={12} md={1}>
+            <Box sx={{ flex: '0 0 120px' }}>
               <Button
                 fullWidth
                 variant="contained"
@@ -254,8 +258,8 @@ const FlightSearchPage = () => {
               >
                 {loading ? <CircularProgress size={24} color="inherit" /> : 'SEARCH'}
               </Button>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Box>
       </Paper>
       
@@ -324,41 +328,40 @@ const FlightSearchPage = () => {
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           Popular Flight Routes from {source}
         </Typography>
-        <Grid container spacing={2}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 2 }}>
           {['Delhi', 'Bangalore', 'Chennai', 'Hyderabad'].map((city) => (
-            <Grid item xs={12} sm={6} md={3} key={city}>
-              <Paper 
-                sx={{ 
-                  p: 2, 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  height: '100%',
-                  cursor: 'pointer',
-                  '&:hover': { boxShadow: 3 }
-                }}
-                onClick={() => {
-                  setDestination(city);
-                  handleSearch();
-                }}
-              >
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {source} to {city}
+            <Paper 
+              key={city}
+              sx={{ 
+                p: 2, 
+                display: 'flex', 
+                flexDirection: 'column',
+                height: '100%',
+                cursor: 'pointer',
+                '&:hover': { boxShadow: 3 }
+              }}
+              onClick={() => {
+                setDestination(city);
+                handleSearch();
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight="bold">
+                {source} to {city}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                {Math.floor(Math.random() * 10) + 1} flights daily
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto' }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
+                  Starting from
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  {Math.floor(Math.random() * 10) + 1} flights daily
+                <Typography variant="subtitle1" fontWeight="bold" color="#008cff">
+                  ₹{Math.floor(Math.random() * 3000) + 3000}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto' }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
-                    Starting from
-                  </Typography>
-                  <Typography variant="subtitle1" fontWeight="bold" color="#008cff">
-                    ₹{Math.floor(Math.random() * 3000) + 3000}
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
+              </Box>
+            </Paper>
           ))}
-        </Grid>
+        </Box>
       </Box>
     </Container>
   );
