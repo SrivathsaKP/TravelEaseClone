@@ -1474,5 +1474,3 @@ export const flightData = {
     }
   ]
 };
-  ]
-};
