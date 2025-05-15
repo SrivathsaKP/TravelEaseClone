@@ -84,7 +84,19 @@ const Header = () => {
                   </a>
                 </Link>
                 <div className="pt-4 mt-4 border-t border-gray-200">
-                  <Button className="w-full" variant="default">
+                  <Link href="/checkout" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full mb-3" variant="outline">
+                      Test Checkout
+                    </Button>
+                  </Link>
+                  <Button 
+                    className="w-full" 
+                    variant="default"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      window.location.href = '/api/login';
+                    }}
+                  >
                     Log In
                   </Button>
                 </div>
