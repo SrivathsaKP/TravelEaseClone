@@ -4,7 +4,29 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Flight } from "@/lib/types";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Clock, Lock } from "lucide-react";
+import { 
+  Box, 
+  Paper, 
+  Typography, 
+  Tab, 
+  Tabs, 
+  Chip, 
+  Card, 
+  CardContent,
+  Divider,
+  Grid,
+  Container,
+  LinearProgress,
+  IconButton,
+  CircularProgress,
+} from "@mui/material";
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 interface FlightResultsProps {
   flights: Flight[];
@@ -142,19 +164,58 @@ const FlightResults: React.FC<FlightResultsProps> = ({
     return `${hours}h ${mins}m`;
   };
 
+  const [activeTab, setActiveTab] = useState(0);
+
+  const sortOptions = [
+    { label: "CHEAPEST", value: "price-low-high", icon: <CurrencyRupeeIcon fontSize="small" color="primary" /> },
+    { label: "NON STOP FIRST", value: "nonstop-first", icon: <AccessTimeIcon fontSize="small" /> },
+    { label: "YOU MAY PREFER", value: "recommend", icon: <VerifiedIcon fontSize="small" /> },
+    { label: "Other Sort", value: "custom", icon: <PlaylistAddCheckIcon fontSize="small" /> }
+  ];
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    // Set the sort criteria based on the selected tab
+    switch(newValue) {
+      case 0:
+        setSortBy("price-low-high");
+        break;
+      case 1: 
+        setSortBy("duration-shortest");
+        break;
+      case 2:
+        setSortBy("departure-earliest");
+        break;
+      case 3:
+        // Keep current sort
+        break;
+      default:
+        setSortBy("price-low-high");
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 mb-12">
-      <div className="flex flex-col md:flex-row gap-6">
+    <Container maxWidth="lg" sx={{ mb: 8, mt: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Filters Sidebar */}
-        <div className="w-full md:w-80 bg-white rounded-xl p-5 search-panel self-start sticky top-20">
-          <h3 className="text-lg font-semibold mb-4 heading">Filters</h3>
+        <Box sx={{ 
+          width: { xs: '100%', md: '270px' }, 
+          bgcolor: 'white', 
+          borderRadius: 2,
+          boxShadow: 1,
+          p: 2,
+          alignSelf: 'flex-start',
+          position: 'sticky',
+          top: '90px'
+        }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Filters</Typography>
           
-          <div className="border-b border-neutral-200 pb-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Price Range</h4>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-neutral-400">₹{priceRange[0]}</span>
-              <span className="text-xs text-neutral-400">₹{priceRange[1]}</span>
-            </div>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>One Way Price</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">₹{priceRange[0]}</Typography>
+              <Typography variant="caption" color="text.secondary">₹{priceRange[1]}</Typography>
+            </Box>
             <Slider
               defaultValue={[1500, 10000]}
               min={1500}
@@ -164,219 +225,440 @@ const FlightResults: React.FC<FlightResultsProps> = ({
               onValueChange={setPriceRange}
               className="w-full"
             />
-          </div>
+          </Box>
           
-          <div className="border-b border-neutral-200 pb-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Airlines</h4>
-            <div className="space-y-2">
-              {airlines.map(airline => (
-                <div className="flex items-center space-x-2" key={airline}>
-                  <Checkbox 
-                    id={`airline-${airline}`} 
-                    checked={selectedAirlines.includes(airline)}
-                    onCheckedChange={() => handleAirlineChange(airline)}
-                  />
-                  <label 
-                    htmlFor={`airline-${airline}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {airline}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="border-b border-neutral-200 pb-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Departure Time</h4>
-            <div className="space-y-2">
-              {departureTimes.map(time => (
-                <div className="flex items-center space-x-2" key={time.value}>
-                  <Checkbox 
-                    id={`departure-${time.value}`} 
-                    checked={selectedDepartureTimes.includes(time.value)}
-                    onCheckedChange={() => handleDepartureTimeChange(time.value)}
-                  />
-                  <label 
-                    htmlFor={`departure-${time.value}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {time.label}
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-medium mb-3">Stop</h4>
-            <div className="space-y-2">
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Stops From {sourceCity}</Typography>
+            <Box sx={{ ml: 1 }}>
               {stopOptions.map(stop => (
-                <div className="flex items-center space-x-2" key={stop.value}>
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }} key={stop.value}>
                   <Checkbox 
                     id={`stop-${stop.value}`} 
                     checked={selectedStops.includes(stop.value)}
                     onCheckedChange={() => handleStopChange(stop.value)}
+                    sx={{ p: 0.5 }}
                   />
-                  <label 
-                    htmlFor={`stop-${stop.value}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+                  <Typography variant="body2" sx={{ ml: 1 }}>
                     {stop.label}
-                  </label>
-                </div>
+                  </Typography>
+                  {stop.value === "non-stop" && (
+                    <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 'bold' }}>
+                      ₹{Math.min(...filteredFlights.filter(f => !f.stops || f.stops === 0).map(f => f.fare.totalFare))}
+                    </Typography>
+                  )}
+                </Box>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
           
-          <Button className="w-full mt-6 bg-primary text-white py-2 rounded-lg font-medium text-sm">
-            Apply Filters
-          </Button>
-        </div>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Departure From {sourceCity}</Typography>
+            <Grid container spacing={1} sx={{ ml: 0.5 }}>
+              {departureTimes.map(time => (
+                <Grid item xs={12} key={time.value}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox 
+                      id={`departure-${time.value}`} 
+                      checked={selectedDepartureTimes.includes(time.value)}
+                      onCheckedChange={() => handleDepartureTimeChange(time.value)}
+                      sx={{ p: 0.5 }}
+                    />
+                    <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ 
+                        width: '16px', 
+                        height: '16px', 
+                        borderRadius: '50%', 
+                        mr: 1, 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: time.value === 'morning' ? '#FFC000' : 
+                                 time.value === 'afternoon' ? '#FF4A4A' :
+                                 time.value === 'evening' ? '#484848' : '#004bcc'
+                      }}>
+                        <Box sx={{ width: '8px', height: '8px', borderRadius: '50%', bgcolor: 'white' }}></Box>
+                      </Box>
+                      <Typography variant="body2">{time.label}</Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+          
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Airlines</Typography>
+            <Box sx={{ ml: 1 }}>
+              {airlines.map(airline => (
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }} key={airline}>
+                  <Checkbox 
+                    id={`airline-${airline}`} 
+                    checked={selectedAirlines.includes(airline)}
+                    onCheckedChange={() => handleAirlineChange(airline)}
+                    sx={{ p: 0.5 }}
+                  />
+                  <Typography variant="body2" sx={{ ml: 1 }}>
+                    {airline}
+                  </Typography>
+                  <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 'bold' }}>
+                    ₹{Math.min(...filteredFlights.filter(f => f.airline.name === airline).map(f => f.fare.totalFare))}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Box>
         
         {/* Results List */}
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold heading">{sourceCity} to {destinationCity}</h2>
-            <div className="flex items-center">
-              <span className="text-sm text-neutral-400 mr-2">Sort by:</span>
-              <select 
-                className="text-sm border border-neutral-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
-                <option value="duration-shortest">Duration: Shortest First</option>
-                <option value="departure-earliest">Departure: Earliest First</option>
-              </select>
-            </div>
-          </div>
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" fontWeight="bold">Flights from {sourceCity} to {destinationCity}</Typography>
+          </Box>
+          
+          {/* Sorting tabs */}
+          <Box sx={{ mb: 2 }}>
+            <Tabs 
+              value={activeTab} 
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{ 
+                bgcolor: 'white', 
+                borderRadius: 1,
+                boxShadow: 1,
+                '.MuiTabs-indicator': { 
+                  height: '4px',
+                  borderTopLeftRadius: '4px',
+                  borderTopRightRadius: '4px',
+                  bgcolor: '#008cff'
+                }
+              }}
+            >
+              {sortOptions.map((option, index) => (
+                <Tab 
+                  key={option.value}
+                  label={
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Box sx={{ 
+                        width: '35px', 
+                        height: '35px', 
+                        borderRadius: '50%', 
+                        bgcolor: index === activeTab ? '#008cff' : 'rgba(0, 140, 255, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 0.5
+                      }}>
+                        {option.icon}
+                      </Box>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          fontWeight: index === activeTab ? 'bold' : 'normal',
+                          color: index === activeTab ? '#008cff' : 'text.primary' 
+                        }}
+                      >
+                        {option.label}
+                      </Typography>
+                      {index === activeTab && (
+                        <Typography variant="caption" sx={{ color: '#008cff', fontWeight: 'bold' }}>
+                          ₹{Math.min(...filteredFlights.map(f => f.fare.totalFare))} | {formatDuration(Math.min(...filteredFlights.map(f => f.duration)))}
+                        </Typography>
+                      )}
+                    </Box>
+                  }
+                  sx={{ 
+                    textTransform: 'none',
+                    minWidth: 0,
+                    p: 1,
+                    '&.Mui-selected': {
+                      color: '#008cff'
+                    }
+                  }}
+                />
+              ))}
+            </Tabs>
+          </Box>
+
+          {/* Information banner */}
+          <Box sx={{ 
+            bgcolor: 'white', 
+            p: 1.5, 
+            mb: 2, 
+            borderRadius: 1,
+            boxShadow: 1,
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            <Typography variant="body2">Flights sorted by Lowest fares on this route</Typography>
+            <Typography variant="body2" sx={{ color: 'orange', fontStyle: 'italic' }}>
+              Cheaper Non-stop Flights available on 20 May & 23 May
+            </Typography>
+          </Box>
           
           {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+              <CircularProgress />
+            </Box>
           ) : sortedFlights.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 text-center">
-              <h3 className="text-lg font-medium mb-2">No flights found</h3>
-              <p className="text-neutral-400">Try adjusting your filters or search for a different date.</p>
-            </div>
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="h6" gutterBottom>No flights found</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Try adjusting your filters or search for a different date.
+              </Typography>
+            </Paper>
           ) : (
-            sortedFlights.map((flight) => (
-              <div className="bg-white rounded-xl p-4 mb-4 search-panel" key={flight.id}>
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div className="flex items-center mb-3 md:mb-0">
-                    <div className="w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mr-3">
-                      {flight.airline.code}
-                    </div>
-                    <div>
-                      <div className="font-medium">{flight.airline.name}</div>
-                      <div className="text-xs text-neutral-400">{flight.flightNumber}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between md:justify-center flex-1 mb-3 md:mb-0">
-                    <div className="text-center">
-                      <div className="font-medium">{formatTime(flight.source.departureTime)}</div>
-                      <div className="text-xs text-neutral-400">{flight.source.airport.code}</div>
-                    </div>
-                    
-                    <div className="flex flex-col items-center mx-4">
-                      <div className="text-xs text-neutral-400 mb-1">{formatDuration(flight.duration)}</div>
-                      <div className="w-20 md:w-32 h-px bg-neutral-300 relative">
-                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full bg-neutral-400"></div>
-                      </div>
-                      <div className="text-xs text-neutral-400 mt-1">Non-stop</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="font-medium">{formatTime(flight.destination.arrivalTime)}</div>
-                      <div className="text-xs text-neutral-400">{flight.destination.airport.code}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col items-end">
-                    <div className="text-lg font-bold text-primary">₹{flight.fare.totalFare}</div>
-                    <div className="text-xs text-neutral-400">per person</div>
-                    <Button 
-                      className="mt-2 bg-secondary hover:bg-secondary/90 text-white py-2 px-4 rounded-lg text-sm font-medium transition"
-                      onClick={() => {
-                        // Create a booking data object to pass to checkout
-                        const bookingData = {
-                          type: 'flight',
-                          amount: flight.fare.totalFare,
-                          details: {
-                            from: sourceCity,
-                            to: destinationCity,
-                            date: flight.source.departureTime?.split('T')[0] || new Date().toISOString().split('T')[0],
-                            passengers: 1,
-                            flightNumber: flight.flightNumber,
-                            airline: flight.airline.name,
-                            departureTime: formatTime(flight.source.departureTime || ''),
-                            arrivalTime: formatTime(flight.destination.arrivalTime || ''),
-                            duration: formatDuration(flight.duration)
-                          }
-                        };
-                        
-                        // Store booking data in sessionStorage
-                        sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
-                        
-                        // Navigate to checkout page
-                        setLocation('/checkout');
-                      }}
-                    >
-                      Book Now
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="mt-3 pt-3 border-t border-neutral-200">
-                  <Button 
-                    variant="ghost"
-                    className="text-primary text-sm font-medium flex items-center p-0 h-auto"
-                    onClick={() => toggleFlightDetails(flight.id)}
-                  >
-                    View Details {expandedFlights.includes(flight.id) ? <ChevronUp className="ml-1 h-4 w-4" /> : <ChevronDown className="ml-1 h-4 w-4" />}
-                  </Button>
-                  
-                  {expandedFlights.includes(flight.id) && (
-                    <div className="mt-3">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Flight Details</h4>
-                          <div className="text-xs text-neutral-400">
-                            <p>Baggage: {flight.baggage}</p>
-                            <p>Cabin Baggage: {flight.cabinBaggage}</p>
-                            <p>Meal Service: {flight.mealService}</p>
-                            <p>Refundable: {flight.isRefundable ? "Yes" : "No"}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Fare Breakdown</h4>
-                          <div className="text-xs text-neutral-400">
-                            <p>Base Fare: ₹{flight.fare.baseFare}</p>
-                            <p>Taxes & Fees: ₹{flight.fare.tax}</p>
-                            <p className="font-medium text-neutral-800">Total: ₹{flight.fare.totalFare}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium mb-2">Cancellation</h4>
-                          <div className="text-xs text-neutral-400">
-                            <p>Cancellation Fee: ₹{flight.isRefundable ? "1,200" : "Non-refundable"}</p>
-                            <p>Reschedule Fee: ₹{flight.isRefundable ? "950" : "Non-refundable"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+            <Box>
+              {sortedFlights.map((flight) => (
+                <Paper 
+                  key={flight.id} 
+                  sx={{ 
+                    p: 0, 
+                    mb: 2, 
+                    borderRadius: 1,
+                    overflow: 'hidden'
+                  }}
+                  elevation={1}
+                >
+                  {/* Top offer banner */}
+                  {Math.random() > 0.5 && (
+                    <Box sx={{ 
+                      bgcolor: '#FFF6E3', 
+                      p: 1, 
+                      borderBottom: '1px solid #FFE1A5',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <LocalOfferIcon sx={{ color: '#FF8900', fontSize: 18, mr: 1 }} />
+                      <Typography variant="caption" sx={{ color: '#FF8900' }}>
+                        {Math.random() > 0.5 ? 
+                          'Free Seat with VISA Card*' : 
+                          '10% off on Meals | Free Seat with VISA Card*'
+                        }
+                      </Typography>
+                    </Box>
                   )}
-                </div>
-              </div>
-            ))
+                  
+                  {/* Flight details */}
+                  <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '170px' }}>
+                      <Box sx={{ mr: 2 }}>
+                        {flight.airline.name === 'IndiGo' ? (
+                          <Box sx={{ bgcolor: '#f2f2f2', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1 }}>
+                            <Typography variant="caption" sx={{ color: '#3366CC', fontWeight: 'bold' }}>
+                              {flight.airline.code}
+                            </Typography>
+                          </Box>
+                        ) : flight.airline.name === 'Akasa Air' ? (
+                          <Box sx={{ bgcolor: '#f2f2f2', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1 }}>
+                            <Box sx={{ bgcolor: '#FF6B00', width: 28, height: 28, borderRadius: '50%' }}></Box>
+                          </Box>
+                        ) : (
+                          <Box sx={{ bgcolor: '#f2f2f2', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 1 }}>
+                            <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
+                              {flight.airline.code}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                      <Box>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                          {flight.airline.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {flight.flightNumber}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+                      <Box sx={{ textAlign: 'center', width: '75px' }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                          {formatTime(flight.source.departureTime)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {flight.source.airport.code}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ mx: 2, flex: 1, maxWidth: '200px', position: 'relative' }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', display: 'block', mb: 0.5 }}>
+                          {(!flight.stops || flight.stops === 0) ? `${Math.floor(flight.duration / 60)}h` : ''}
+                        </Typography>
+                        <Box sx={{ height: '1px', bgcolor: '#CCCCCC', width: '100%', position: 'relative' }}>
+                          <Box sx={{ position: 'absolute', top: -2, left: 0, right: 0, display: 'flex', justifyContent: 'space-between' }}>
+                            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#008cff' }}></Box>
+                            <Box sx={{ width: 5, height: 5, borderRadius: '50%', bgcolor: '#008cff' }}></Box>
+                          </Box>
+                        </Box>
+                        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center', display: 'block', mt: 0.5 }}>
+                          {!flight.stops || flight.stops === 0 ? 'Non stop' : `${flight.stops} Stop`}
+                        </Typography>
+                      </Box>
+                      
+                      <Box sx={{ textAlign: 'center', width: '75px' }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                          {formatTime(flight.destination.arrivalTime)}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {flight.destination.airport.code}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ width: '140px', textAlign: 'right' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#008cff' }}>
+                          ₹{flight.fare.totalFare}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" color="text.secondary">
+                        per adult
+                      </Typography>
+                      <Box sx={{ mt: 1 }}>
+                        <Button 
+                          variant="contained"
+                          sx={{ 
+                            bgcolor: '#008cff', 
+                            color: 'white',
+                            '&:hover': { bgcolor: '#0066cc' },
+                            px: 2,
+                            py: 0.5,
+                            fontSize: '14px',
+                            fontWeight: 'bold'
+                          }}
+                          onClick={() => {
+                            // Create a booking data object to pass to checkout
+                            const bookingData = {
+                              type: 'flight',
+                              amount: flight.fare.totalFare,
+                              details: {
+                                from: sourceCity,
+                                to: destinationCity,
+                                date: flight.source.departureTime?.split('T')[0] || new Date().toISOString().split('T')[0],
+                                passengers: 1,
+                                flightNumber: flight.flightNumber,
+                                airline: flight.airline.name,
+                                departureTime: formatTime(flight.source.departureTime || ''),
+                                arrivalTime: formatTime(flight.destination.arrivalTime || ''),
+                                duration: formatDuration(flight.duration)
+                              }
+                            };
+                            
+                            // Store booking data in sessionStorage
+                            sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+                            
+                            // Navigate to checkout page
+                            setLocation('/checkout');
+                          }}
+                        >
+                          VIEW PRICES
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Box>
+                  
+                  {/* Additional options */}
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    bgcolor: '#f8f8f8', 
+                    borderTop: '1px solid #eeeeee',
+                    p: 1
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <IconButton 
+                        size="small" 
+                        sx={{ mr: 1, color: '#008cff' }}
+                        onClick={() => toggleFlightDetails(flight.id)}
+                      >
+                        <Plus size={16} />
+                      </IconButton>
+                      <Typography variant="caption" sx={{ color: '#008cff' }}>
+                        Add to compare
+                      </Typography>
+                    </Box>
+                    
+                    <Typography 
+                      variant="caption" 
+                      sx={{ color: '#008cff', cursor: 'pointer' }}
+                      onClick={() => toggleFlightDetails(flight.id)}
+                    >
+                      View Flight Details
+                    </Typography>
+                  </Box>
+                  
+                  {/* Expanded details */}
+                  {expandedFlights.includes(flight.id) && (
+                    <Box sx={{ p: 2, borderTop: '1px solid #eeeeee' }}>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12} md={4}>
+                          <Typography variant="subtitle2" gutterBottom>Flight Details</Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Typography variant="body2">
+                              <strong>Baggage:</strong> {flight.baggage}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Cabin Baggage:</strong> {flight.cabinBaggage}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Meal Service:</strong> {flight.mealService}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                          <Typography variant="subtitle2" gutterBottom>Fare Breakdown</Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Typography variant="body2">
+                              <strong>Base Fare:</strong> ₹{flight.fare.baseFare}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Taxes & Fees:</strong> ₹{flight.fare.tax}
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: '#008cff', fontWeight: 'bold' }}>
+                              <strong>Total:</strong> ₹{flight.fare.totalFare}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                          <Typography variant="subtitle2" gutterBottom>Cancellation Policy</Typography>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Typography variant="body2">
+                              <strong>Cancellation Fee:</strong> ₹{flight.isRefundable ? "1,200" : "Non-refundable"}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Reschedule Fee:</strong> ₹{flight.isRefundable ? "950" : "Non-refundable"}
+                            </Typography>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  )}
+                </Paper>
+              ))}
+              
+              {/* Pagination or "Load More" button */}
+              {sortedFlights.length > 10 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                  <Button 
+                    variant="outlined" 
+                    sx={{ 
+                      color: '#008cff', 
+                      borderColor: '#008cff',
+                      '&:hover': {
+                        borderColor: '#0066cc',
+                        bgcolor: 'rgba(0, 140, 255, 0.05)'
+                      }
+                    }}
+                  >
+                    Load More Flights
+                  </Button>
+                </Box>
+              )}
+            </Box>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 
