@@ -10,10 +10,6 @@ import {
   CircularProgress,
   Chip
 } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PrintIcon from '@mui/icons-material/Print';
-import EmailIcon from '@mui/icons-material/Email';
-import HomeIcon from '@mui/icons-material/Home';
 
 export default function BookingSuccess() {
   const [, setLocation] = useLocation();
@@ -190,10 +186,19 @@ export default function BookingSuccess() {
         textAlign: 'center',
         mb: 4
       }}>
-        <CheckCircleIcon 
-          color="success" 
+        {/* Success Icon */}
+        <Box 
           sx={{ 
-            fontSize: 80,
+            width: 80,
+            height: 80,
+            borderRadius: '50%',
+            bgcolor: 'success.main',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 40,
+            color: 'white',
+            fontWeight: 'bold',
             animation: 'fadeInScale 0.5s ease-out',
             '@keyframes fadeInScale': {
               '0%': {
@@ -205,8 +210,10 @@ export default function BookingSuccess() {
                 transform: 'scale(1)'
               }
             }
-          }} 
-        />
+          }}
+        >
+          ✓
+        </Box>
         <Typography variant="h4" component="h1" sx={{ mt: 2, fontWeight: 'bold' }}>
           Booking Confirmed!
         </Typography>
@@ -220,11 +227,12 @@ export default function BookingSuccess() {
           <Typography variant="h6">
             Booking Reference: <strong>{booking.bookingId}</strong>
           </Typography>
-          <Chip 
-            label={booking.status} 
-            color="success" 
-            sx={{ fontWeight: 'bold' }}
-          />
+          <Typography 
+            color="success.main"
+            sx={{ fontWeight: 'bold', bgcolor: 'success.light', py: 0.5, px: 1.5, borderRadius: 1 }}
+          >
+            {booking.status}
+          </Typography>
         </Box>
         
         <Divider sx={{ mb: 3 }} />
@@ -281,7 +289,6 @@ export default function BookingSuccess() {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
         <Button 
           variant="outlined" 
-          startIcon={<PrintIcon />}
           onClick={handlePrint}
         >
           Print Ticket
@@ -289,7 +296,6 @@ export default function BookingSuccess() {
         
         <Button 
           variant="outlined" 
-          startIcon={<EmailIcon />}
           onClick={handleEmailTicket}
         >
           Email Ticket
@@ -298,7 +304,6 @@ export default function BookingSuccess() {
         <Button 
           variant="contained" 
           color="primary"
-          startIcon={<HomeIcon />}
           onClick={() => setLocation('/')}
         >
           Back to Home
