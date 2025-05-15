@@ -989,12 +989,15 @@ const MaterialSearchTabs: React.FC = () => {
                 sx={{ 
                   px: 4, 
                   py: 1.5, 
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem'
+                  borderRadius: 28,
+                  textTransform: 'uppercase',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  bgcolor: '#2196f3',
+                  '&:hover': { bgcolor: '#1976d2' }
                 }}
               >
-                Search Cabs
+                SEARCH
               </Button>
             </Box>
           </form>
@@ -1089,12 +1092,15 @@ const MaterialSearchTabs: React.FC = () => {
                 sx={{ 
                   px: 4, 
                   py: 1.5, 
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem'
+                  borderRadius: 28,
+                  textTransform: 'uppercase',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  bgcolor: '#2196f3',
+                  '&:hover': { bgcolor: '#1976d2' }
                 }}
               >
-                Search Insurance Plans
+                SEARCH
               </Button>
             </Box>
           </form>
