@@ -12,6 +12,7 @@ import {
   CalendarIcon, UsersIcon, MapPinIcon, ArrowRightIcon,
   PlaneArrivalIcon, PlaneDepartureIcon 
 } from "@/lib/icons";
+import { CitySelect } from "@/components/ui/city-select";
 
 // Type definitions for form states
 interface FlightSearchState {
@@ -249,36 +250,22 @@ const SearchTabs = () => {
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">From</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Delhi" 
-                        value={flightSearch.source}
-                        onChange={(e) => setFlightSearch({...flightSearch, source: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <PlaneDepartureIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={flightSearch.source}
+                      onChange={(value) => setFlightSearch({...flightSearch, source: value})}
+                      placeholder="Select departure city"
+                    />
                   </div>
                 </div>
                 
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">To</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Jaipur" 
-                        value={flightSearch.destination}
-                        onChange={(e) => setFlightSearch({...flightSearch, destination: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <PlaneArrivalIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={flightSearch.destination}
+                      onChange={(value) => setFlightSearch({...flightSearch, destination: value})}
+                      placeholder="Select destination city"
+                    />
                   </div>
                 </div>
                 
