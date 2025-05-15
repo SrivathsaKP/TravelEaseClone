@@ -10,11 +10,11 @@ import { Helmet } from 'react-helmet';
 
 const FlightSearch = () => {
   const [location] = useLocation();
-  const params = useSearchParams(location);
+  const { getParam } = useSearchParams();
   
-  const from = params.get("from") || "";
-  const to = params.get("to") || "";
-  const date = params.get("date") || new Date().toISOString().split('T')[0];
+  const from = getParam("from") || "";
+  const to = getParam("to") || "";
+  const date = getParam("date") || new Date().toISOString().split('T')[0];
   
   const { data, isLoading, error } = useQuery<{data: Flight[]}>({
     queryKey: ['/api/flights/search', from, to, date],

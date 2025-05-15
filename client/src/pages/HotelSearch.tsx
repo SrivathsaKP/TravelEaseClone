@@ -13,11 +13,11 @@ import { Star } from "lucide-react";
 
 const HotelSearch = () => {
   const [location] = useLocation();
-  const params = useSearchParams(location);
+  const { getParam } = useSearchParams();
   
-  const city = params.get("location") || "";
-  const checkIn = params.get("checkin") || new Date().toISOString().split('T')[0];
-  const checkOut = params.get("checkout") || (() => {
+  const city = getParam("location") || "";
+  const checkIn = getParam("checkin") || new Date().toISOString().split('T')[0];
+  const checkOut = getParam("checkout") || (() => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
