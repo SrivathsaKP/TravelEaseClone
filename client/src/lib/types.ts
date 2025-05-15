@@ -1,5 +1,127 @@
 // Shared types across the application
 
+// Cab Types
+export interface CabLocation {
+  address: string;
+  city: string;
+  state?: string;
+  landmark?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+export interface CabDriver {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  rating: number;
+  totalRides: number;
+  photo?: string;
+}
+
+export interface CabVehicleType {
+  id: string;
+  name: string;
+  description: string;
+  capacity: number;
+  pricePerKm: number;
+  image: string;
+}
+
+export interface Cab {
+  id: string;
+  vehicleType: CabVehicleType;
+  licensePlate: string;
+  driver: CabDriver;
+  isAvailable: boolean;
+  currentLocation?: CabLocation;
+  rating?: number;
+  fare: {
+    baseFare: number;
+    perKmRate: number;
+    perMinuteRate: number;
+    tax: number;
+    totalFare: number;
+    currency: string;
+  };
+}
+
+export interface CabBooking {
+  id: string;
+  cabId: string;
+  userId: string;
+  pickupLocation: CabLocation;
+  dropoffLocation: CabLocation;
+  distance: number;
+  duration: number;
+  status: 'pending' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled';
+  pickupTime: string;
+  fare: number;
+  currency: string;
+}
+
+// Homestay Types
+export interface HomestayHost {
+  id: string;
+  name: string;
+  profilePicture?: string;
+  rating: number;
+  contactNumber: string;
+  verificationStatus: 'verified' | 'pending' | 'unverified';
+  memberSince: string;
+  languages: string[];
+}
+
+export interface HomestayProperty {
+  id: string;
+  name: string;
+  description: string;
+  type: 'entire-place' | 'private-room' | 'shared-room';
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode?: string;
+  latitude?: number;
+  longitude?: number;
+  images: {url: string, caption: string}[];
+  host: HomestayHost;
+  amenities: string[];
+  houseRules: string[];
+  maxGuests: number;
+  bedrooms: number;
+  beds: number;
+  bathrooms: number;
+  pricePerNight: number;
+  rating: number;
+  reviewCount: number;
+  minimumStay: number;
+  availability: {
+    startDate: string;
+    endDate: string;
+  }[];
+  currency: string;
+}
+
+// Travel Insurance Types
+export interface InsurancePlan {
+  id: string;
+  name: string;
+  description: string;
+  coverageType: 'domestic' | 'international' | 'both';
+  coverageAmount: number;
+  premium: number;
+  benefits: {
+    name: string;
+    description: string;
+    coverageLimit?: number;
+  }[];
+  exclusions: string[];
+  termsAndConditions: string;
+  duration: number; // in days
+  currency: string;
+}
+
 // Flight Types
 export interface Airport {
   code: string;

@@ -2,6 +2,13 @@ import { pgTable, text, serial, integer, boolean, timestamp, jsonb, real } from 
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Cab, Homestay and Insurance Types from client/src/lib/types.ts
+import { 
+  Cab as CabType, 
+  HomestayProperty as HomestayType, 
+  InsurancePlan as InsuranceType 
+} from "../client/src/lib/types";
+
 // User Model
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
