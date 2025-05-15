@@ -520,7 +520,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Homestays
                 </Button>
               </div>
@@ -595,7 +595,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Trains
                 </Button>
               </div>
@@ -670,7 +670,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Buses
                 </Button>
               </div>
@@ -779,7 +779,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Cabs
                 </Button>
               </div>
