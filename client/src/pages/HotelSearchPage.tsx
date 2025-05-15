@@ -59,6 +59,7 @@ const HotelSearchPage = () => {
       checkIn,
       checkOut,
       rooms,
+      guests: adults + children, // Set guests as sum of adults and children
       adults,
       children,
       priceRange,

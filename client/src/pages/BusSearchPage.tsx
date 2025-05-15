@@ -77,6 +77,7 @@ const BusSearchPage = () => {
       source,
       destination,
       date,
+      travelers: 1, // Default to 1 traveler
       busType,
       departureTime
     }));

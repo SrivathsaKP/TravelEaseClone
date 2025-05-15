@@ -23,6 +23,8 @@ import TabNavigation from "@/components/TabNavigation";
 // Import new Material UI search pages
 import FlightSearchPage from "@/pages/FlightSearchPage";
 import HotelSearchPage from "@/pages/HotelSearchPage";
+import BusSearchPage from "@/pages/BusSearchPage";
+import TrainSearchPage from "@/pages/TrainSearchPage";
 import HomeStaySearchPage from "@/pages/HomeStaySearchPage";
 import HolidayPackagePage from "@/pages/HolidayPackagePage";
 
@@ -56,6 +58,10 @@ function Router() {
           <Route path="/flights/search" component={FlightSearchPage}/>
           <Route path="/hotels" component={HotelSearchPage}/>
           <Route path="/hotels/search" component={HotelSearchPage}/>
+          <Route path="/buses" component={BusSearchPage}/>
+          <Route path="/buses/search" component={BusSearchPage}/>
+          <Route path="/trains" component={TrainSearchPage}/>
+          <Route path="/trains/search" component={TrainSearchPage}/>
           <Route path="/homestays" component={HomeStaySearchPage}/>
           <Route path="/homestays/search" component={HomeStaySearchPage}/>
           <Route path="/holiday-packages" component={HolidayPackagePage}/>

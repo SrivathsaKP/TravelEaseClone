@@ -74,6 +74,8 @@ const TrainSearchPage = () => {
       source,
       destination,
       date,
+      class: trainClass, // Set class parameter from trainClass
+      travelers: 1, // Default to 1 traveler
       trainClass,
       trainType
     }));
