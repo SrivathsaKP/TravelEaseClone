@@ -31,7 +31,10 @@ import {
   CalendarMonth,
   LocationOn,
   Person,
-  SwapVert
+  SwapVert,
+  BeachAccess,
+  CreditCard,
+  AccountBalance
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 
@@ -262,10 +265,11 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
       <Paper elevation={3} sx={{ 
-        borderRadius: 3, 
+        borderRadius: 2, 
         overflow: 'hidden',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         background: 'white',
+        mx: { xs: 1, md: 0 }
       }}>
         <Tabs 
           value={tabValue} 
@@ -274,35 +278,82 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
           scrollButtons="auto"
           sx={{ 
             background: 'white',
-            borderRadius: '15px 15px 0 0',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            borderRadius: '8px 8px 0 0',
+            borderBottom: '1px solid #eaeaea',
             '& .MuiTab-root': { 
-              color: '#555',
-              fontSize: '0.9rem',
+              color: '#4a4a4a',
+              fontSize: '0.85rem',
               fontWeight: 500,
-              p: 2,
-              minWidth: 120,
-              borderRadius: '50px',
-              margin: '8px 4px',
-              transition: 'all 0.3s ease',
+              p: 1.5,
+              minWidth: 100,
+              transition: 'all 0.2s ease',
+              margin: '0 2px',
+              textTransform: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              borderBottom: '3px solid transparent'
             },
             '& .Mui-selected': { 
-              color: 'white',
+              color: '#008cff',
               fontWeight: 600,
-              backgroundColor: '#2196f3',
+              borderBottom: '3px solid #008cff'
             },
             '& .MuiTabs-indicator': { 
               display: 'none'
+            },
+            '& .MuiSvgIcon-root': {
+              fontSize: '1.5rem',
+              marginBottom: '4px'
             }
           }}
         >
           <Tab icon={<FlightTakeoff />} label="Flights" {...a11yProps(0)} />
           <Tab icon={<Hotel />} label="Hotels" {...a11yProps(1)} />
-          <Tab icon={<Home />} label="Homestays" {...a11yProps(2)} />
-          <Tab icon={<Train />} label="Trains" {...a11yProps(3)} />
-          <Tab icon={<DirectionsBus />} label="Buses" {...a11yProps(4)} />
-          <Tab icon={<LocalTaxi />} label="Cabs" {...a11yProps(5)} />
-          <Tab icon={<Security />} label="Insurance" {...a11yProps(6)} />
+          <Tab 
+            icon={<Home />} 
+            label={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+                <span>Homestays</span>
+                <span style={{ fontSize: '0.7rem' }}>&amp; Villas</span>
+              </div>
+            } 
+            {...a11yProps(2)} 
+          />
+          <Tab 
+            icon={<BeachAccess />} 
+            label={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+                <span>Holiday</span>
+                <span style={{ fontSize: '0.7rem' }}>Packages</span>
+              </div>
+            } 
+            {...a11yProps(3)} 
+          />
+          <Tab icon={<Train />} label="Trains" {...a11yProps(4)} />
+          <Tab icon={<DirectionsBus />} label="Buses" {...a11yProps(5)} />
+          <Tab icon={<LocalTaxi />} label="Cabs" {...a11yProps(6)} />
+          <Tab icon={<CreditCard />} label="Visa" {...a11yProps(7)} />
+          <Tab 
+            icon={<AccountBalance />} 
+            label={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+                <span>Forex Card</span>
+                <span style={{ fontSize: '0.7rem' }}>&amp; Currency</span>
+              </div>
+            } 
+            {...a11yProps(8)} 
+          />
+          <Tab 
+            icon={<Security />} 
+            label={
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.2 }}>
+                <span>Travel</span>
+                <span style={{ fontSize: '0.7rem' }}>Insurance</span>
+              </div>
+            } 
+            {...a11yProps(9)} 
+          />
         </Tabs>
 
         {/* Flight Search Tab */}
