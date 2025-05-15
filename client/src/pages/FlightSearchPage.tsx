@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { 
   Box, 
   Container, 
@@ -48,7 +48,7 @@ const airports = [
 const fareTypes = ['Regular Fare', 'Armed Forces Fare', 'Student Fare', 'Senior Citizen Fare'];
 
 const FlightSearchPage = () => {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const [tripType, setTripType] = useState('roundTrip');
   const [from, setFrom] = useState<{code: string; city: string; name: string} | null>(null);
   const [to, setTo] = useState<{code: string; city: string; name: string} | null>(null);

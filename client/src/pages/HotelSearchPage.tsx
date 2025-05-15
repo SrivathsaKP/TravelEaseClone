@@ -1,700 +1,404 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { 
+  Box, 
   Container, 
   Paper, 
-  Box, 
   Typography, 
-  Grid, 
   Button, 
-  IconButton, 
-  TextField, 
-  MenuItem, 
-  FormControl, 
+  TextField,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Autocomplete,
+  IconButton,
+  Chip,
+  Stack,
   Slider,
-  Checkbox,
-  InputAdornment,
-  Divider,
-  Tabs,
-  Tab,
-  Rating,
-  FormControlLabel,
-  FormGroup
+  Rating
 } from '@mui/material';
-import { 
-  LocationOn, 
-  DateRange, 
-  Person, 
-  Search, 
-  FilterList,
-  Star,
-  Pool,
-  Wifi,
-  Spa,
-  FreeBreakfast,
-  Bathtub,
-  AcUnit
-} from '@mui/icons-material';
-import { styled } from '@mui/system';
-import { Helmet } from 'react-helmet';
-import { format } from 'date-fns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import SearchIcon from '@mui/icons-material/Search';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import TabNavigation from '@/components/TabNavigation';
-import { useQuery } from '@tanstack/react-query';
-import { Hotel } from '@/lib/types';
-import { useSearchParams } from '@/lib/utils';
-import { useLocation } from 'wouter';
+import { formatCurrency } from '@/lib/utils';
 
-// Styled Components
-const SearchContainer = styled(Container)(({ theme }) => ({
-  marginTop: '-50px',
-  marginBottom: '30px',
-  position: 'relative',
-  zIndex: 10,
-}));
-
-const HotelCard = styled(Paper)(({ theme }) => ({
-  borderRadius: '8px',
-  overflow: 'hidden',
-  marginBottom: '16px',
-  '&:hover': {
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-  },
-}));
-
-const ImageCarousel = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  height: '220px',
-  overflow: 'hidden',
-}));
-
-const CarouselNav = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  bottom: '15px',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  display: 'flex',
-}));
-
-const CarouselDot = styled(Box)(({ theme }) => ({
-  width: '8px',
-  height: '8px',
-  borderRadius: '50%',
-  margin: '0 3px',
-  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-  '&.active': {
-    backgroundColor: 'white',
-  },
-}));
-
-const PropertyTag = styled(Box)(({ theme }) => ({
-  display: 'inline-block',
-  padding: '3px 8px',
-  borderRadius: '4px',
-  fontSize: '12px',
-  fontWeight: 600,
-  backgroundColor: '#f2f2f2',
-  color: '#666',
-  marginRight: '8px',
-  marginBottom: '8px',
-}));
-
-const PriceTag = styled(Box)(({ theme }) => ({
-  backgroundColor: '#ffebee',
-  padding: '4px 8px',
-  borderRadius: '4px',
-  display: 'inline-block',
-  fontSize: '13px',
-  fontWeight: 600,
-  color: '#e53935',
-}));
-
-// Cities with areas for hotel search
-const locations = [
-  { 
-    city: 'Goa',
-    areas: ['Calangute', 'Candolim', 'Baga', 'Anjuna', 'Panjim', 'Vagator', 'Old Goa']
-  },
-  { 
-    city: 'Mumbai',
-    areas: ['Colaba', 'Bandra', 'Juhu', 'Andheri', 'Powai', 'Worli']
-  },
-  { 
-    city: 'Delhi',
-    areas: ['Connaught Place', 'Karol Bagh', 'South Delhi', 'Aerocity', 'Paharganj']
-  },
-  { 
-    city: 'Bangalore',
-    areas: ['MG Road', 'Koramangala', 'Indiranagar', 'Whitefield', 'Electronic City']
-  },
+// Mock cities data
+const cities = [
+  { id: 1, name: 'Mumbai', state: 'Maharashtra' },
+  { id: 2, name: 'Delhi', state: 'Delhi' },
+  { id: 3, name: 'Bangalore', state: 'Karnataka' },
+  { id: 4, name: 'Hyderabad', state: 'Telangana' },
+  { id: 5, name: 'Chennai', state: 'Tamil Nadu' },
+  { id: 6, name: 'Kolkata', state: 'West Bengal' },
+  { id: 7, name: 'Jaipur', state: 'Rajasthan' },
+  { id: 8, name: 'Ahmedabad', state: 'Gujarat' },
+  { id: 9, name: 'Pune', state: 'Maharashtra' },
+  { id: 10, name: 'Goa', state: 'Goa' },
 ];
 
-// Amenities for filtering
-const amenities = [
-  { icon: <Pool fontSize="small" />, name: 'Swimming Pool' },
-  { icon: <Wifi fontSize="small" />, name: 'Free WiFi' },
-  { icon: <Spa fontSize="small" />, name: 'Spa' },
-  { icon: <FreeBreakfast fontSize="small" />, name: 'Breakfast Included' },
-  { icon: <Bathtub fontSize="small" />, name: 'Bathtub' },
-  { icon: <AcUnit fontSize="small" />, name: 'Air Conditioning' },
-];
-
-// Property types
-const propertyTypes = [
-  'Hotel', 'Resort', 'Villa', 'Apartment', 'Homestay'
+// Popular hotel collections
+const popularHotels = [
+  { name: 'Luxury Hotels', description: 'Experience ultimate comfort', imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8aG90ZWx8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60' },
+  { name: 'Budget-Friendly', description: 'Great deals under ₹1999', imageUrl: 'https://images.unsplash.com/photo-1598605272254-16f0c0ecdfa5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGhvdGVsfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60' },
+  { name: 'Beach Resorts', description: 'Relax by the shore', imageUrl: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fGhvdGVsfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60' },
+  { name: 'Business Hotels', description: 'Perfect for work trips', imageUrl: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhvdGVsfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60' },
 ];
 
 const HotelSearchPage = () => {
-  const [location, setLocation] = useLocation();
-  const { getParam } = useSearchParams();
-  
-  // Get URL params or default values
-  const city = getParam('location') || 'Goa';
-  const checkIn = getParam('checkin') || format(new Date(), 'yyyy-MM-dd');
-  const checkOut = getParam('checkout') || (() => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return format(tomorrow, 'yyyy-MM-dd');
-  })();
-  const guests = getParam('guests') || '2 Adults';
-  const rooms = getParam('rooms') || '1 Room';
-  
-  // Form state
-  const [locationValue, setLocationValue] = useState(city);
-  const [checkInDate, setCheckInDate] = useState(checkIn);
-  const [checkOutDate, setCheckOutDate] = useState(checkOut);
-  const [guestsCount, setGuestsCount] = useState(guests);
-  const [roomsCount, setRoomsCount] = useState(rooms);
-  
-  // Filter states
-  const [priceRange, setPriceRange] = useState<[number, number]>([1000, 10000]);
-  const [selectedStars, setSelectedStars] = useState<number[]>([]);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  
-  // Handle search submission
+  const [, navigate] = useNavigate();
+  const [city, setCity] = useState<{id: number; name: string; state: string} | null>(null);
+  const [checkInDate, setCheckInDate] = useState<Date | null>(new Date());
+  const [checkOutDate, setCheckOutDate] = useState<Date | null>(
+    new Date(new Date().setDate(new Date().getDate() + 2))
+  );
+  const [roomAndGuests, setRoomAndGuests] = useState({
+    rooms: 1,
+    adults: 2,
+    children: 0
+  });
+  const [priceRange, setPriceRange] = useState<number[]>([500, 50000]);
+  const [starRating, setStarRating] = useState<number | null>(null);
+
+  // Update rooms and guests count
+  const updateRoomAndGuests = (type: 'rooms' | 'adults' | 'children', increment: boolean) => {
+    setRoomAndGuests(prev => {
+      const newCount = prev[type] + (increment ? 1 : -1);
+      
+      // Apply constraints
+      if (newCount < 1 && (type === 'rooms' || type === 'adults')) return prev;
+      if (newCount < 0) return prev;
+      if (prev.adults + prev.children + (increment && type === 'children' ? 1 : 0) > 20) return prev;
+      
+      return {
+        ...prev,
+        [type]: newCount
+      };
+    });
+  };
+
+  // Handle search
   const handleSearch = () => {
-    const searchParams = new URLSearchParams();
-    searchParams.set('location', locationValue);
-    searchParams.set('checkin', checkInDate);
-    searchParams.set('checkout', checkOutDate);
-    searchParams.set('guests', guestsCount);
-    searchParams.set('rooms', roomsCount);
+    if (!city || !checkInDate || !checkOutDate) {
+      // Show validation error
+      alert('Please select city, check-in and check-out dates');
+      return;
+    }
+
+    // Calculate number of nights
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    // Navigate to hotel results
-    setLocation(`/hotels/search?${searchParams.toString()}`);
-  };
+    if (nights < 1) {
+      alert('Check-out date must be after check-in date');
+      return;
+    }
 
-  // Toggle star rating filter
-  const handleStarRatingToggle = (rating: number) => {
-    setSelectedStars(prev => 
-      prev.includes(rating) 
-        ? prev.filter(r => r !== rating) 
-        : [...prev, rating]
-    );
-  };
-
-  // Toggle amenity filter
-  const handleAmenityToggle = (amenity: string) => {
-    setSelectedAmenities(prev => 
-      prev.includes(amenity) 
-        ? prev.filter(a => a !== amenity) 
-        : [...prev, amenity]
-    );
-  };
-
-  // Toggle property type filter
-  const handlePropertyTypeToggle = (type: string) => {
-    setSelectedPropertyTypes(prev => 
-      prev.includes(type) 
-        ? prev.filter(t => t !== type) 
-        : [...prev, type]
-    );
-  };
-
-  // Fetch hotels from API if on search results page
-  const { data, isLoading } = useQuery<{data: Hotel[]}>({
-    queryKey: ['/api/hotels/search', locationValue, checkInDate, checkOutDate],
-    enabled: location.includes('/hotels/search')
-  });
-
-  const allHotels = data?.data || [];
-  
-  // Apply filters
-  const filteredHotels = allHotels.filter(hotel => {
-    // Price filter
-    const minPrice = Math.min(...hotel.roomTypes.map(room => room.pricing.totalPrice));
-    if (minPrice < priceRange[0] || minPrice > priceRange[1]) {
-      return false;
+    // Build search params
+    const params = new URLSearchParams();
+    params.append('city', city.name);
+    params.append('checkIn', checkInDate.toISOString().split('T')[0]);
+    params.append('checkOut', checkOutDate.toISOString().split('T')[0]);
+    params.append('rooms', roomAndGuests.rooms.toString());
+    params.append('adults', roomAndGuests.adults.toString());
+    params.append('children', roomAndGuests.children.toString());
+    params.append('minPrice', priceRange[0].toString());
+    params.append('maxPrice', priceRange[1].toString());
+    
+    if (starRating) {
+      params.append('rating', starRating.toString());
     }
     
-    // Star rating filter
-    if (selectedStars.length > 0 && !selectedStars.includes(hotel.starRating)) {
-      return false;
-    }
-    
-    // Amenities filter
-    if (selectedAmenities.length > 0) {
-      const hotelAmenities = hotel.amenities || [];
-      if (!selectedAmenities.every(amenity => hotelAmenities.includes(amenity))) {
-        return false;
-      }
-    }
-    
-    // Property type filter (assuming property type is stored in the hotel object)
-    if (selectedPropertyTypes.length > 0 && hotel.propertyType && !selectedPropertyTypes.includes(hotel.propertyType)) {
-      return false;
-    }
-    
-    return true;
-  });
-
-  // Get nights count
-  const getNightCount = () => {
-    const start = new Date(checkInDate);
-    const end = new Date(checkOutDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Navigate to results page
+    navigate('/hotels/search?' + params.toString());
   };
 
   return (
     <>
-      <Helmet>
-        <title>{location.includes('/hotels/search') 
-          ? `Hotels in ${locationValue} | TravelEase` 
-          : 'Hotel Booking | TravelEase'}</title>
-        <meta name="description" content="Book hotels online with best price guarantee. Choose from thousands of hotels for your stay." />
-      </Helmet>
-
-      {/* Hero header */}
-      <Box sx={{ 
-        bgcolor: location.includes('/hotels/search') ? '#051423' : '#035b72', 
-        height: '220px', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center' 
-      }}>
-        <Container>
-          <Typography variant="h4" component="h1" sx={{ color: 'white', textAlign: 'center', mt: 3 }}>
-            {location.includes('/hotels/search') 
-              ? `Hotels in ${locationValue}` 
-              : 'Hotel Booking'}
+      <TabNavigation />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="h5" gutterBottom fontWeight="bold" color="#008cff">
+            Hotel Search
           </Typography>
-        </Container>
-      </Box>
-
-      {/* Tab Navigation */}
-      <Container sx={{ mt: -2, mb: 2 }}>
-        <TabNavigation />
-      </Container>
-
-      {/* Search Form */}
-      <SearchContainer maxWidth="lg">
-        <Paper elevation={3} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
-          <Box sx={{ p: 3, bgcolor: '#f8f8f8' }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={3}>
-                <FormControl fullWidth variant="outlined">
-                  <TextField
-                    select
-                    label="CITY, AREA OR PROPERTY"
-                    value={locationValue}
-                    onChange={(e) => setLocationValue(e.target.value)}
+          
+          {/* Hotel Search Form */}
+          <Grid container spacing={3}>
+            {/* City */}
+            <Grid item xs={12} md={6}>
+              <Autocomplete
+                value={city}
+                onChange={(event, newValue) => {
+                  setCity(newValue);
+                }}
+                options={cities}
+                getOptionLabel={(option) => `${option.name}, ${option.state}`}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params} 
+                    label="CITY / LOCALITY / LANDMARK" 
+                    placeholder="Where are you going?" 
+                    required
+                    fullWidth
                     InputProps={{
+                      ...params.InputProps,
                       startAdornment: (
-                        <InputAdornment position="start">
-                          <LocationOn color="primary" />
-                        </InputAdornment>
+                        <>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mr: 1 }}>
+                            <LocationOnIcon color="action" />
+                          </Box>
+                          {params.InputProps.startAdornment}
+                        </>
                       ),
                     }}
-                  >
-                    {locations.map((loc) => [
-                      <MenuItem key={loc.city} value={loc.city} sx={{ fontWeight: 'bold' }}>
-                        {loc.city}
-                      </MenuItem>,
-                      ...loc.areas.map(area => (
-                        <MenuItem key={`${loc.city}-${area}`} value={area} sx={{ pl: 4 }}>
-                          {area}
-                        </MenuItem>
-                      ))
-                    ])}
-                  </TextField>
-                </FormControl>
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <TextField
-                  fullWidth
-                  label="CHECK-IN"
-                  type="date"
-                  value={checkInDate}
-                  onChange={(e) => setCheckInDate(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRange color="primary" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <TextField
-                  fullWidth
-                  label="CHECK-OUT"
-                  type="date"
-                  value={checkOutDate}
-                  onChange={(e) => setCheckOutDate(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <DateRange color="primary" />
-                      </InputAdornment>
-                    ),
-                  }}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              <Grid item xs={6} md={2}>
-                <TextField
-                  select
-                  fullWidth
-                  label="ROOMS & GUESTS"
-                  value={guestsCount}
-                  onChange={(e) => setGuestsCount(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person color="primary" />
-                      </InputAdornment>
-                    ),
-                  }}
-                >
-                  <MenuItem value="1 Adult">1 Room, 1 Adult</MenuItem>
-                  <MenuItem value="2 Adults">1 Room, 2 Adults</MenuItem>
-                  <MenuItem value="3 Adults">1 Room, 3 Adults</MenuItem>
-                  <MenuItem value="4 Adults">1 Room, 4 Adults</MenuItem>
-                  <MenuItem value="2 Rooms">2 Rooms, 4 Adults</MenuItem>
-                </TextField>
-              </Grid>
-
-              <Grid item xs={6} md={3}>
-                <Button 
-                  variant="contained" 
-                  fullWidth 
-                  sx={{ 
-                    height: '56px', 
-                    bgcolor: '#ff9800', 
-                    '&:hover': { bgcolor: '#f57c00' }
-                  }}
-                  onClick={handleSearch}
-                  startIcon={<Search />}
-                >
-                  SEARCH
-                </Button>
-              </Grid>
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <div>
+                      <Typography variant="body1">{option.name}</Typography>
+                      <Typography variant="body2" color="text.secondary">{option.state}</Typography>
+                    </div>
+                  </li>
+                )}
+              />
             </Grid>
-          </Box>
-        </Paper>
-      </SearchContainer>
-
-      {/* Hotel Results Section */}
-      {location.includes('/hotels/search') && (
-        <Container maxWidth="lg">
-          <Grid container spacing={3}>
-            {/* Filters Sidebar */}
+            
+            {/* Check-in Date */}
             <Grid item xs={12} md={3}>
-              <Paper elevation={1} sx={{ p: 2, borderRadius: '8px', position: 'sticky', top: '20px' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6" fontWeight={600}>
-                    Filters
-                  </Typography>
-                  <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-                    <IconButton 
-                      size="small" 
-                      onClick={() => setShowFilters(!showFilters)}
-                      sx={{ border: '1px solid #ddd' }}
-                    >
-                      <FilterList />
-                    </IconButton>
-                  </Box>
-                </Box>
-
-                <Box sx={{ 
-                  display: { xs: showFilters ? 'block' : 'none', md: 'block' }
-                }}>
-                  {/* Price Range Filter */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      Price Range
-                    </Typography>
-                    <Box sx={{ px: 1 }}>
-                      <Slider
-                        value={priceRange}
-                        onChange={(_, newValue) => setPriceRange(newValue as [number, number])}
-                        min={500}
-                        max={20000}
-                        step={500}
-                        valueLabelDisplay="auto"
-                        valueLabelFormat={(value) => `₹${value}`}
-                      />
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" color="text.secondary">
-                          ₹{priceRange[0]}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          ₹{priceRange[1]}
-                        </Typography>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="CHECK-IN"
+                  value={checkInDate}
+                  onChange={(newValue) => setCheckInDate(newValue)}
+                  disablePast
+                  sx={{ width: '100%' }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            
+            {/* Check-out Date */}
+            <Grid item xs={12} md={3}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="CHECK-OUT"
+                  value={checkOutDate}
+                  onChange={(newValue) => setCheckOutDate(newValue)}
+                  disablePast
+                  minDate={
+                    checkInDate 
+                      ? new Date(checkInDate.getTime() + 24 * 60 * 60 * 1000) 
+                      : undefined
+                  }
+                  sx={{ width: '100%' }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            
+            {/* Rooms & Guests */}
+            <Grid item xs={12}>
+              <Paper elevation={1} sx={{ p: 2 }}>
+                <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+                  Rooms & Guests
+                </Typography>
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography>Rooms</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('rooms', false)}
+                          disabled={roomAndGuests.rooms <= 1}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{roomAndGuests.rooms}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('rooms', true)}
+                          disabled={roomAndGuests.rooms >= 8}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
                       </Box>
                     </Box>
-                  </Box>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  {/* Star Rating Filter */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      Star Rating
-                    </Typography>
-                    <FormGroup>
-                      {[5, 4, 3, 2, 1].map((star) => (
-                        <FormControlLabel
-                          key={star}
-                          control={
-                            <Checkbox 
-                              checked={selectedStars.includes(star)}
-                              onChange={() => handleStarRatingToggle(star)}
-                              size="small"
-                            />
-                          }
-                          label={
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Rating value={star} readOnly size="small" />
-                              <Typography variant="body2" sx={{ ml: 1 }}>
-                                {star} Star{star !== 1 ? 's' : ''}
-                              </Typography>
-                            </Box>
-                          }
-                        />
-                      ))}
-                    </FormGroup>
-                  </Box>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  {/* Amenities Filter */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      Amenities
-                    </Typography>
-                    <FormGroup>
-                      {amenities.map((amenity) => (
-                        <FormControlLabel
-                          key={amenity.name}
-                          control={
-                            <Checkbox 
-                              checked={selectedAmenities.includes(amenity.name)}
-                              onChange={() => handleAmenityToggle(amenity.name)}
-                              size="small"
-                            />
-                          }
-                          label={
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              {amenity.icon}
-                              <Typography variant="body2" sx={{ ml: 1 }}>
-                                {amenity.name}
-                              </Typography>
-                            </Box>
-                          }
-                        />
-                      ))}
-                    </FormGroup>
-                  </Box>
-
-                  <Divider sx={{ my: 2 }} />
-
-                  {/* Property Type Filter */}
-                  <Box sx={{ mb: 3 }}>
-                    <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-                      Property Type
-                    </Typography>
-                    <FormGroup>
-                      {propertyTypes.map((type) => (
-                        <FormControlLabel
-                          key={type}
-                          control={
-                            <Checkbox 
-                              checked={selectedPropertyTypes.includes(type)}
-                              onChange={() => handlePropertyTypeToggle(type)}
-                              size="small"
-                            />
-                          }
-                          label={
-                            <Typography variant="body2">
-                              {type}
-                            </Typography>
-                          }
-                        />
-                      ))}
-                    </FormGroup>
-                  </Box>
-
-                  <Button 
-                    variant="contained" 
-                    color="primary" 
-                    fullWidth
-                    sx={{ mt: 2 }}
-                  >
-                    Apply Filters
-                  </Button>
-                </Box>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography>Adults</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('adults', false)}
+                          disabled={roomAndGuests.adults <= 1}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{roomAndGuests.adults}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('adults', true)}
+                          disabled={roomAndGuests.adults + roomAndGuests.children >= 20}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography>Children <Typography variant="caption" component="span">(0-17 years)</Typography></Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('children', false)}
+                          disabled={roomAndGuests.children <= 0}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{roomAndGuests.children}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateRoomAndGuests('children', true)}
+                          disabled={roomAndGuests.adults + roomAndGuests.children >= 20}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
               </Paper>
             </Grid>
-
-            {/* Hotel Listings */}
-            <Grid item xs={12} md={9}>
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-                  {filteredHotels.length} Hotels in {locationValue}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {format(new Date(checkInDate), 'EEE, d MMM')} - {format(new Date(checkOutDate), 'EEE, d MMM')} • {getNightCount()} {getNightCount() === 1 ? 'night' : 'nights'} • {guestsCount}
-                </Typography>
-              </Box>
-
-              {isLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-                  <Typography>Loading hotels...</Typography>
+            
+            {/* Price Range */}
+            <Grid item xs={12} md={6}>
+              <Typography gutterBottom>Price Range</Typography>
+              <Box sx={{ px: 2 }}>
+                <Slider
+                  value={priceRange}
+                  onChange={(_, newValue) => setPriceRange(newValue as number[])}
+                  valueLabelDisplay="auto"
+                  min={0}
+                  max={100000}
+                  step={500}
+                  valueLabelFormat={(value) => `₹${value}`}
+                />
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                  <Typography variant="body2">{formatCurrency(priceRange[0])}</Typography>
+                  <Typography variant="body2">{formatCurrency(priceRange[1])}</Typography>
                 </Box>
-              ) : filteredHotels.length === 0 ? (
-                <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '8px' }}>
-                  <Typography variant="h6" gutterBottom>No hotels found</Typography>
-                  <Typography variant="body1">
-                    Try adjusting your filters or search for a different location.
-                  </Typography>
-                </Paper>
-              ) : (
-                <>
-                  {filteredHotels.map((hotel, index) => (
-                    <HotelCard key={index} elevation={1}>
-                      <Grid container>
-                        {/* Hotel Image */}
-                        <Grid item xs={12} md={4}>
-                          <ImageCarousel>
-                            <img
-                              src={hotel.images[0]?.url || "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80"}
-                              alt={hotel.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                            <CarouselNav>
-                              {[...Array(Math.min(5, hotel.images.length || 1))].map((_, i) => (
-                                <CarouselDot key={i} className={i === 0 ? 'active' : ''} />
-                              ))}
-                            </CarouselNav>
-                          </ImageCarousel>
-                        </Grid>
-
-                        {/* Hotel Details */}
-                        <Grid item xs={12} md={8}>
-                          <Box sx={{ p: 2 }}>
-                            <Grid container>
-                              <Grid item xs={12} md={8}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                  <Typography variant="h6" component="h2" fontWeight={600}>
-                                    {hotel.name}
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-                                    <Rating value={hotel.starRating} readOnly size="small" />
-                                  </Box>
-                                </Box>
-
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                                  <LocationOn fontSize="small" color="action" />
-                                  <Typography variant="body2" color="text.secondary" sx={{ ml: 0.5 }}>
-                                    {hotel.address}, {hotel.city}
-                                  </Typography>
-                                </Box>
-
-                                <Box sx={{ mb: 2 }}>
-                                  {hotel.amenities?.slice(0, 3).map((amenity, i) => (
-                                    <PropertyTag key={i}>{amenity}</PropertyTag>
-                                  ))}
-                                  {hotel.amenities && hotel.amenities.length > 3 && (
-                                    <PropertyTag>+{hotel.amenities.length - 3} more</PropertyTag>
-                                  )}
-                                </Box>
-
-                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                  {hotel.description?.substring(0, 120)}
-                                  {hotel.description && hotel.description.length > 120 ? '...' : ''}
-                                </Typography>
-
-                                {hotel.specialOffer && (
-                                  <PriceTag sx={{ mb: 1 }}>
-                                    {hotel.specialOffer}
-                                  </PriceTag>
-                                )}
-                              </Grid>
-
-                              <Grid item xs={12} md={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
-                                  <Box sx={{ 
-                                    bgcolor: '#4caf50', 
-                                    color: 'white', 
-                                    borderRadius: '4px', 
-                                    py: 0.5, 
-                                    px: 1, 
-                                    mr: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }}>
-                                    <Typography variant="body2" fontWeight={600}>
-                                      {hotel.userRating || '4.2'}
-                                    </Typography>
-                                  </Box>
-                                  <Typography variant="body2" color="text.secondary">
-                                    ({hotel.reviewCount || '128'} Reviews)
-                                  </Typography>
-                                </Box>
-
-                                <Box sx={{ textAlign: 'right', mt: 'auto' }}>
-                                  <Typography variant="body2" color="text.secondary">
-                                    Starts from
-                                  </Typography>
-                                  <Typography variant="h5" component="div" color="primary" fontWeight={700}>
-                                    ₹{Math.min(...hotel.roomTypes.map(room => room.pricing.totalPrice))}
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                                    + ₹{Math.min(...hotel.roomTypes.map(room => room.pricing.taxesAndFees))} taxes
-                                  </Typography>
-                                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                                    per night
-                                  </Typography>
-                                  <Button 
-                                    variant="contained" 
-                                    color="primary" 
-                                    fullWidth
-                                    sx={{ mt: 1 }}
-                                  >
-                                    View Rooms
-                                  </Button>
-                                </Box>
-                              </Grid>
-                            </Grid>
-                          </Box>
-                        </Grid>
-                      </Grid>
-                    </HotelCard>
-                  ))}
-                </>
-              )}
+              </Box>
+            </Grid>
+            
+            {/* Star Rating */}
+            <Grid item xs={12} md={6}>
+              <Typography gutterBottom>Star Rating</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <Chip
+                    key={rating}
+                    icon={<Rating value={rating} readOnly size="small" />}
+                    label={`${rating} Star${rating > 1 ? 's' : ''}`}
+                    onClick={() => setStarRating(rating === starRating ? null : rating)}
+                    variant={starRating === rating ? 'filled' : 'outlined'}
+                    color={starRating === rating ? 'primary' : 'default'}
+                    sx={{ minWidth: 100, justifyContent: 'space-between' }}
+                  />
+                ))}
+              </Box>
+            </Grid>
+            
+            {/* Search Button */}
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                size="large"
+                color="primary"
+                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+                fullWidth
+                sx={{ 
+                  mt: 2, 
+                  py: 1.5,
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  bgcolor: '#008cff',
+                  '&:hover': {
+                    bgcolor: '#0071ce',
+                  }
+                }}
+              >
+                SEARCH
+              </Button>
             </Grid>
           </Grid>
-        </Container>
-      )}
+        </Paper>
+        
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" gutterBottom color="#008cff">
+            Popular Hotel Collections
+          </Typography>
+          <Grid container spacing={3}>
+            {popularHotels.map((hotel, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    height: '100%',
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+                    }
+                  }}
+                  onClick={() => navigate(`/hotels/search?collection=${encodeURIComponent(hotel.name)}`)}
+                >
+                  <Box
+                    sx={{
+                      height: 160,
+                      backgroundImage: `url(${hotel.imageUrl})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      position: 'relative'
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                        p: 2
+                      }}
+                    >
+                      <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                        {hotel.name}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: 'white' }}>
+                        {hotel.description}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Container>
     </>
   );
 };
