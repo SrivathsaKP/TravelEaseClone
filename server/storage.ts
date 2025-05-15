@@ -159,6 +159,11 @@ export class MemStorage implements IStorage {
   }
   
   async searchFlights(source: string, destination: string, date: string): Promise<Flight[]> {
+    // For development, return all flights regardless of search parameters
+    return Array.from(this.flights.values());
+    
+    /*
+    // Original implementation
     return Array.from(this.flights.values()).filter(flight => {
       const flightDate = new Date(flight.source.departureTime).toISOString().split('T')[0];
       const searchDate = new Date(date).toISOString().split('T')[0];
@@ -167,6 +172,7 @@ export class MemStorage implements IStorage {
              flight.destination.airport.cityCode.toLowerCase() === destination.toLowerCase() &&
              flightDate === searchDate;
     });
+    */
   }
   
   // Hotel methods
@@ -179,9 +185,15 @@ export class MemStorage implements IStorage {
   }
   
   async searchHotels(city: string, checkIn: string, checkOut: string): Promise<Hotel[]> {
+    // For development, return all hotels regardless of search parameters
+    return Array.from(this.hotels.values());
+    
+    /*
+    // Original implementation
     return Array.from(this.hotels.values()).filter(hotel => {
       return hotel.city.toLowerCase() === city.toLowerCase();
     });
+    */
   }
   
   // Bus methods
