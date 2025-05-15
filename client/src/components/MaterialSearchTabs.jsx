@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { popularCities } from '../lib/mockData';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
@@ -22,7 +21,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Popper from '@mui/material/Popper';
-import { popularCities } from '../lib/mockData';
+
 import { 
   FlightTakeoff, 
   FlightLand, 
@@ -70,8 +69,11 @@ function a11yProps(index) {
 
 const today = format(new Date(), 'yyyy-MM-dd');
 
-// Get list of city names from the popularCities data
-const cityNames = popularCities.map(city => city.name);
+// City names to be used for autocomplete in various forms
+const cityNames = [
+  'Delhi', 'Mumbai', 'Bangalore', 'Chennai', 'Kolkata', 
+  'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Goa'
+];
 
 const MaterialSearchTabs = ({ onTabChange }) => {
   const [tabValue, setTabValue] = useState(0);
@@ -600,7 +602,7 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                     <Autocomplete
                       value={hotelSearch.destination || null}
                       onChange={(e, newValue) => setHotelSearch({...hotelSearch, destination: newValue})}
-                      options={cities}
+                      options={cityNames}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -756,7 +758,7 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                     <Autocomplete
                       value={trainSearch.source || null}
                       onChange={(e, newValue) => setTrainSearch({...trainSearch, source: newValue})}
-                      options={cities}
+                      options={cityNames}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -816,7 +818,7 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                     <Autocomplete
                       value={trainSearch.destination || null}
                       onChange={(e, newValue) => setTrainSearch({...trainSearch, destination: newValue})}
-                      options={cities}
+                      options={cityNames}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -939,7 +941,7 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                     <Autocomplete
                       value={busSearch.source || null}
                       onChange={(e, newValue) => setBusSearch({...busSearch, source: newValue})}
-                      options={cities}
+                      options={cityNames}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -999,7 +1001,7 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                     <Autocomplete
                       value={busSearch.destination || null}
                       onChange={(e, newValue) => setBusSearch({...busSearch, destination: newValue})}
-                      options={cities}
+                      options={cityNames}
                       renderInput={(params) => (
                         <TextField
                           {...params}
