@@ -1,33 +1,28 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { TabType } from '@/components/TabNavigation';
 
-export type TabType = 
-  | 'flights' 
-  | 'hotels' 
-  | 'homestays' 
-  | 'holidayPackages' 
-  | 'trains' 
-  | 'buses' 
-  | 'cabs' 
-  | 'forexCards' 
-  | 'travelInsurance';
-
+// Define a type for the slice state
 interface TabState {
-  currentTab: TabType;
+  activeTab: TabType;
 }
 
+// Define the initial state
 const initialState: TabState = {
-  currentTab: 'flights',
+  activeTab: 'flights',
 };
 
 export const tabSlice = createSlice({
   name: 'tab',
   initialState,
   reducers: {
-    setCurrentTab: (state, action: PayloadAction<TabType>) => {
-      state.currentTab = action.payload;
+    setActiveTab: (state, action: PayloadAction<TabType>) => {
+      state.activeTab = action.payload;
     },
   },
 });
 
-export const { setCurrentTab } = tabSlice.actions;
+// Export actions
+export const { setActiveTab } = tabSlice.actions;
+
+// Export reducer
 export default tabSlice.reducer;

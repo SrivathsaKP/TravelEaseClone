@@ -364,7 +364,7 @@ const HotelSearchPage = () => {
                       boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
                     }
                   }}
-                  onClick={() => navigate(`/hotels/search?collection=${encodeURIComponent(hotel.name)}`)}
+                  onClick={() => setLocation(`/hotels/search?collection=${encodeURIComponent(hotel.name)}`)}
                 >
                   <Box
                     sx={{

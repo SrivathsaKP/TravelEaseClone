@@ -18,6 +18,7 @@ import Checkout from "@/pages/Checkout";
 import BookingSuccess from "@/pages/BookingSuccess";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import TabNavigation from "@/components/TabNavigation";
 
 // Import new Material UI search pages
 import FlightSearchPage from "@/pages/FlightSearchPage";
@@ -33,6 +34,7 @@ function Router() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
+      <TabNavigation />
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home}/>
