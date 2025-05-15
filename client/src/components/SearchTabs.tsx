@@ -724,6 +724,214 @@ const SearchTabs = () => {
               </div>
             </form>
           </TabsContent>
+          
+          <TabsContent value="cabs" className="p-6">
+            <form onSubmit={handleCabSearch}>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Pickup Location</Label>
+                    <div className="relative">
+                      <Input 
+                        type="text" 
+                        placeholder="Delhi" 
+                        value={cabSearch.source}
+                        onChange={(e) => setCabSearch({...cabSearch, source: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <MapPinIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Dropoff Location</Label>
+                    <div className="relative">
+                      <Input 
+                        type="text" 
+                        placeholder="Airport, Hotel, or Address" 
+                        value={cabSearch.destination}
+                        onChange={(e) => setCabSearch({...cabSearch, destination: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <MapPinIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Pickup Date</Label>
+                    <div className="relative">
+                      <Input 
+                        type="date" 
+                        min={today}
+                        value={cabSearch.pickupDate}
+                        onChange={(e) => setCabSearch({...cabSearch, pickupDate: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <CalendarIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Pickup Time</Label>
+                    <div className="relative">
+                      <Input 
+                        type="time" 
+                        value={cabSearch.pickupTime}
+                        onChange={(e) => setCabSearch({...cabSearch, pickupTime: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <div className="relative">
+                  <Label className="block text-sm font-medium text-neutral-400 mb-1">Cab Type</Label>
+                  <div className="relative">
+                    <Select 
+                      value={cabSearch.cabType} 
+                      onValueChange={(value) => setCabSearch({...cabSearch, cabType: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="All Cabs" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="All Cabs">All Cabs</SelectItem>
+                        <SelectItem value="Mini">Mini (4 Seater)</SelectItem>
+                        <SelectItem value="Sedan">Sedan (4 Seater)</SelectItem>
+                        <SelectItem value="SUV">SUV (6 Seater)</SelectItem>
+                        <SelectItem value="Luxury">Luxury Cars</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                  Search Cabs
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="insurance" className="p-6">
+            <form onSubmit={handleInsuranceSearch}>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Travel Type</Label>
+                    <div className="relative">
+                      <Select 
+                        value={insuranceSearch.travelType} 
+                        onValueChange={(value: 'domestic' | 'international') => setInsuranceSearch({...insuranceSearch, travelType: value})}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Domestic" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="domestic">Domestic</SelectItem>
+                          <SelectItem value="international">International</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Travelers</Label>
+                    <div className="relative">
+                      <Select 
+                        value={insuranceSearch.travelers} 
+                        onValueChange={(value) => setInsuranceSearch({...insuranceSearch, travelers: value})}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="1 Adult" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1 Adult">1 Adult</SelectItem>
+                          <SelectItem value="2 Adults">2 Adults</SelectItem>
+                          <SelectItem value="2 Adults, 1 Child">2 Adults, 1 Child</SelectItem>
+                          <SelectItem value="2 Adults, 2 Children">2 Adults, 2 Children</SelectItem>
+                          <SelectItem value="Family Plan">Family Plan</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Start Date</Label>
+                    <div className="relative">
+                      <Input 
+                        type="date" 
+                        min={today}
+                        value={insuranceSearch.startDate}
+                        onChange={(e) => setInsuranceSearch({...insuranceSearch, startDate: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <CalendarIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Trip Duration</Label>
+                    <div className="relative">
+                      <Select 
+                        value={insuranceSearch.duration} 
+                        onValueChange={(value) => setInsuranceSearch({...insuranceSearch, duration: value})}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="7 days" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7 days">7 days</SelectItem>
+                          <SelectItem value="15 days">15 days</SelectItem>
+                          <SelectItem value="30 days">30 days</SelectItem>
+                          <SelectItem value="45 days">45 days</SelectItem>
+                          <SelectItem value="60 days">60 days</SelectItem>
+                          <SelectItem value="90 days">90 days</SelectItem>
+                          <SelectItem value="180 days">180 days</SelectItem>
+                          <SelectItem value="365 days">365 days (Annual)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                  Search Insurance Plans
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
