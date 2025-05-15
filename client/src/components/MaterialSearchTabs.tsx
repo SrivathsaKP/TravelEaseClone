@@ -253,7 +253,7 @@ const MaterialSearchTabs: React.FC = () => {
             </Box>
 
             <Grid container spacing={3}>
-              <Grid xs={12} md={3}>
+              <Grid item={true} xs={12} md={3}>
                 <FormControl fullWidth>
                   <TextField
                     select
