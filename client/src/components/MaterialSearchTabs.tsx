@@ -422,25 +422,43 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                     '&:hover': { borderColor: '#008cff' }
                   }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
-                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                    <FormControl fullWidth sx={{ border: 'none' }}>
                       <TextField
                         select
                         value={flightSearch.source}
                         onChange={(e) => setFlightSearch({...flightSearch, source: e.target.value})}
-                        variant="standard"
+                        variant="outlined"
                         placeholder="Enter city"
+                        fullWidth
                         InputProps={{
-                          disableUnderline: true,
                           startAdornment: (
                             <InputAdornment position="start">
                               <FlightTakeoff sx={{ color: '#008cff' }} />
                             </InputAdornment>
                           ),
+                          sx: {
+                            border: 'none',
+                            '& fieldset': { border: 'none' }
+                          }
+                        }}
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: {
+                                maxHeight: 300
+                              }
+                            }
+                          }
                         }}
                         sx={{
                           '& .MuiInputBase-input': {
                             fontSize: '1.1rem',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            padding: '0 !important',
+                            paddingLeft: '0 !important'
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none'
                           }
                         }}
                       >
@@ -478,25 +496,43 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                     '&:hover': { borderColor: '#008cff' }
                   }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TO</Typography>
-                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                    <FormControl fullWidth sx={{ border: 'none' }}>
                       <TextField
                         select
                         value={flightSearch.destination}
                         onChange={(e) => setFlightSearch({...flightSearch, destination: e.target.value})}
-                        variant="standard"
+                        variant="outlined"
                         placeholder="Enter city"
+                        fullWidth
                         InputProps={{
-                          disableUnderline: true,
                           startAdornment: (
                             <InputAdornment position="start">
                               <FlightLand sx={{ color: '#008cff' }} />
                             </InputAdornment>
                           ),
+                          sx: {
+                            border: 'none',
+                            '& fieldset': { border: 'none' }
+                          }
+                        }}
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: {
+                                maxHeight: 300
+                              }
+                            }
+                          }
                         }}
                         sx={{
                           '& .MuiInputBase-input': {
                             fontSize: '1.1rem',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            padding: '0 !important',
+                            paddingLeft: '0 !important'
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none'
                           }
                         }}
                       >
@@ -519,22 +555,30 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                     <TextField
                       fullWidth
                       type="date"
-                      variant="standard"
+                      variant="outlined"
                       InputLabelProps={{ shrink: true }}
                       value={flightSearch.departureDate}
                       onChange={(e) => setFlightSearch({...flightSearch, departureDate: e.target.value})}
                       InputProps={{
-                        disableUnderline: true,
                         startAdornment: (
                           <InputAdornment position="start">
                             <CalendarMonth sx={{ color: '#008cff' }} />
                           </InputAdornment>
                         ),
+                        sx: {
+                          border: 'none',
+                          '& fieldset': { border: 'none' }
+                        }
                       }}
                       sx={{
                         '& .MuiInputBase-input': {
                           fontSize: '1.1rem',
-                          fontWeight: 600
+                          fontWeight: 600,
+                          padding: '0 !important',
+                          paddingLeft: '0 !important'
+                        },
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          border: 'none'
                         }
                       }}
                     />
@@ -556,22 +600,30 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                       <TextField
                         fullWidth
                         type="date"
-                        variant="standard"
+                        variant="outlined"
                         InputLabelProps={{ shrink: true }}
                         value={flightSearch.returnDate}
                         onChange={(e) => setFlightSearch({...flightSearch, returnDate: e.target.value})}
                         InputProps={{
-                          disableUnderline: true,
                           startAdornment: (
                             <InputAdornment position="start">
                               <CalendarMonth sx={{ color: '#008cff' }} />
                             </InputAdornment>
                           ),
+                          sx: {
+                            border: 'none',
+                            '& fieldset': { border: 'none' }
+                          }
                         }}
                         sx={{
                           '& .MuiInputBase-input': {
                             fontSize: '1.1rem',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            padding: '0 !important',
+                            paddingLeft: '0 !important'
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none'
                           }
                         }}
                       />
@@ -591,24 +643,42 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                     height: '100%'
                   }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TRAVELLERS & CLASS</Typography>
-                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                    <FormControl fullWidth sx={{ border: 'none' }}>
                       <TextField
                         select
                         value={flightSearch.travelers}
                         onChange={(e) => setFlightSearch({...flightSearch, travelers: e.target.value})}
-                        variant="standard"
+                        variant="outlined"
+                        fullWidth
                         InputProps={{
-                          disableUnderline: true,
                           startAdornment: (
                             <InputAdornment position="start">
                               <Person sx={{ color: '#008cff' }} />
                             </InputAdornment>
                           ),
+                          sx: {
+                            border: 'none',
+                            '& fieldset': { border: 'none' }
+                          }
+                        }}
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: {
+                              style: {
+                                maxHeight: 300
+                              }
+                            }
+                          }
                         }}
                         sx={{
                           '& .MuiInputBase-input': {
                             fontSize: '1.1rem',
-                            fontWeight: 600
+                            fontWeight: 600,
+                            padding: '0 !important',
+                            paddingLeft: '0 !important'
+                          },
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            border: 'none'
                           }
                         }}
                       >
