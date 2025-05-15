@@ -18,6 +18,10 @@ interface HotelSearchState {
   checkOut: string;
   rooms: number;
   guests: number;
+  adults: number;
+  children: number;
+  priceRange: [number, number];
+  starRating: number;
 }
 
 interface BusSearchState {
@@ -25,6 +29,8 @@ interface BusSearchState {
   destination: string;
   date: string;
   travelers: number;
+  busType: string;
+  departureTime: string;
 }
 
 interface TrainSearchState {
@@ -33,6 +39,8 @@ interface TrainSearchState {
   date: string;
   class: string;
   travelers: number;
+  trainClass: string;
+  trainType: string;
 }
 
 interface HomestaySearchState {
@@ -84,12 +92,18 @@ const initialState: SearchState = {
     checkOut: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     rooms: 1,
     guests: 1,
+    adults: 1,
+    children: 0,
+    priceRange: [1000, 10000] as [number, number],
+    starRating: 0,
   },
   bus: {
     source: '',
     destination: '',
     date: new Date().toISOString().split('T')[0],
     travelers: 1,
+    busType: 'All',
+    departureTime: 'all',
   },
   train: {
     source: '',
@@ -97,6 +111,8 @@ const initialState: SearchState = {
     date: new Date().toISOString().split('T')[0],
     class: 'All Classes',
     travelers: 1,
+    trainClass: 'All Classes',
+    trainType: 'All',
   },
   homestay: {
     location: '',
