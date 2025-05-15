@@ -392,15 +392,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/cabs/search', async (req: Request, res: Response) => {
     try {
-      const schema = z.object({
-        city: z.string(),
-        date: z.string().optional(),
-        vehicleType: z.string().optional()
-      });
-      
-      const { city, date, vehicleType } = schema.parse(req.query);
-      const cabs = await storage.searchCabs(city, date || new Date().toISOString(), vehicleType);
-      
+      // Get all cabs for any search parameters for development
+      const cabs = await storage.getCabs();
       res.status(200).json({ success: true, data: cabs });
     } catch (error) {
       res.status(400).json({ 
@@ -445,16 +438,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/homestays/search', async (req: Request, res: Response) => {
     try {
-      const schema = z.object({
-        location: z.string(),
-        checkIn: z.string(),
-        checkOut: z.string(),
-        guests: z.string().optional().transform(val => val ? parseInt(val) : undefined)
-      });
-      
-      const { location, checkIn, checkOut, guests } = schema.parse(req.query);
-      const homestays = await storage.searchHomestays(location, checkIn, checkOut, guests);
-      
+      // Get all homestays for any search parameters for development
+      const homestays = await storage.getHomestays();
       res.status(200).json({ success: true, data: homestays });
     } catch (error) {
       res.status(400).json({ 
@@ -499,14 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/insurance-plans/search', async (req: Request, res: Response) => {
     try {
-      const schema = z.object({
-        coverageType: z.string(),
-        duration: z.string().transform(val => parseInt(val))
-      });
-      
-      const { coverageType, duration } = schema.parse(req.query);
-      const plans = await storage.searchInsurancePlans(coverageType, duration);
-      
+      // Get all insurance plans for any search parameters for development
+      const plans = await storage.getInsurancePlans();
       res.status(200).json({ success: true, data: plans });
     } catch (error) {
       res.status(400).json({ 
