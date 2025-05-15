@@ -1,13 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type TabType = 'flights' | 'hotels' | 'homestays' | 'holidayPackages' | 'trains' | 'buses' | 'cabs' | 'forexCards' | 'travelInsurance';
+export type TabType = 
+  | 'flights' 
+  | 'hotels' 
+  | 'homestays' 
+  | 'holidayPackages' 
+  | 'trains' 
+  | 'buses' 
+  | 'cabs' 
+  | 'forexCards' 
+  | 'travelInsurance';
 
 interface TabState {
   currentTab: TabType;
 }
 
 const initialState: TabState = {
-  currentTab: 'flights',
+  currentTab: 'flights'
 };
 
 export const tabSlice = createSlice({

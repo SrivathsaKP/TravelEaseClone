@@ -1,308 +1,245 @@
-// Flight Types
-export interface Airport {
-  code: string;
-  name: string;
-  cityCode: string;
-  cityName: string;
-  countryCode: string;
-  countryName: string;
-  terminal?: string;
-}
-
+// Flight types
 export interface Airline {
   code: string;
   name: string;
-  logo?: string;
+  logo: string;
 }
 
-export interface TravelPoint {
-  airport: Airport;
-  departureTime?: string;
-  arrivalTime?: string;
-}
-
-export interface FarePricing {
+export interface FlightPrice {
+  amount: number;
   currency: string;
-  baseFare: number;
+  basePrice: number;
   tax: number;
-  taxBreakup?: Array<{ key: string; value: number }>;
-  totalFare: number;
+  fees: number;
 }
 
 export interface Flight {
   id: string;
   flightNumber: string;
   airline: Airline;
-  source: TravelPoint;
-  destination: TravelPoint;
-  duration: number; // in minutes
-  stops: number;
-  layovers?: Array<{
-    airport: Airport;
-    duration: number;
-  }>;
-  fare: FarePricing;
-  departureDate: string;
-  arrivalDate: string;
-  isRefundable: boolean;
-  isLCC: boolean;
-  baggage?: string;
-  cabinBaggage?: string;
-  mealService?: string;
+  departureTime: string;
+  arrivalTime: string;
+  departureCode: string;
+  arrivalCode: string;
+  duration: string;
+  stopCount: number;
+  stops?: string[];
+  price: FlightPrice;
+  cabinClass: string;
+  availableSeats: number;
 }
 
-// Hotel Types
+// Hotel types
+export interface HotelImage {
+  url: string;
+  caption?: string;
+}
+
 export interface HotelPricing {
-  currency: string;
   basePrice: number;
-  taxes: number;
   totalPrice: number;
+  taxesAndFees: number;
+  currency: string;
 }
 
 export interface HotelRoomType {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   maxOccupancy: number;
-  bedType: string;
-  amenities: string[];
-  images: Array<{ url: string; caption?: string }>;
   pricing: HotelPricing;
-  availableRooms: number;
-}
-
-export interface HotelReview {
-  userId: string;
-  userName: string;
-  rating: number;
-  comment: string;
-  date: string;
+  amenities: string[];
+  images: HotelImage[];
 }
 
 export interface Hotel {
   id: string;
   name: string;
-  starRating: number;
   address: string;
   city: string;
-  state: string;
-  country: string;
-  zipCode?: string;
-  latitude?: number;
-  longitude?: number;
-  checkInTime: string;
-  checkOutTime: string;
-  description?: string;
+  location: string;
+  description: string;
+  starRating: number;
+  userRating?: number;
+  reviewCount?: number;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
   amenities: string[];
-  images: Array<{ url: string; caption?: string }>;
-  reviews: HotelReview[];
+  images: HotelImage[];
   roomTypes: HotelRoomType[];
+  propertyType?: string;
+  specialOffer?: string;
 }
 
-// Bus Types
-export interface Bus {
-  id: string;
-  operatorId: string;
-  operatorName: string;
-  busNumber: string;
-  busType: string;
-  totalSeats: number;
-  availableSeats: number;
-  departureTime: string;
-  arrivalTime: string;
-  departureLocation: string;
-  arrivalLocation: string;
-  duration: number; // in minutes
-  fare: number;
-  amenities: string[];
-}
-
-// Train Types
-export interface Train {
-  id: string;
-  trainNumber: string;
-  name: string;
-  source: string;
-  destination: string;
-  departureTime: string;
-  arrivalTime: string;
-  duration: number; // in minutes
-  classes: Array<{
-    name: string;
-    fare: number;
-    availableSeats: number;
-  }>;
-  stops: Array<{
-    station: string;
-    arrivalTime: string;
-    departureTime: string;
-    stopDuration: number; // in minutes
-    dayCount: number;
-  }>;
-}
-
-// Cab Types
-export interface Cab {
-  id: string;
-  vehicleType: string;
-  model: string;
-  maxPassengers: number;
-  operator: string;
-  farePerKm: number;
-  baseFare: number;
-  estimatedTotal: number;
-  availableAt: string;
-  features: string[];
-  image?: string;
-}
-
-// Homestay Types
+// Homestay types
 export interface Homestay {
   id: string;
   name: string;
-  address: string;
-  city: string;
-  state: string;
-  country: string;
-  zipCode?: string;
-  latitude?: number;
-  longitude?: number;
-  images: Array<{ url: string; caption?: string }>;
-  host: {
-    id: string;
+  location: string;
+  description: string;
+  hostInfo: {
     name: string;
-    profilePicture?: string;
     rating: number;
-    contactNumber: string;
-    verificationStatus: string;
-    memberSince: string;
-    languages: string[];
+    responseRate: number;
+    joined: string;
   };
-  amenities: string[];
-  houseRules: string[];
-  maxGuests: number;
-  bedrooms: number;
-  beds: number;
-  bathrooms: number;
-  pricePerNight: number;
   rating: number;
   reviewCount: number;
-  minimumStay: number;
-  availability: Array<{ startDate: string; endDate: string }>;
-  currency: string;
+  bedrooms: number;
+  bathrooms: number;
+  maxGuests: number;
+  pricePerNight: number;
+  cleaningFee?: number;
+  serviceFee?: number;
+  amenities: string[];
+  images: HotelImage[];
+  propertyType: string;
+  specialOffer?: string;
+  houseRules?: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
-// Insurance Types
+// Bus types
+export interface BusOperator {
+  id: string;
+  name: string;
+  logo?: string;
+  rating?: number;
+}
+
+export interface BusSeat {
+  name: string;
+  fare: number;
+  availableSeats: number;
+}
+
+export interface Bus {
+  id: string;
+  operator: BusOperator;
+  departureTime: string;
+  arrivalTime: string;
+  duration: string;
+  departureLocation: string;
+  arrivalLocation: string;
+  busType: string;
+  seatTypes: BusSeat[];
+  amenities: string[];
+  rating?: number;
+}
+
+// Train types
+export interface TrainOperator {
+  id: string;
+  name: string;
+  logo?: string;
+}
+
+export interface TrainClass {
+  name: string;
+  fare: number;
+  availableSeats: number;
+}
+
+export interface Train {
+  id: string;
+  number: string;
+  name: string;
+  operator: TrainOperator;
+  departureTime: string;
+  arrivalTime: string;
+  duration: string;
+  departureStation: string;
+  arrivalStation: string;
+  classes: TrainClass[];
+  amenities: string[];
+  days: string[];
+}
+
+// Cab types
+export interface CabProvider {
+  id: string;
+  name: string;
+  logo?: string;
+  rating?: number;
+}
+
+export interface Cab {
+  id: string;
+  provider: CabProvider;
+  vehicleType: string;
+  vehicleName: string;
+  seatingCapacity: number;
+  price: number;
+  pricePerKm?: number;
+  image: string;
+  amenities: string[];
+  cancellationPolicy: string;
+}
+
+// Insurance types
 export interface InsurancePlan {
   id: string;
   name: string;
+  provider: string;
+  logo?: string;
+  coverageType: string;
   description: string;
-  coverageType: string; // 'domestic', 'international', or 'both'
-  coverageAmount: number;
+  benefits: string[];
   premium: number;
-  benefits: Array<{
-    name: string;
-    description: string;
-    coverageLimit?: number;
-  }>;
-  exclusions: string[];
-  termsAndConditions: string;
-  duration: number; // in days
-  currency: string;
+  coverageAmount: number;
+  duration: number;
+  eligibleAge: {
+    min: number;
+    max: number;
+  };
+  documents?: string[];
+  rating?: number;
 }
 
-// Booking Types
+// Booking types
 export interface Booking {
   id: number;
-  userId: string;
-  bookingType: 'FLIGHT' | 'HOTEL' | 'BUS' | 'TRAIN' | 'CAB' | 'HOMESTAY' | 'INSURANCE';
+  userId: number;
+  bookingType: 'flight' | 'hotel' | 'bus' | 'train' | 'cab' | 'homestay' | 'insurance';
+  itemId: string;
+  startDate: string;
+  endDate?: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  passengers?: number;
+  rooms?: number;
+  amount: number;
+  paymentStatus: 'pending' | 'paid' | 'refunded';
   bookingDate: string;
-  bookingNumber: string;
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED';
-  paymentStatus: 'PENDING' | 'PAID' | 'REFUNDED';
-  totalAmount: number;
-  currency: string;
-  flightBooking?: {
-    flightId: string;
-    journeyDate: string;
-    passengers: Array<{
-      name: string;
-      age: number;
-      gender: string;
-      seatNumber?: string;
-    }>;
-    source: {
-      code: string;
-      name: string;
-    };
-    destination: {
-      code: string;
-      name: string;
-    };
-    departureTime: string;
-    arrivalTime: string;
-    airline: {
-      code: string;
-      name: string;
-    };
+  specialRequests?: string;
+}
+
+// Holiday Package type
+export interface HolidayPackage {
+  id: string;
+  name: string;
+  description: string;
+  destination: string;
+  duration: {
+    days: number;
+    nights: number;
   };
-  hotelBooking?: {
-    hotelId: string;
-    checkIn: string;
-    checkOut: string;
-    roomType: string;
-    guests: number;
-  };
-  busBooking?: {
-    busId: string;
-    journeyDate: string;
-    passengers: Array<{
-      name: string;
-      age: number;
-      gender: string;
-      seatNumber?: string;
-    }>;
-    source: string;
-    destination: string;
-    departureTime: string;
-    arrivalTime: string;
-  };
-  trainBooking?: {
-    trainId: string;
-    journeyDate: string;
-    passengers: Array<{
-      name: string;
-      age: number;
-      gender: string;
-      seatNumber?: string;
-    }>;
-    source: string;
-    destination: string;
-    departureTime: string;
-    arrivalTime: string;
-    class: string;
-  };
-  cabBooking?: {
-    cabId: string;
-    pickupDate: string;
-    pickupLocation: string;
-    dropLocation: string;
-    vehicleType: string;
-  };
-  homestayBooking?: {
-    homestayId: string;
-    checkIn: string;
-    checkOut: string;
-    guests: number;
-  };
-  insuranceBooking?: {
-    insurancePlanId: string;
-    coverageStartDate: string;
-    coverageEndDate: string;
-    travelers: Array<{
-      name: string;
-      age: number;
-      gender: string;
-    }>;
-  };
+  inclusions: string[];
+  price: number;
+  discount?: number;
+  rating?: number;
+  reviewCount?: number;
+  images: string[];
+  itinerary: {
+    day: number;
+    title: string;
+    description: string;
+    meals?: string[];
+    accommodation?: string;
+  }[];
+  departureCity: string;
+  departureDate?: string;
+  packageType?: string;
 }

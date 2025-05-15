@@ -19,6 +19,16 @@ import BookingSuccess from "@/pages/BookingSuccess";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// Import new Material UI search pages
+import FlightSearchPage from "@/pages/FlightSearchPage";
+import HotelSearchPage from "@/pages/HotelSearchPage";
+import HomeStaySearchPage from "@/pages/HomeStaySearchPage";
+import HolidayPackagePage from "@/pages/HolidayPackagePage";
+
+// Import Redux store provider
+import { Provider } from "react-redux";
+import { store } from "@/store";
+
 function Router() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -26,13 +36,26 @@ function Router() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home}/>
-          <Route path="/flights" component={FlightSearch}/>
-          <Route path="/hotels" component={HotelSearch}/>
-          <Route path="/homestays" component={HomeStaySearch}/>
-          <Route path="/trains" component={TrainSearch}/>
-          <Route path="/buses" component={BusSearch}/>
-          <Route path="/cabs" component={CabSearch}/>
-          <Route path="/insurance" component={InsuranceSearch}/>
+          {/* Legacy pages */}
+          <Route path="/flight-search" component={FlightSearch}/>
+          <Route path="/hotel-search" component={HotelSearch}/>
+          <Route path="/homestay-search" component={HomeStaySearch}/>
+          <Route path="/train-search" component={TrainSearch}/>
+          <Route path="/bus-search" component={BusSearch}/>
+          <Route path="/cab-search" component={CabSearch}/>
+          <Route path="/insurance-search" component={InsuranceSearch}/>
+          
+          {/* New Material UI search pages */}
+          <Route path="/flights" component={FlightSearchPage}/>
+          <Route path="/flights/search" component={FlightSearchPage}/>
+          <Route path="/hotels" component={HotelSearchPage}/>
+          <Route path="/hotels/search" component={HotelSearchPage}/>
+          <Route path="/homestays" component={HomeStaySearchPage}/>
+          <Route path="/homestays/search" component={HomeStaySearchPage}/>
+          <Route path="/holiday-packages" component={HolidayPackagePage}/>
+          <Route path="/holiday-packages/search" component={HolidayPackagePage}/>
+          
+          {/* Checkout & confirmation */}
           <Route path="/checkout" component={Checkout}/>
           <Route path="/booking-success" component={BookingSuccess}/>
           <Route component={NotFound} />
@@ -46,14 +69,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class">
-        <MaterialThemeProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </MaterialThemeProvider>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider attribute="class">
+          <MaterialThemeProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </MaterialThemeProvider>
+        </ThemeProvider>
+      </Provider>
     </QueryClientProvider>
   );
 }

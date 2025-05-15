@@ -1,32 +1,49 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-import { useLocation } from "wouter"
+import { useLocation } from 'wouter';
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+/**
+ * Custom hook to get URL search parameters
+ */
+export function useSearchParams() {
+  const [location] = useLocation();
+  
+  // Get the query string from the location
+  const queryString = location.includes('?') 
+    ? location.substring(location.indexOf('?') + 1) 
+    : '';
+  
+  // Parse query string into an object
+  const params = new URLSearchParams(queryString);
+  
+  // Function to get a specific parameter
+  const getParam = (key: string): string | null => {
+    return params.get(key);
+  };
+  
+  return { getParam };
 }
 
-export function useSearchParams() {
-  const [location] = useLocation()
-  
-  const getParams = () => {
-    const params = new URLSearchParams(window.location.search)
-    return params
-  }
-  
-  const getParam = (key: string) => {
-    return getParams().get(key)
-  }
-  
-  const setParam = (key: string, value: string) => {
-    const params = getParams()
-    params.set(key, value)
-    return params.toString()
-  }
-  
-  return {
-    params: getParams(),
-    getParam,
-    setParam
-  }
+/**
+ * Format currency
+ */
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+/**
+ * Generate range of numbers
+ */
+export function range(start: number, end: number): number[] {
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+
+/**
+ * Truncate text with ellipsis
+ */
+export function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
 }
