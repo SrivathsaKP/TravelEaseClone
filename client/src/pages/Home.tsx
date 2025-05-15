@@ -1,9 +1,9 @@
 import HeroBanner from "@/components/HeroBanner";
-import SearchTabs from "@/components/SearchTabs";
 import FeaturedDestinations from "@/components/FeaturedDestinations";
 import PopularHotels from "@/components/PopularHotels";
 import DownloadApp from "@/components/DownloadApp";
 import { Helmet } from 'react-helmet';
+import MaterialSearchTabs from "@/components/MaterialSearchTabs";
 
 const Home = () => {
   return (
@@ -17,7 +17,7 @@ const Home = () => {
       </Helmet>
       
       <HeroBanner />
-      <SearchTabs />
+      <MaterialSearchTabs />
       <FeaturedDestinations />
       <PopularHotels />
       <DownloadApp />

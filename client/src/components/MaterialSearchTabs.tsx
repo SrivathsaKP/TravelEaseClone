@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'wouter';
-import { 
-  Tabs, 
-  Tab, 
-  Box, 
-  Paper, 
-  Container, 
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  SelectChangeEvent,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  IconButton,
-  InputAdornment
-} from '@mui/material';
+import { useLocation } from 'wouter';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Paper from '@mui/material/Paper';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import SelectChangeEvent from '@mui/material/Select';
+import Grid from '@mui/material/Grid';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
 import { 
   FlightTakeoff, 
   FlightLand, 
@@ -79,7 +77,7 @@ const cities = [
 
 const MaterialSearchTabs: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   // Flight search state
   const [flightSearch, setFlightSearch] = useState({
@@ -255,7 +253,7 @@ const MaterialSearchTabs: React.FC = () => {
             </Box>
 
             <Grid container spacing={3}>
-              <Grid item xs={12} md={3}>
+              <Grid xs={12} md={3}>
                 <FormControl fullWidth>
                   <TextField
                     select
@@ -277,7 +275,7 @@ const MaterialSearchTabs: React.FC = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Grid xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <IconButton 
                   onClick={() => swapLocations('flight')}
                   color="primary"
@@ -291,7 +289,7 @@ const MaterialSearchTabs: React.FC = () => {
                 </IconButton>
               </Grid>
 
-              <Grid item xs={12} md={3}>
+              <Grid xs={12} md={3}>
                 <FormControl fullWidth>
                   <TextField
                     select
@@ -313,7 +311,7 @@ const MaterialSearchTabs: React.FC = () => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} md={2}>
+              <Grid xs={12} md={2}>
                 <TextField
                   fullWidth
                   label="Departure Date"
@@ -332,7 +330,7 @@ const MaterialSearchTabs: React.FC = () => {
               </Grid>
 
               {flightSearch.tripType === 'round-trip' && (
-                <Grid item xs={12} md={2}>
+                <Grid xs={12} md={2}>
                   <TextField
                     fullWidth
                     label="Return Date"
@@ -351,7 +349,7 @@ const MaterialSearchTabs: React.FC = () => {
                 </Grid>
               )}
 
-              <Grid item xs={12} md={flightSearch.tripType === 'one-way' ? 3 : 2}>
+              <Grid xs={12} md={flightSearch.tripType === 'one-way' ? 3 : 2}>
                 <FormControl fullWidth>
                   <TextField
                     select
