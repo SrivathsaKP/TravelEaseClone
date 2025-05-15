@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -19,6 +19,13 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import Autocomplete from '@mui/material/Autocomplete';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Popper from '@mui/material/Popper';
+import { popularCities } from '../lib/mockData';
 import { 
   FlightTakeoff, 
   FlightLand, 
@@ -423,49 +430,66 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                   }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
                     <FormControl fullWidth sx={{ border: 'none' }}>
-                      <TextField
-                        select
-                        value={flightSearch.source}
-                        onChange={(e) => setFlightSearch({...flightSearch, source: e.target.value})}
-                        variant="outlined"
-                        placeholder="Enter city"
-                        fullWidth
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
+                      <Autocomplete
+                        value={flightSearch.source ? popularCities.find(city => city.name === flightSearch.source) || null : null}
+                        onChange={(e, newValue) => {
+                          if (newValue) {
+                            setFlightSearch({...flightSearch, source: newValue.name});
+                          }
+                        }}
+                        options={popularCities}
+                        getOptionLabel={(option) => option.name}
+                        renderOption={(props, option) => (
+                          <ListItem {...props} key={option.code}>
+                            <ListItemIcon sx={{ minWidth: 35 }}>
                               <FlightTakeoff sx={{ color: '#008cff' }} />
-                            </InputAdornment>
-                          ),
-                          sx: {
-                            border: 'none',
-                            '& fieldset': { border: 'none' }
-                          }
-                        }}
-                        SelectProps={{
-                          MenuProps: {
-                            PaperProps: {
-                              style: {
-                                maxHeight: 300
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary={
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <Typography component="span" sx={{ fontWeight: 'bold' }}>{option.name}</Typography>
+                                  <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>({option.code})</Typography>
+                                </Box>
                               }
-                            }
-                          }
-                        }}
-                        sx={{
-                          '& .MuiInputBase-input': {
-                            fontSize: '1.1rem',
-                            fontWeight: 600,
-                            padding: '0 !important',
-                            paddingLeft: '0 !important'
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none'
-                          }
-                        }}
-                      >
-                        {cities.map((city) => (
-                          <MenuItem key={city} value={city}>{city}</MenuItem>
-                        ))}
-                      </TextField>
+                              secondary={option.airport}
+                            />
+                          </ListItem>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Enter city or airport"
+                            variant="outlined"
+                            fullWidth
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <FlightTakeoff sx={{ color: '#008cff' }} />
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                border: 'none',
+                                '& fieldset': { border: 'none' }
+                              }
+                            }}
+                            sx={{
+                              '& .MuiInputBase-input': {
+                                fontSize: '1.1rem',
+                                fontWeight: 600,
+                                padding: '0 !important',
+                                paddingLeft: '0 !important'
+                              },
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                border: 'none'
+                              }
+                            }}
+                          />
+                        )}
+                        PopperComponent={props => (
+                          <Popper {...props} placement="bottom-start" style={{ width: '350px' }} />
+                        )}
+                      />
                     </FormControl>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
                       POPULAR CITIES
@@ -497,49 +521,66 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                   }}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TO</Typography>
                     <FormControl fullWidth sx={{ border: 'none' }}>
-                      <TextField
-                        select
-                        value={flightSearch.destination}
-                        onChange={(e) => setFlightSearch({...flightSearch, destination: e.target.value})}
-                        variant="outlined"
-                        placeholder="Enter city"
-                        fullWidth
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
+                      <Autocomplete
+                        value={flightSearch.destination ? popularCities.find(city => city.name === flightSearch.destination) || null : null}
+                        onChange={(e, newValue) => {
+                          if (newValue) {
+                            setFlightSearch({...flightSearch, destination: newValue.name});
+                          }
+                        }}
+                        options={popularCities}
+                        getOptionLabel={(option) => option.name}
+                        renderOption={(props, option) => (
+                          <ListItem {...props} key={option.code}>
+                            <ListItemIcon sx={{ minWidth: 35 }}>
                               <FlightLand sx={{ color: '#008cff' }} />
-                            </InputAdornment>
-                          ),
-                          sx: {
-                            border: 'none',
-                            '& fieldset': { border: 'none' }
-                          }
-                        }}
-                        SelectProps={{
-                          MenuProps: {
-                            PaperProps: {
-                              style: {
-                                maxHeight: 300
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary={
+                                <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  <Typography component="span" sx={{ fontWeight: 'bold' }}>{option.name}</Typography>
+                                  <Typography component="span" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>({option.code})</Typography>
+                                </Box>
                               }
-                            }
-                          }
-                        }}
-                        sx={{
-                          '& .MuiInputBase-input': {
-                            fontSize: '1.1rem',
-                            fontWeight: 600,
-                            padding: '0 !important',
-                            paddingLeft: '0 !important'
-                          },
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none'
-                          }
-                        }}
-                      >
-                        {cities.map((city) => (
-                          <MenuItem key={city} value={city}>{city}</MenuItem>
-                        ))}
-                      </TextField>
+                              secondary={option.airport}
+                            />
+                          </ListItem>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            placeholder="Enter city or airport"
+                            variant="outlined"
+                            fullWidth
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <FlightLand sx={{ color: '#008cff' }} />
+                                </InputAdornment>
+                              ),
+                              sx: {
+                                border: 'none',
+                                '& fieldset': { border: 'none' }
+                              }
+                            }}
+                            sx={{
+                              '& .MuiInputBase-input': {
+                                fontSize: '1.1rem',
+                                fontWeight: 600,
+                                padding: '0 !important',
+                                paddingLeft: '0 !important'
+                              },
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                border: 'none'
+                              }
+                            }}
+                          />
+                        )}
+                        PopperComponent={props => (
+                          <Popper {...props} placement="bottom-start" style={{ width: '350px' }} />
+                        )}
+                      />
                     </FormControl>
                   </Box>
                 </Grid>

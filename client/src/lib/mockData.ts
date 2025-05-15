@@ -410,6 +410,94 @@ export const mockBuses: Bus[] = [
 ];
 
 // Mock train data for testing front-end components
+// Popular cities for autocomplete
+export const popularCities = [
+  {
+    code: "DEL",
+    name: "Delhi",
+    airport: "Indira Gandhi International Airport",
+    country: "India"
+  },
+  {
+    code: "BOM",
+    name: "Mumbai",
+    airport: "Chhatrapati Shivaji International Airport",
+    country: "India"
+  },
+  {
+    code: "BLR",
+    name: "Bengaluru",
+    airport: "Bengaluru International Airport",
+    country: "India"
+  },
+  {
+    code: "CCU",
+    name: "Kolkata",
+    airport: "Netaji Subhas Chandra Bose International Airport",
+    country: "India"
+  },
+  {
+    code: "HYD",
+    name: "Hyderabad",
+    airport: "Rajiv Gandhi International Airport",
+    country: "India"
+  },
+  {
+    code: "MAA",
+    name: "Chennai",
+    airport: "Chennai International Airport",
+    country: "India"
+  },
+  {
+    code: "BKK",
+    name: "Bangkok",
+    airport: "Suvarnabhumi Airport",
+    country: "Thailand"
+  },
+  {
+    code: "SIN",
+    name: "Singapore",
+    airport: "Changi Airport",
+    country: "Singapore"
+  },
+  {
+    code: "DXB",
+    name: "Dubai",
+    airport: "Dubai International Airport",
+    country: "United Arab Emirates"
+  },
+  {
+    code: "JFK",
+    name: "New York",
+    airport: "John F. Kennedy International Airport",
+    country: "United States"
+  },
+  {
+    code: "LHR",
+    name: "London",
+    airport: "Heathrow Airport",
+    country: "United Kingdom"
+  },
+  {
+    code: "CDG",
+    name: "Paris",
+    airport: "Charles de Gaulle Airport",
+    country: "France"
+  },
+  {
+    code: "SYD",
+    name: "Sydney",
+    airport: "Sydney Airport",
+    country: "Australia"
+  },
+  {
+    code: "HKG",
+    name: "Hong Kong",
+    airport: "Hong Kong International Airport",
+    country: "Hong Kong"
+  }
+];
+
 export const mockTrains: Train[] = [
   {
     id: "TR001",
