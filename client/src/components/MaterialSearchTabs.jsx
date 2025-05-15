@@ -208,10 +208,12 @@ const MaterialSearchTabs = ({ onTabChange }) => {
             '& .Mui-selected': { 
               color: '#333',
               fontWeight: 700,
-              background: '#ffcc00'
+              background: '#ffcc00',
+              borderBottom: '3px solid #008cff'
             },
             '& .MuiTabs-indicator': { 
-              display: 'none'
+              backgroundColor: '#008cff',
+              height: 3
             },
             '& .MuiSvgIcon-root': {
               fontSize: '1.5rem',
