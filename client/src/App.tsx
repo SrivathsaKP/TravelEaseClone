@@ -25,6 +25,8 @@ import FlightSearchPage from "@/pages/FlightSearchPage";
 import HotelSearchPage from "@/pages/HotelSearchPage";
 import BusSearchPage from "@/pages/BusSearchPage";
 import TrainSearchPage from "@/pages/TrainSearchPage";
+import CabSearchPage from "@/pages/CabSearchPage";
+import InsuranceSearchPage from "@/pages/InsuranceSearchPage";
 import HomeStaySearchPage from "@/pages/HomeStaySearchPage";
 import HolidayPackagePage from "@/pages/HolidayPackagePage";
 
@@ -62,6 +64,10 @@ function Router() {
           <Route path="/buses/search" component={BusSearchPage}/>
           <Route path="/trains" component={TrainSearchPage}/>
           <Route path="/trains/search" component={TrainSearchPage}/>
+          <Route path="/cabs" component={CabSearchPage}/>
+          <Route path="/cabs/search" component={CabSearchPage}/>
+          <Route path="/travel-insurance" component={InsuranceSearchPage}/>
+          <Route path="/travel-insurance/search" component={InsuranceSearchPage}/>
           <Route path="/homestays" component={HomeStaySearchPage}/>
           <Route path="/homestays/search" component={HomeStaySearchPage}/>
           <Route path="/holiday-packages" component={HolidayPackagePage}/>
