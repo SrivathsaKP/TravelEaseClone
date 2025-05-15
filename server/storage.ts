@@ -1,5 +1,5 @@
 import { 
-  User, InsertUser, Flight, InsertFlight, 
+  User, UpsertUser, InsertUser, Flight, InsertFlight, 
   Hotel, InsertHotel, Bus, InsertBus, 
   Train, InsertTrain, Booking, InsertBooking,
   Cab, InsertCab, Homestay, InsertHomestay,
@@ -12,12 +12,16 @@ import { trainData } from "./mockData/trains";
 import { cabData } from "./mockData/cabs";
 import { homestayData } from "./mockData/homestays";
 import { insuranceData } from "./mockData/insurance";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import { users, bookings } from "@shared/schema";
 
 export interface IStorage {
-  // User methods
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // User methods for Replit Auth
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  updateStripeCustomerId(userId: string, customerId: string): Promise<User>;
+  updateUserStripeInfo(userId: string, stripeInfo: { customerId: string, subscriptionId: string }): Promise<User>;
   
   // Flight methods
   getFlights(): Promise<Flight[]>;
@@ -56,7 +60,7 @@ export interface IStorage {
   
   // Booking methods
   createBooking(booking: InsertBooking): Promise<Booking>;
-  getBookingsByUserId(userId: number): Promise<Booking[]>;
+  getBookingsByUserId(userId: string): Promise<Booking[]>;
   getBookingById(id: number): Promise<Booking | undefined>;
 }
 
@@ -317,4 +321,169 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation for Replit Auth and Stripe
+export class DatabaseStorage implements IStorage {
+  // User methods for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  async updateStripeCustomerId(userId: string, customerId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ stripeCustomerId: customerId })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserStripeInfo(userId: string, stripeInfo: { customerId: string, subscriptionId: string }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        stripeCustomerId: stripeInfo.customerId,
+        stripeSubscriptionId: stripeInfo.subscriptionId,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+  
+  // Re-using MemStorage for other entities during transition
+  private memStorage = new MemStorage();
+  
+  // Flight methods
+  async getFlights(): Promise<Flight[]> {
+    return this.memStorage.getFlights();
+  }
+  
+  async getFlightById(id: string): Promise<Flight | undefined> {
+    return this.memStorage.getFlightById(id);
+  }
+  
+  async searchFlights(source: string, destination: string, date: string): Promise<Flight[]> {
+    return this.memStorage.searchFlights(source, destination, date);
+  }
+  
+  // Hotel methods
+  async getHotels(): Promise<Hotel[]> {
+    return this.memStorage.getHotels();
+  }
+  
+  async getHotelById(id: string): Promise<Hotel | undefined> {
+    return this.memStorage.getHotelById(id);
+  }
+  
+  async searchHotels(city: string, checkIn: string, checkOut: string): Promise<Hotel[]> {
+    return this.memStorage.searchHotels(city, checkIn, checkOut);
+  }
+  
+  // Bus methods
+  async getBuses(): Promise<Bus[]> {
+    return this.memStorage.getBuses();
+  }
+  
+  async getBusById(id: string): Promise<Bus | undefined> {
+    return this.memStorage.getBusById(id);
+  }
+  
+  async searchBuses(source: string, destination: string, date: string): Promise<Bus[]> {
+    return this.memStorage.searchBuses(source, destination, date);
+  }
+  
+  // Train methods
+  async getTrains(): Promise<Train[]> {
+    return this.memStorage.getTrains();
+  }
+  
+  async getTrainById(id: string): Promise<Train | undefined> {
+    return this.memStorage.getTrainById(id);
+  }
+  
+  async searchTrains(source: string, destination: string, date: string): Promise<Train[]> {
+    return this.memStorage.searchTrains(source, destination, date);
+  }
+  
+  // Booking methods
+  async createBooking(booking: InsertBooking): Promise<Booking> {
+    const [newBooking] = await db
+      .insert(bookings)
+      .values(booking)
+      .returning();
+    return newBooking;
+  }
+  
+  async getBookingsByUserId(userId: string): Promise<Booking[]> {
+    return db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.userId, userId));
+  }
+  
+  async getBookingById(id: number): Promise<Booking | undefined> {
+    const [booking] = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.id, id));
+    return booking;
+  }
+  
+  // Cab methods
+  async getCabs(): Promise<Cab[]> {
+    return this.memStorage.getCabs();
+  }
+  
+  async getCabById(id: string): Promise<Cab | undefined> {
+    return this.memStorage.getCabById(id);
+  }
+  
+  async searchCabs(cityOrLocation: string, pickupDate: string, vehicleType?: string): Promise<Cab[]> {
+    return this.memStorage.searchCabs(cityOrLocation, pickupDate, vehicleType);
+  }
+  
+  // Homestay methods
+  async getHomestays(): Promise<Homestay[]> {
+    return this.memStorage.getHomestays();
+  }
+  
+  async getHomestayById(id: string): Promise<Homestay | undefined> {
+    return this.memStorage.getHomestayById(id);
+  }
+  
+  async searchHomestays(location: string, checkIn: string, checkOut: string, guests?: number): Promise<Homestay[]> {
+    return this.memStorage.searchHomestays(location, checkIn, checkOut, guests);
+  }
+  
+  // Insurance methods
+  async getInsurancePlans(): Promise<InsurancePlan[]> {
+    return this.memStorage.getInsurancePlans();
+  }
+  
+  async getInsurancePlanById(id: string): Promise<InsurancePlan | undefined> {
+    return this.memStorage.getInsurancePlanById(id);
+  }
+  
+  async searchInsurancePlans(coverageType: string, duration: number): Promise<InsurancePlan[]> {
+    return this.memStorage.searchInsurancePlans(coverageType, duration);
+  }
+}
+
+// Use DatabaseStorage for production
+export const storage = new DatabaseStorage();

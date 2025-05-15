@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb, real } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, real, varchar, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -9,16 +9,29 @@ import {
   InsurancePlan as InsuranceType 
 } from "../client/src/lib/types";
 
-// User Model
+// Session storage table - required for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User Model - updated for Replit Auth
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  email: text("email").notNull().unique(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
+  id: varchar("id").primaryKey().notNull(), // Replit Auth uses string ID
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
   phone: text("phone"),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
 });
 
 // Flight Model
@@ -100,7 +113,7 @@ export const trains = pgTable("trains", {
 // Booking Model
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: varchar("user_id").notNull(),
   bookingType: text("booking_type").notNull(), // flight, hotel, bus, train
   referenceId: text("reference_id").notNull(),
   status: text("status").notNull(),
@@ -113,7 +126,8 @@ export const bookings = pgTable("bookings", {
 });
 
 // Creating insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true, updatedAt: true });
+export const upsertUserSchema = createInsertSchema(users).omit({ createdAt: true, updatedAt: true });
 export const insertFlightSchema = createInsertSchema(flights).omit({ id: true });
 export const insertHotelSchema = createInsertSchema(hotels).omit({ id: true });
 export const insertBusSchema = createInsertSchema(buses).omit({ id: true });
@@ -181,6 +195,7 @@ export const insertInsurancePlanSchema = createInsertSchema(insurancePlans).omit
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertFlight = z.infer<typeof insertFlightSchema>;
 export type Flight = typeof flights.$inferSelect;
