@@ -162,19 +162,86 @@ const HotelResults: React.FC<HotelResultsProps> = ({
     return diffDays;
   };
 
+  const [activeTab, setActiveTab] = useState(0);
+
+  const sortOptions = [
+    { label: "PRICE", value: "price-low-high", icon: <LocalOfferIcon fontSize="small" color="primary" /> },
+    { label: "STAR CATEGORY", value: "rating-high-low", icon: <Star size={16} /> },
+    { label: "USER RATING", value: "user-rating", icon: <ThumbUpIcon fontSize="small" /> },
+    { label: "RECOMMENDED", value: "recommended", icon: <FreeBreakfastIcon fontSize="small" /> }
+  ];
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+    // Set the sort criteria based on the selected tab
+    switch(newValue) {
+      case 0:
+        setSortBy("price-low-high");
+        break;
+      case 1: 
+        setSortBy("rating-high-low");
+        break;
+      case 2:
+        setSortBy("name-a-z");
+        break;
+      case 3:
+        // Keep current sort
+        break;
+      default:
+        setSortBy("price-low-high");
+    }
+  };
+
+  // Define columns for DataGrid
+  const getHotelRows = () => {
+    return sortedHotels.map(hotel => {
+      const minPrice = hotel.roomTypes && Array.isArray(hotel.roomTypes) 
+        ? Math.min(...hotel.roomTypes.map(room => room.pricing.totalPrice))
+        : 0;
+      
+      // Calculate average rating
+      const avgRating = hotel.reviews && Array.isArray(hotel.reviews) && hotel.reviews.length > 0
+        ? hotel.reviews.reduce((sum, r) => sum + r.rating, 0) / hotel.reviews.length
+        : hotel.starRating;
+        
+      return {
+        id: hotel.id,
+        hotel: hotel,
+        name: hotel.name,
+        location: hotel.city,
+        starRating: hotel.starRating,
+        avgRating: avgRating,
+        price: minPrice,
+        amenities: hotel.amenities && Array.isArray(hotel.amenities) ? hotel.amenities : [],
+        image: hotel.images && Array.isArray(hotel.images) && hotel.images.length > 0 
+          ? hotel.images[0].url 
+          : 'https://via.placeholder.com/300x200?text=Hotel+Image'
+      };
+    });
+  };
+
   return (
-    <div className="container mx-auto px-4 mb-12">
-      <div className="flex flex-col md:flex-row gap-6">
+    <Container maxWidth="lg" sx={{ mb: 8, mt: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Filters Sidebar */}
-        <div className="w-full md:w-80 bg-white rounded-xl p-5 search-panel self-start sticky top-20">
-          <h3 className="text-lg font-semibold mb-4 heading">Filters</h3>
+        <Box sx={{ 
+          width: { xs: '100%', md: '270px' }, 
+          bgcolor: 'white', 
+          borderRadius: 2,
+          boxShadow: 1,
+          p: 2,
+          alignSelf: 'flex-start',
+          position: 'sticky',
+          top: '90px'
+        }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Filters</Typography>
           
-          <div className="border-b border-neutral-200 pb-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Price Range (per night)</h4>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-neutral-400">₹{priceRange[0]}</span>
-              <span className="text-xs text-neutral-400">₹{priceRange[1]}</span>
-            </div>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Price Per Night</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">₹{priceRange[0]}</Typography>
+              <Typography variant="caption" color="text.secondary">₹{priceRange[1]}</Typography>
+            </Box>
             <Slider
               defaultValue={[1000, 15000]}
               min={1000}
@@ -184,78 +251,165 @@ const HotelResults: React.FC<HotelResultsProps> = ({
               onValueChange={setPriceRange}
               className="w-full"
             />
-          </div>
+          </Box>
           
-          <div className="border-b border-neutral-200 pb-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Star Rating</h4>
-            <div className="space-y-2">
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Star Category</Typography>
+            <Grid container spacing={1}>
               {starRatingOptions.map(rating => (
-                <div className="flex items-center space-x-2" key={rating}>
-                  <Checkbox 
-                    id={`rating-${rating}`} 
-                    checked={starRating.includes(rating)}
-                    onCheckedChange={() => handleStarRatingChange(rating)}
-                  />
-                  <label 
-                    htmlFor={`rating-${rating}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center"
-                  >
-                    {rating} {rating === 1 ? 'Star' : 'Stars'}
-                    <div className="flex ml-1">
-                      {[...Array(rating)].map((_, i) => (
-                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                  </label>
-                </div>
+                <Grid item xs={12} key={rating}>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox 
+                      id={`rating-${rating}`} 
+                      checked={starRating.includes(rating)}
+                      onCheckedChange={() => handleStarRatingChange(rating)}
+                      sx={{ p: 0.5 }}
+                    />
+                    <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating
+                          value={rating}
+                          readOnly
+                          size="small"
+                          sx={{ color: '#FFD700' }}
+                        />
+                      </Box>
+                    </Box>
+                    <Typography variant="body2" sx={{ ml: 'auto', fontWeight: 'bold' }}>
+                      ₹{Math.min(...filteredHotels.filter(h => h.starRating === rating).map(h => {
+                        return (h.roomTypes && Array.isArray(h.roomTypes)) 
+                          ? Math.min(...h.roomTypes.map(room => room.pricing.totalPrice))
+                          : 0;
+                      }))}
+                    </Typography>
+                  </Box>
+                </Grid>
               ))}
-            </div>
-          </div>
+            </Grid>
+          </Box>
           
-          <div>
-            <h4 className="text-sm font-medium mb-3">Amenities</h4>
-            <div className="space-y-2">
+          <Box sx={{ pb: 2, mb: 2 }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>Hotel Amenities</Typography>
+            <Box sx={{ ml: 1 }}>
               {amenities.slice(0, 8).map((amenity, index) => (
-                <div className="flex items-center space-x-2" key={index}>
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }} key={index}>
                   <Checkbox 
                     id={`amenity-${index}`} 
                     checked={selectedAmenities.includes(amenity)}
                     onCheckedChange={() => handleAmenityChange(amenity)}
+                    sx={{ p: 0.5 }}
                   />
-                  <label 
-                    htmlFor={`amenity-${index}`}
-                    className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {amenity}
-                  </label>
-                </div>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {amenity === 'WiFi' && <WifiIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                    {amenity === 'Breakfast' && <FreeBreakfastIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                    {amenity === 'Parking' && <Car size={16} className="mr-1" />}
+                    {amenity === 'AC' && <Snowflake size={16} className="mr-1" />}
+                    {amenity === 'Pool' && <PoolIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                    <Typography variant="body2" sx={{ ml: 0.5 }}>
+                      {amenity}
+                    </Typography>
+                  </Box>
+                </Box>
               ))}
-            </div>
-          </div>
+            </Box>
+          </Box>
           
-          <Button className="w-full mt-6 bg-primary text-white py-2 rounded-lg font-medium text-sm">
-            Apply Filters
+          <Button 
+            className="w-full mt-6 bg-primary text-white py-2 rounded-lg font-medium text-sm"
+            variant="contained"
+            sx={{ 
+              bgcolor: '#008cff', 
+              '&:hover': { bgcolor: '#0071ce' },
+              fontWeight: 'bold'
+            }}
+          >
+            APPLY FILTERS
           </Button>
-        </div>
+        </Box>
         
         {/* Results List */}
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold heading">Hotels in {city}</h2>
-            <div className="flex items-center">
-              <span className="text-sm text-neutral-400 mr-2">Sort by:</span>
-              <select 
-                className="text-sm border border-neutral-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-primary/40"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="price-low-high">Price: Low to High</option>
-                <option value="price-high-low">Price: High to Low</option>
-                <option value="rating-high-low">Rating: High to Low</option>
-                <option value="name-a-z">Name: A to Z</option>
-              </select>
-            </div>
-          </div>
+        <Box sx={{ flex: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" fontWeight="bold">Hotels in {city}</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {checkIn} - {checkOut} • {getNightCount(checkIn, checkOut)} nights
+            </Typography>
+          </Box>
+          
+          {/* Sorting tabs */}
+          <Box sx={{ mb: 2 }}>
+            <Tabs 
+              value={activeTab} 
+              onChange={handleTabChange}
+              variant="fullWidth"
+              sx={{ 
+                bgcolor: 'white', 
+                borderRadius: 1,
+                boxShadow: 1,
+                '.MuiTabs-indicator': { 
+                  height: '4px',
+                  borderTopLeftRadius: '4px',
+                  borderTopRightRadius: '4px',
+                  bgcolor: '#008cff'
+                }
+              }}
+            >
+              {sortOptions.map((option, index) => (
+                <Tab 
+                  key={option.value}
+                  label={
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <Box sx={{ 
+                        width: '35px', 
+                        height: '35px', 
+                        borderRadius: '50%', 
+                        bgcolor: index === activeTab ? '#008cff' : 'rgba(0, 140, 255, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 0.5
+                      }}>
+                        {option.icon}
+                      </Box>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          fontWeight: index === activeTab ? 'bold' : 'normal',
+                          color: index === activeTab ? '#008cff' : 'text.primary' 
+                        }}
+                      >
+                        {option.label}
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{ 
+                    textTransform: 'none',
+                    minWidth: 0,
+                    p: 1,
+                    '&.Mui-selected': {
+                      color: '#008cff'
+                    }
+                  }}
+                />
+              ))}
+            </Tabs>
+          </Box>
+
+          {/* Information banner */}
+          <Box sx={{ 
+            bgcolor: 'white', 
+            p: 1.5, 
+            mb: 2, 
+            borderRadius: 1,
+            boxShadow: 1,
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            <Typography variant="body2">Hotels sorted by lowest price in {city}</Typography>
+            <Typography variant="body2" sx={{ color: 'orange', fontStyle: 'italic' }}>
+              Secret deals available for premium members
+            </Typography>
+          </Box>
           
           {loading ? (
             <div className="flex justify-center items-center py-12">
