@@ -114,7 +114,7 @@ const FlightSearchPage = () => {
     params.append('fareType', fareType);
     
     // Navigate to results page
-    navigate('/flights/search?' + params.toString());
+    setLocation('/flights/search?' + params.toString());
   };
 
   return (

@@ -52,7 +52,7 @@ const popularHotels = [
 ];
 
 const HotelSearchPage = () => {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const [city, setCity] = useState<{id: number; name: string; state: string} | null>(null);
   const [checkInDate, setCheckInDate] = useState<Date | null>(new Date());
   const [checkOutDate, setCheckOutDate] = useState<Date | null>(
@@ -115,7 +115,7 @@ const HotelSearchPage = () => {
     }
     
     // Navigate to results page
-    navigate('/hotels/search?' + params.toString());
+    setLocation('/hotels/search?' + params.toString());
   };
 
   return (
