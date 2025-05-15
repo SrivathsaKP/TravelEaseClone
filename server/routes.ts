@@ -71,26 +71,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/flights/:id', async (req: Request, res: Response) => {
-    try {
-      const flight = await storage.getFlightById(req.params.id);
-      
-      if (!flight) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'Flight not found' 
-        });
-      }
-      
-      res.status(200).json({ success: true, data: flight });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to get flight' 
-      });
-    }
-  });
-
   app.get('/api/search/flights', async (req: Request, res: Response) => {
     try {
       const schema = z.object({
@@ -137,6 +117,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/flights/:id', async (req: Request, res: Response) => {
+    try {
+      // If we're looking for a 'search' endpoint, return all flights
+      if (req.params.id === 'search') {
+        const flights = await storage.getFlights();
+        return res.status(200).json({ success: true, data: flights });
+      }
+      
+      const flight = await storage.getFlightById(req.params.id);
+      
+      if (!flight) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Flight not found' 
+        });
+      }
+      
+      res.status(200).json({ success: true, data: flight });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get flight' 
+      });
+    }
+  });
+
   // Hotel routes
   app.get('/api/hotels', async (_req: Request, res: Response) => {
     try {
@@ -146,26 +152,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ 
         success: false, 
         message: error instanceof Error ? error.message : 'Failed to get hotels' 
-      });
-    }
-  });
-
-  app.get('/api/hotels/:id', async (req: Request, res: Response) => {
-    try {
-      const hotel = await storage.getHotelById(req.params.id);
-      
-      if (!hotel) {
-        return res.status(404).json({ 
-          success: false, 
-          message: 'Hotel not found' 
-        });
-      }
-      
-      res.status(200).json({ success: true, data: hotel });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to get hotel' 
       });
     }
   });
@@ -216,6 +202,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/hotels/:id', async (req: Request, res: Response) => {
+    try {
+      // If we're looking for a 'search' endpoint, return all hotels
+      if (req.params.id === 'search') {
+        const hotels = await storage.getHotels();
+        return res.status(200).json({ success: true, data: hotels });
+      }
+      
+      const hotel = await storage.getHotelById(req.params.id);
+      
+      if (!hotel) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Hotel not found' 
+        });
+      }
+      
+      res.status(200).json({ success: true, data: hotel });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get hotel' 
+      });
+    }
+  });
+
   // Bus routes
   app.get('/api/buses', async (_req: Request, res: Response) => {
     try {
@@ -229,8 +241,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/buses/search', async (req: Request, res: Response) => {
+    try {
+      // Get all buses for any search parameters for development
+      const buses = await storage.getBuses();
+      res.status(200).json({ success: true, data: buses });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search buses' 
+      });
+    }
+  });
+
   app.get('/api/buses/:id', async (req: Request, res: Response) => {
     try {
+      // If we're looking for a 'search' endpoint, return all buses
+      if (req.params.id === 'search') {
+        const buses = await storage.getBuses();
+        return res.status(200).json({ success: true, data: buses });
+      }
+      
       const bus = await storage.getBusById(req.params.id);
       
       if (!bus) {
@@ -249,19 +280,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/buses/search', async (req: Request, res: Response) => {
-    try {
-      // Get all buses for any search parameters for development
-      const buses = await storage.getBuses();
-      res.status(200).json({ success: true, data: buses });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to search buses' 
-      });
-    }
-  });
-
   // Train routes
   app.get('/api/trains', async (_req: Request, res: Response) => {
     try {
@@ -275,8 +293,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/trains/search', async (req: Request, res: Response) => {
+    try {
+      // Get all trains for any search parameters for development
+      const trains = await storage.getTrains();
+      res.status(200).json({ success: true, data: trains });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search trains' 
+      });
+    }
+  });
+
   app.get('/api/trains/:id', async (req: Request, res: Response) => {
     try {
+      // If we're looking for a 'search' endpoint, return all trains
+      if (req.params.id === 'search') {
+        const trains = await storage.getTrains();
+        return res.status(200).json({ success: true, data: trains });
+      }
+      
       const train = await storage.getTrainById(req.params.id);
       
       if (!train) {
@@ -291,19 +328,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ 
         success: false, 
         message: error instanceof Error ? error.message : 'Failed to get train' 
-      });
-    }
-  });
-
-  app.get('/api/trains/search', async (req: Request, res: Response) => {
-    try {
-      // Get all trains for any search parameters for development
-      const trains = await storage.getTrains();
-      res.status(200).json({ success: true, data: trains });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to search trains' 
       });
     }
   });
@@ -370,8 +394,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/cabs/search', async (req: Request, res: Response) => {
+    try {
+      // Get all cabs for any search parameters for development
+      const cabs = await storage.getCabs();
+      res.status(200).json({ success: true, data: cabs });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search cabs' 
+      });
+    }
+  });
+
   app.get('/api/cabs/:id', async (req: Request, res: Response) => {
     try {
+      // If we're looking for a 'search' endpoint, return all cabs
+      if (req.params.id === 'search') {
+        const cabs = await storage.getCabs();
+        return res.status(200).json({ success: true, data: cabs });
+      }
+      
       const cab = await storage.getCabById(req.params.id);
       
       if (!cab) {
@@ -390,19 +433,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/cabs/search', async (req: Request, res: Response) => {
-    try {
-      // Get all cabs for any search parameters for development
-      const cabs = await storage.getCabs();
-      res.status(200).json({ success: true, data: cabs });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to search cabs' 
-      });
-    }
-  });
-
   // Homestay routes
   app.get('/api/homestays', async (_req: Request, res: Response) => {
     try {
@@ -416,8 +446,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/homestays/search', async (req: Request, res: Response) => {
+    try {
+      // Get all homestays for any search parameters for development
+      const homestays = await storage.getHomestays();
+      res.status(200).json({ success: true, data: homestays });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search homestays' 
+      });
+    }
+  });
+
   app.get('/api/homestays/:id', async (req: Request, res: Response) => {
     try {
+      // If we're looking for a 'search' endpoint, return all homestays
+      if (req.params.id === 'search') {
+        const homestays = await storage.getHomestays();
+        return res.status(200).json({ success: true, data: homestays });
+      }
+      
       const homestay = await storage.getHomestayById(req.params.id);
       
       if (!homestay) {
@@ -432,19 +481,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ 
         success: false, 
         message: error instanceof Error ? error.message : 'Failed to get homestay' 
-      });
-    }
-  });
-
-  app.get('/api/homestays/search', async (req: Request, res: Response) => {
-    try {
-      // Get all homestays for any search parameters for development
-      const homestays = await storage.getHomestays();
-      res.status(200).json({ success: true, data: homestays });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to search homestays' 
       });
     }
   });
