@@ -323,10 +323,7 @@ const HolidayPackagePage = () => {
         </Container>
       </Box>
 
-      {/* Tab Navigation */}
-      <Container sx={{ mt: -2, mb: 2 }}>
-        <TabNavigation />
-      </Container>
+
 
       {/* Search Form */}
       <SearchContainer maxWidth="lg">

@@ -120,7 +120,6 @@ const HotelSearchPage = () => {
 
   return (
     <>
-      <TabNavigation />
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
           <Typography variant="h5" gutterBottom fontWeight="bold" color="#008cff">
