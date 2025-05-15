@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
+import { popularCities } from '../lib/mockData';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
@@ -68,6 +69,9 @@ function a11yProps(index) {
 }
 
 const today = format(new Date(), 'yyyy-MM-dd');
+
+// Get list of city names from the popularCities data
+const cityNames = popularCities.map(city => city.name);
 
 const MaterialSearchTabs = ({ onTabChange }) => {
   const [tabValue, setTabValue] = useState(0);
