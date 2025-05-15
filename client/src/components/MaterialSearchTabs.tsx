@@ -585,6 +585,9 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
                         )}
                       />
                     </FormControl>
+                    <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#008cff' }}>
+                      Tap to add a city
+                    </Typography>
                   </Box>
                 </Grid>
 
