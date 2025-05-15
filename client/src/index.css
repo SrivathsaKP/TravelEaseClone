@@ -3,65 +3,85 @@
 @tailwind utilities;
 
 :root {
+  /* Material Design inspired color palette */
   --background: 0 0% 100%;
-  --foreground: 20 14.3% 4.1%;
-  --muted: 60 4.8% 95.9%;
-  --muted-foreground: 25 5.3% 44.7%;
+  --foreground: 0 0% 12%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
   --popover: 0 0% 100%;
-  --popover-foreground: 20 14.3% 4.1%;
+  --popover-foreground: 0 0% 12%;
   --card: 0 0% 100%;
-  --card-foreground: 20 14.3% 4.1%;
-  --border: 20 5.9% 90%;
-  --input: 20 5.9% 90%;
-  --primary: 207 90% 54%;
-  --primary-foreground: 211 100% 99%;
-  --secondary: 32 100% 50%;
-  --secondary-foreground: 60 9.1% 97.8%;
-  --accent: 172 100% 40%;
-  --accent-foreground: 211 100% 99%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 60 9.1% 97.8%;
-  --ring: 20 14.3% 4.1%;
+  --card-foreground: 0 0% 12%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  
+  /* Primary: Material Blue (500) */
+  --primary: 214 89% 52%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary: Material Amber (500) */
+  --secondary: 45 100% 51%;
+  --secondary-foreground: 0 0% 12%;
+  
+  /* Accent: Material Teal (500) */
+  --accent: 174 100% 29%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Error: Material Red (500) */
+  --destructive: 4 90% 58%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --ring: 214 89% 52%;
   --radius: 0.5rem;
   
-  /* Custom sidebar colors */
-  --sidebar-background: 240 10% 3.9%;
+  /* Custom sidebar colors - using Material Dark theme colors */
+  --sidebar-background: 0 0% 12%;
   --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 210 100% 52%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 217 91% 60%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 240 3.7% 15.9%;
-  --sidebar-ring: 240 3.7% 15.9%;
+  --sidebar-primary: 214 89% 52%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 174 100% 29%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 0 0% 18%;
+  --sidebar-ring: 0 0% 18%;
 
-  /* Chart colors */
-  --chart-1: 207 90% 54%;
-  --chart-2: 32 100% 50%;
-  --chart-3: 172 100% 40%;
-  --chart-4: 262 83% 58%;
-  --chart-5: 0 84% 60%;
+  /* Chart colors - using Material Design colors */
+  --chart-1: 214 89% 52%; /* Blue */
+  --chart-2: 45 100% 51%; /* Amber */
+  --chart-3: 174 100% 29%; /* Teal */
+  --chart-4: 291 64% 42%; /* Purple */
+  --chart-5: 4 90% 58%;   /* Red */
 }
 
 .dark {
-  --background: 240 10% 3.9%;
+  /* Material Design Dark theme */
+  --background: 0 0% 12%;
   --foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --popover: 240 10% 3.9%;
+  --muted: 0 0% 18%;
+  --muted-foreground: 0 0% 70%;
+  --popover: 0 0% 12%;
   --popover-foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
+  --card: 0 0% 12%;
   --card-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --primary: 210 100% 52%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 32 100% 50%;
-  --secondary-foreground: 0 0% 98%;
-  --accent: 172 100% 40%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --ring: 240 4.9% 83.9%;
+  --border: 0 0% 25%;
+  --input: 0 0% 25%;
+  
+  /* Primary: Material Blue (300) - brighter in dark mode */
+  --primary: 214 89% 60%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary: Material Amber (300) - brighter in dark mode */
+  --secondary: 45 100% 60%;
+  --secondary-foreground: 0 0% 12%;
+  
+  /* Accent: Material Teal (300) - brighter in dark mode */
+  --accent: 174 100% 38%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Error: Material Red (300) - brighter in dark mode */
+  --destructive: 4 90% 65%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --ring: 214 89% 60%;
 }
 
 @layer base {
