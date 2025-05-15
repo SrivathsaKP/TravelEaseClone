@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useSearch } from "wouter/use-location";
+import { useLocation } from "wouter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function InsuranceSearch() {
-  const search = useSearch();
-  const params = new URLSearchParams(search);
+  const [locationPath] = useLocation();
+  const params = new URLSearchParams(locationPath.split('?')[1] || '');
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   
   const travelType = params.get('type') || 'domestic';

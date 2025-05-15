@@ -12,20 +12,20 @@ export default function HomestaySearch() {
   const params = new URLSearchParams(locationPath.split('?')[1] || '');
   const [showDetails, setShowDetails] = useState<string | null>(null);
   
-  const location = params.get('location') || '';
+  const searchLocation = params.get('location') || '';
   const checkIn = params.get('checkIn') || '';
   const checkOut = params.get('checkOut') || '';
   const guests = params.get('guests') || '';
   const propertyType = params.get('type') || 'All Properties';
   
   const { isLoading, error, data } = useQuery({
-    queryKey: ['/api/homestays/search', location, checkIn, checkOut, guests, propertyType],
-    enabled: !!(location && checkIn && checkOut)
+    queryKey: ['/api/homestays/search', searchLocation, checkIn, checkOut, guests, propertyType],
+    enabled: !!(searchLocation && checkIn && checkOut)
   });
   
   useEffect(() => {
-    document.title = `Homestay Search - ${location} | TravelEase`;
-  }, [location]);
+    document.title = `Homestay Search - ${searchLocation} | TravelEase`;
+  }, [searchLocation]);
   
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 0;
@@ -40,7 +40,7 @@ export default function HomestaySearch() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-4 md:p-6">
-        <h1 className="text-2xl font-bold mb-6">Finding Homestays in {location}</h1>
+        <h1 className="text-2xl font-bold mb-6">Finding Homestays in {searchLocation}</h1>
         <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
             <div>
@@ -108,7 +108,7 @@ export default function HomestaySearch() {
       <h1 className="text-2xl font-bold mb-2">Homestay Results</h1>
       <div className="flex flex-wrap items-center text-sm text-gray-500 mb-6">
         <div className="flex items-center mr-4 mb-2">
-          <MapPinIcon className="h-4 w-4 mr-1" /> {location}
+          <MapPinIcon className="h-4 w-4 mr-1" /> {searchLocation}
         </div>
         <div className="flex items-center mr-4 mb-2">
           <CalendarIcon className="h-4 w-4 mr-1" /> 
