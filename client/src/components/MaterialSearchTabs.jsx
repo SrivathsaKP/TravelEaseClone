@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
+import { popularCities } from '../lib/mockData';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
