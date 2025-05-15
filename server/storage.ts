@@ -1,12 +1,17 @@
 import { 
   User, InsertUser, Flight, InsertFlight, 
   Hotel, InsertHotel, Bus, InsertBus, 
-  Train, InsertTrain, Booking, InsertBooking 
+  Train, InsertTrain, Booking, InsertBooking,
+  Cab, InsertCab, Homestay, InsertHomestay,
+  InsurancePlan, InsertInsurancePlan
 } from "@shared/schema";
 import { flightData } from "./mockData/flights";
 import { hotelData } from "./mockData/hotels";
 import { busData } from "./mockData/buses";
 import { trainData } from "./mockData/trains";
+import { cabData } from "./mockData/cabs";
+import { homestayData } from "./mockData/homestays";
+import { insuranceData } from "./mockData/insurance";
 
 export interface IStorage {
   // User methods
@@ -34,6 +39,21 @@ export interface IStorage {
   getTrainById(id: string): Promise<Train | undefined>;
   searchTrains(source: string, destination: string, date: string): Promise<Train[]>;
   
+  // Cab methods
+  getCabs(): Promise<Cab[]>;
+  getCabById(id: string): Promise<Cab | undefined>;
+  searchCabs(cityOrLocation: string, pickupDate: string, vehicleType?: string): Promise<Cab[]>;
+  
+  // Homestay methods
+  getHomestays(): Promise<Homestay[]>;
+  getHomestayById(id: string): Promise<Homestay | undefined>;
+  searchHomestays(location: string, checkIn: string, checkOut: string, guests?: number): Promise<Homestay[]>;
+  
+  // Insurance methods
+  getInsurancePlans(): Promise<InsurancePlan[]>;
+  getInsurancePlanById(id: string): Promise<InsurancePlan | undefined>;
+  searchInsurancePlans(coverageType: string, duration: number): Promise<InsurancePlan[]>;
+  
   // Booking methods
   createBooking(booking: InsertBooking): Promise<Booking>;
   getBookingsByUserId(userId: number): Promise<Booking[]>;
@@ -46,6 +66,9 @@ export class MemStorage implements IStorage {
   private hotels: Map<string, Hotel>;
   private buses: Map<string, Bus>;
   private trains: Map<string, Train>;
+  private cabs: Map<string, Cab>;
+  private homestays: Map<string, Homestay>;
+  private insurancePlans: Map<string, InsurancePlan>;
   private bookings: Map<number, Booking>;
   private userCurrentId: number;
   private bookingCurrentId: number;
@@ -56,6 +79,9 @@ export class MemStorage implements IStorage {
     this.hotels = new Map();
     this.buses = new Map();
     this.trains = new Map();
+    this.cabs = new Map();
+    this.homestays = new Map();
+    this.insurancePlans = new Map();
     this.bookings = new Map();
     this.userCurrentId = 1;
     this.bookingCurrentId = 1;
@@ -83,6 +109,21 @@ export class MemStorage implements IStorage {
     // Initialize trains
     trainData.trains.forEach(train => {
       this.trains.set(train.id, train as Train);
+    });
+    
+    // Initialize cabs
+    cabData.cabs.forEach(cab => {
+      this.cabs.set(cab.id, cab as Cab);
+    });
+    
+    // Initialize homestays
+    homestayData.homestays.forEach(homestay => {
+      this.homestays.set(homestay.id, homestay as Homestay);
+    });
+    
+    // Initialize insurance plans
+    insuranceData.insurancePlans.forEach(plan => {
+      this.insurancePlans.set(plan.id, plan as InsurancePlan);
     });
   }
 
@@ -193,6 +234,86 @@ export class MemStorage implements IStorage {
   
   async getBookingById(id: number): Promise<Booking | undefined> {
     return this.bookings.get(id);
+  }
+
+  // Cab methods
+  async getCabs(): Promise<Cab[]> {
+    return Array.from(this.cabs.values());
+  }
+  
+  async getCabById(id: string): Promise<Cab | undefined> {
+    return this.cabs.get(id);
+  }
+  
+  async searchCabs(cityOrLocation: string, pickupDate: string, vehicleType?: string): Promise<Cab[]> {
+    return Array.from(this.cabs.values()).filter(cab => {
+      const cabCurrentCity = cab.currentLocation?.city.toLowerCase();
+      const searchCity = cityOrLocation.toLowerCase();
+      
+      // Filter by location/city
+      const locationMatch = cabCurrentCity === searchCity;
+      
+      // Filter by vehicle type if provided
+      const vehicleTypeMatch = !vehicleType || 
+        cab.vehicleType.name.toLowerCase() === vehicleType.toLowerCase();
+      
+      return locationMatch && vehicleTypeMatch && cab.isAvailable;
+    });
+  }
+  
+  // Homestay methods
+  async getHomestays(): Promise<Homestay[]> {
+    return Array.from(this.homestays.values());
+  }
+  
+  async getHomestayById(id: string): Promise<Homestay | undefined> {
+    return this.homestays.get(id);
+  }
+  
+  async searchHomestays(location: string, checkIn: string, checkOut: string, guests?: number): Promise<Homestay[]> {
+    return Array.from(this.homestays.values()).filter(homestay => {
+      const cityMatch = homestay.city.toLowerCase() === location.toLowerCase();
+      
+      // Filter by number of guests if provided
+      const guestsMatch = !guests || homestay.maxGuests >= guests;
+      
+      // Check availability
+      const checkInDate = new Date(checkIn);
+      const checkOutDate = new Date(checkOut);
+      
+      const availabilityMatch = homestay.availability.some(period => {
+        const periodStartDate = new Date(period.startDate);
+        const periodEndDate = new Date(period.endDate);
+        
+        return checkInDate >= periodStartDate && checkOutDate <= periodEndDate;
+      });
+      
+      return cityMatch && guestsMatch && availabilityMatch;
+    });
+  }
+  
+  // Insurance methods
+  async getInsurancePlans(): Promise<InsurancePlan[]> {
+    return Array.from(this.insurancePlans.values());
+  }
+  
+  async getInsurancePlanById(id: string): Promise<InsurancePlan | undefined> {
+    return this.insurancePlans.get(id);
+  }
+  
+  async searchInsurancePlans(coverageType: string, duration: number): Promise<InsurancePlan[]> {
+    return Array.from(this.insurancePlans.values()).filter(plan => {
+      // Filter by coverage type (domestic, international, or both)
+      const coverageTypeMatch = 
+        coverageType === 'all' || 
+        plan.coverageType === coverageType || 
+        plan.coverageType === 'both';
+      
+      // Filter by duration
+      const durationMatch = plan.duration >= duration;
+      
+      return coverageTypeMatch && durationMatch;
+    });
   }
 }
 

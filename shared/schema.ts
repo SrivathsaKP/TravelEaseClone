@@ -117,8 +117,67 @@ export const insertUserSchema = createInsertSchema(users).omit({ id: true, creat
 export const insertFlightSchema = createInsertSchema(flights).omit({ id: true });
 export const insertHotelSchema = createInsertSchema(hotels).omit({ id: true });
 export const insertBusSchema = createInsertSchema(buses).omit({ id: true });
+// Cab Model
+export const cabs = pgTable("cabs", {
+  id: text("id").primaryKey(),
+  vehicleType: jsonb("vehicle_type").notNull(), // { id, name, description, capacity, pricePerKm, image }
+  licensePlate: text("license_plate").notNull(),
+  driver: jsonb("driver").notNull(), // { id, name, phoneNumber, rating, totalRides, photo }
+  isAvailable: boolean("is_available").notNull(),
+  currentLocation: jsonb("current_location"), // { address, city, state, landmark, latitude, longitude }
+  rating: real("rating"),
+  fare: jsonb("fare").notNull(), // { baseFare, perKmRate, perMinuteRate, tax, totalFare, currency }
+});
+
+// Homestay Model
+export const homestays = pgTable("homestays", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  type: text("type").notNull(), // 'entire-place', 'private-room', or 'shared-room'
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  country: text("country").notNull(),
+  zipCode: text("zip_code"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  images: jsonb("images").notNull(), // [{ url, caption }]
+  host: jsonb("host").notNull(), // { id, name, profilePicture, rating, contactNumber, verificationStatus, memberSince, languages }
+  amenities: jsonb("amenities").notNull(), // string[]
+  houseRules: jsonb("house_rules").notNull(), // string[]
+  maxGuests: integer("max_guests").notNull(),
+  bedrooms: integer("bedrooms").notNull(),
+  beds: integer("beds").notNull(),
+  bathrooms: integer("bathrooms").notNull(),
+  pricePerNight: integer("price_per_night").notNull(),
+  rating: real("rating").notNull(),
+  reviewCount: integer("review_count").notNull(),
+  minimumStay: integer("minimum_stay").notNull(),
+  availability: jsonb("availability").notNull(), // [{ startDate, endDate }]
+  currency: text("currency").notNull(),
+});
+
+// Insurance Model
+export const insurancePlans = pgTable("insurance_plans", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  coverageType: text("coverage_type").notNull(), // 'domestic', 'international', or 'both'
+  coverageAmount: integer("coverage_amount").notNull(),
+  premium: integer("premium").notNull(),
+  benefits: jsonb("benefits").notNull(), // [{ name, description, coverageLimit }]
+  exclusions: jsonb("exclusions").notNull(), // string[]
+  termsAndConditions: text("terms_and_conditions").notNull(),
+  duration: integer("duration").notNull(), // in days
+  currency: text("currency").notNull(),
+});
+
 export const insertTrainSchema = createInsertSchema(trains).omit({ id: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true, bookingDate: true });
+export const insertCabSchema = createInsertSchema(cabs).omit({ id: true });
+export const insertHomestaySchema = createInsertSchema(homestays).omit({ id: true });
+export const insertInsurancePlanSchema = createInsertSchema(insurancePlans).omit({ id: true });
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -133,3 +192,9 @@ export type InsertTrain = z.infer<typeof insertTrainSchema>;
 export type Train = typeof trains.$inferSelect;
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+export type InsertCab = z.infer<typeof insertCabSchema>;
+export type Cab = typeof cabs.$inferSelect;
+export type InsertHomestay = z.infer<typeof insertHomestaySchema>;
+export type Homestay = typeof homestays.$inferSelect;
+export type InsertInsurancePlan = z.infer<typeof insertInsurancePlanSchema>;
+export type InsurancePlan = typeof insurancePlans.$inferSelect;
