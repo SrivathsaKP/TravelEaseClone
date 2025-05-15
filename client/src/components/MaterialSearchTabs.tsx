@@ -75,7 +75,11 @@ const cities = [
   'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Goa'
 ];
 
-const MaterialSearchTabs: React.FC = () => {
+interface MaterialSearchTabsProps {
+  onTabChange?: (selectedTab: number) => void;
+}
+
+const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) => {
   const [tabValue, setTabValue] = useState(0);
   const [, navigate] = useLocation();
 
@@ -142,6 +146,60 @@ const MaterialSearchTabs: React.FC = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    
+    // Call the callback if provided
+    if (onTabChange) {
+      onTabChange(newValue);
+    }
+    
+    // Reset state values for the selected tab
+    switch(newValue) {
+      case 0: // Flights
+        setFlightSearch({
+          ...flightSearch,
+          source: flightSearch.source || '',
+          destination: flightSearch.destination || ''
+        });
+        break;
+      case 1: // Hotels
+        setHotelSearch({
+          ...hotelSearch,
+          destination: hotelSearch.destination || ''
+        });
+        break;
+      case 2: // Homestays
+        setHomestaySearch({
+          ...homestaySearch,
+          destination: homestaySearch.destination || ''
+        });
+        break;
+      case 3: // Trains
+        setTrainSearch({
+          ...trainSearch,
+          source: trainSearch.source || '',
+          destination: trainSearch.destination || ''
+        });
+        break;
+      case 4: // Buses
+        setBusSearch({
+          ...busSearch,
+          source: busSearch.source || '',
+          destination: busSearch.destination || ''
+        });
+        break;
+      case 5: // Cabs
+        setCabSearch({
+          ...cabSearch,
+          source: cabSearch.source || '',
+          destination: cabSearch.destination || ''
+        });
+        break;
+      case 6: // Insurance
+        setInsuranceSearch({
+          ...insuranceSearch
+        });
+        break;
+    }
   };
 
   const handleFlightSearch = (e: React.FormEvent) => {
