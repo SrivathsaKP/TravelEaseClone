@@ -81,6 +81,53 @@ const SearchTabs = () => {
     busType: 'All Types'
   });
   
+  // New search states
+  interface HomestaySearchState {
+    destination: string;
+    checkIn: string;
+    checkOut: string;
+    guests: string;
+    propertyType: string;
+  }
+  
+  const [homestaySearch, setHomestaySearch] = useState<HomestaySearchState>({
+    destination: '',
+    checkIn: '',
+    checkOut: '',
+    guests: '2 Adults',
+    propertyType: 'All Properties'
+  });
+  
+  interface CabSearchState {
+    source: string;
+    destination: string;
+    pickupDate: string;
+    pickupTime: string;
+    cabType: string;
+  }
+  
+  const [cabSearch, setCabSearch] = useState<CabSearchState>({
+    source: '',
+    destination: '',
+    pickupDate: '',
+    pickupTime: '12:00',
+    cabType: 'All Cabs'
+  });
+  
+  interface InsuranceSearchState {
+    travelType: 'domestic' | 'international';
+    travelers: string;
+    startDate: string;
+    duration: string;
+  }
+  
+  const [insuranceSearch, setInsuranceSearch] = useState<InsuranceSearchState>({
+    travelType: 'domestic',
+    travelers: '1 Adult',
+    startDate: '',
+    duration: '7 days'
+  });
+  
   // Handle form submissions
   const handleFlightSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,6 +149,21 @@ const SearchTabs = () => {
     setLocation(`/buses?from=${busSearch.source}&to=${busSearch.destination}&date=${busSearch.date}`);
   };
   
+  const handleHomestaySearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocation(`/homestays?location=${homestaySearch.destination}&checkIn=${homestaySearch.checkIn}&checkOut=${homestaySearch.checkOut}&guests=${homestaySearch.guests}&type=${homestaySearch.propertyType}`);
+  };
+  
+  const handleCabSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocation(`/cabs?from=${cabSearch.source}&to=${cabSearch.destination}&date=${cabSearch.pickupDate}&time=${cabSearch.pickupTime}&type=${cabSearch.cabType}`);
+  };
+  
+  const handleInsuranceSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocation(`/insurance?type=${insuranceSearch.travelType}&travelers=${insuranceSearch.travelers}&startDate=${insuranceSearch.startDate}&duration=${insuranceSearch.duration}`);
+  };
+  
   // Set today's date as the minimum date for date inputs
   const today = new Date().toISOString().split('T')[0];
   
@@ -119,24 +181,47 @@ const SearchTabs = () => {
     setHotelSearch(prev => ({...prev, checkIn: tomorrowStr, checkOut: dayAfterTomorrowStr}));
     setTrainSearchState(prev => ({...prev, date: tomorrowStr}));
     setBusSearchState(prev => ({...prev, date: tomorrowStr}));
+    
+    // Initialize new search states with dates
+    setHomestaySearch(prev => ({...prev, checkIn: tomorrowStr, checkOut: dayAfterTomorrowStr}));
+    setCabSearch(prev => ({...prev, pickupDate: tomorrowStr}));
+    setInsuranceSearch(prev => ({...prev, startDate: tomorrowStr}));
   }, []);
 
   return (
     <div className="container mx-auto px-4 -mt-6 relative z-10 mb-12">
       <div className="bg-white rounded-xl search-panel">
         <Tabs defaultValue="flights" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 border-b border-neutral-200">
+          <TabsList className="grid grid-cols-7 border-b border-neutral-200">
             <TabsTrigger value="flights" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
               <PlaneIcon className="h-4 w-4 mr-2" /> {!isMobile && "Flights"}
             </TabsTrigger>
             <TabsTrigger value="hotels" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
               <HotelIcon className="h-4 w-4 mr-2" /> {!isMobile && "Hotels"}
             </TabsTrigger>
+            <TabsTrigger value="homestays" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg> {!isMobile && "Homestays"}
+            </TabsTrigger>
             <TabsTrigger value="trains" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
               <TrainIcon className="h-4 w-4 mr-2" /> {!isMobile && "Trains"}
             </TabsTrigger>
             <TabsTrigger value="buses" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
               <BusIcon className="h-4 w-4 mr-2" /> {!isMobile && "Buses"}
+            </TabsTrigger>
+            <TabsTrigger value="cabs" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2">
+                <path d="M14 16H9m10 0h3v-3.15a1 1 0 00-.84-.99L16 11l-2.7-3.6a1 1 0 00-.8-.4H5.24a2 2 0 00-1.8 1.1l-.8 1.63A6 6 0 002 12.42V16h2"></path>
+                <circle cx="6.5" cy="16.5" r="2.5"></circle>
+                <circle cx="16.5" cy="16.5" r="2.5"></circle>
+              </svg> {!isMobile && "Cabs"}
+            </TabsTrigger>
+            <TabsTrigger value="insurance" className="data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary py-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg> {!isMobile && "Insurance"}
             </TabsTrigger>
           </TabsList>
           
@@ -348,6 +433,115 @@ const SearchTabs = () => {
               <div className="mt-6 flex justify-center">
                 <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
                   Search Hotels
+                </Button>
+              </div>
+            </form>
+          </TabsContent>
+          
+          <TabsContent value="homestays" className="p-6">
+            <form onSubmit={handleHomestaySearch}>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="col-span-1 md:col-span-2">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">City or Location</Label>
+                    <div className="relative">
+                      <Input 
+                        type="text" 
+                        placeholder="Jaipur, Rajasthan" 
+                        value={homestaySearch.destination}
+                        onChange={(e) => setHomestaySearch({...homestaySearch, destination: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <MapPinIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Check-in</Label>
+                    <div className="relative">
+                      <Input 
+                        type="date" 
+                        min={today}
+                        value={homestaySearch.checkIn}
+                        onChange={(e) => setHomestaySearch({...homestaySearch, checkIn: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <CalendarIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="relative">
+                    <Label className="block text-sm font-medium text-neutral-400 mb-1">Check-out</Label>
+                    <div className="relative">
+                      <Input 
+                        type="date"
+                        min={homestaySearch.checkIn || today}
+                        value={homestaySearch.checkOut}
+                        onChange={(e) => setHomestaySearch({...homestaySearch, checkOut: e.target.value})}
+                        className="pl-3 pr-10"
+                      />
+                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
+                        <CalendarIcon className="h-4 w-4" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="relative">
+                  <Label className="block text-sm font-medium text-neutral-400 mb-1">Guests</Label>
+                  <div className="relative">
+                    <Select 
+                      value={homestaySearch.guests} 
+                      onValueChange={(value) => setHomestaySearch({...homestaySearch, guests: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="2 Adults" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1 Adult">1 Adult</SelectItem>
+                        <SelectItem value="2 Adults">2 Adults</SelectItem>
+                        <SelectItem value="2 Adults, 1 Child">2 Adults, 1 Child</SelectItem>
+                        <SelectItem value="3 Adults">3 Adults</SelectItem>
+                        <SelectItem value="4 Adults">4 Adults</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <div className="relative">
+                  <Label className="block text-sm font-medium text-neutral-400 mb-1">Property Type</Label>
+                  <div className="relative">
+                    <Select 
+                      value={homestaySearch.propertyType} 
+                      onValueChange={(value) => setHomestaySearch({...homestaySearch, propertyType: value})}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="All Properties" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="All Properties">All Properties</SelectItem>
+                        <SelectItem value="Entire Home">Entire Home</SelectItem>
+                        <SelectItem value="Private Room">Private Room</SelectItem>
+                        <SelectItem value="Shared Room">Shared Room</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-6 flex justify-center">
+                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                  Search Homestays
                 </Button>
               </div>
             </form>

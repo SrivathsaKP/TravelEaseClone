@@ -307,6 +307,165 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cab routes
+  app.get('/api/cabs', async (_req: Request, res: Response) => {
+    try {
+      const cabs = await storage.getCabs();
+      res.status(200).json({ success: true, data: cabs });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get cabs' 
+      });
+    }
+  });
+
+  app.get('/api/cabs/:id', async (req: Request, res: Response) => {
+    try {
+      const cab = await storage.getCabById(req.params.id);
+      
+      if (!cab) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Cab not found' 
+        });
+      }
+      
+      res.status(200).json({ success: true, data: cab });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get cab' 
+      });
+    }
+  });
+
+  app.get('/api/cabs/search', async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        city: z.string(),
+        date: z.string().optional(),
+        vehicleType: z.string().optional()
+      });
+      
+      const { city, date, vehicleType } = schema.parse(req.query);
+      const cabs = await storage.searchCabs(city, date || new Date().toISOString(), vehicleType);
+      
+      res.status(200).json({ success: true, data: cabs });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search cabs' 
+      });
+    }
+  });
+
+  // Homestay routes
+  app.get('/api/homestays', async (_req: Request, res: Response) => {
+    try {
+      const homestays = await storage.getHomestays();
+      res.status(200).json({ success: true, data: homestays });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get homestays' 
+      });
+    }
+  });
+
+  app.get('/api/homestays/:id', async (req: Request, res: Response) => {
+    try {
+      const homestay = await storage.getHomestayById(req.params.id);
+      
+      if (!homestay) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Homestay not found' 
+        });
+      }
+      
+      res.status(200).json({ success: true, data: homestay });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get homestay' 
+      });
+    }
+  });
+
+  app.get('/api/homestays/search', async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        location: z.string(),
+        checkIn: z.string(),
+        checkOut: z.string(),
+        guests: z.string().optional().transform(val => val ? parseInt(val) : undefined)
+      });
+      
+      const { location, checkIn, checkOut, guests } = schema.parse(req.query);
+      const homestays = await storage.searchHomestays(location, checkIn, checkOut, guests);
+      
+      res.status(200).json({ success: true, data: homestays });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search homestays' 
+      });
+    }
+  });
+
+  // Insurance routes
+  app.get('/api/insurance-plans', async (_req: Request, res: Response) => {
+    try {
+      const plans = await storage.getInsurancePlans();
+      res.status(200).json({ success: true, data: plans });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get insurance plans' 
+      });
+    }
+  });
+
+  app.get('/api/insurance-plans/:id', async (req: Request, res: Response) => {
+    try {
+      const plan = await storage.getInsurancePlanById(req.params.id);
+      
+      if (!plan) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Insurance plan not found' 
+        });
+      }
+      
+      res.status(200).json({ success: true, data: plan });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get insurance plan' 
+      });
+    }
+  });
+
+  app.get('/api/insurance-plans/search', async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        coverageType: z.string(),
+        duration: z.string().transform(val => parseInt(val))
+      });
+      
+      const { coverageType, duration } = schema.parse(req.query);
+      const plans = await storage.searchInsurancePlans(coverageType, duration);
+      
+      res.status(200).json({ success: true, data: plans });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search insurance plans' 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
