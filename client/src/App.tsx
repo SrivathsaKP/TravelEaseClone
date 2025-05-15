@@ -68,6 +68,7 @@ function Router() {
           <Route path="/cabs/search" component={CabSearchPage}/>
           <Route path="/travel-insurance" component={InsuranceSearchPage}/>
           <Route path="/travel-insurance/search" component={InsuranceSearchPage}/>
+          <Route path="/insurance" component={InsuranceSearchPage}/>
           <Route path="/homestays" component={HomeStaySearchPage}/>
           <Route path="/homestays/search" component={HomeStaySearchPage}/>
           <Route path="/holiday-packages" component={HolidayPackagePage}/>

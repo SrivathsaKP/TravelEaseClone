@@ -130,7 +130,7 @@ const initialState: SearchState = {
     travelType: 'domestic',
     travelers: 1,
     startDate: new Date().toISOString().split('T')[0],
-    duration: 7,
+    duration: 5,
   },
   activeSearch: null,
 };

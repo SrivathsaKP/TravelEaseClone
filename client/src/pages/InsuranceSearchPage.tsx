@@ -86,7 +86,7 @@ const InsuranceSearchPage = () => {
   const [travelType, setTravelType] = useState<'domestic' | 'international'>(insuranceSearchParams.travelType || 'domestic');
   const [travelers, setTravelers] = useState(insuranceSearchParams.travelers || 1);
   const [startDate, setStartDate] = useState(insuranceSearchParams.startDate || dayjs().format('YYYY-MM-DD'));
-  const [duration, setDuration] = useState(insuranceSearchParams.duration || 7);
+  const [duration, setDuration] = useState(insuranceSearchParams.duration || 5);
   
   // Handle form submission
   const handleSearch = () => {
