@@ -4,7 +4,6 @@ import tabReducer from './tabSlice';
 export const store = configureStore({
   reducer: {
     tab: tabReducer,
-    // Add other reducers here as needed
   },
 });
 

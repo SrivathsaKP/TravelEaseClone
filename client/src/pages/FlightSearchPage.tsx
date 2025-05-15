@@ -1,610 +1,465 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigate, Link } from 'wouter';
 import { 
+  Box, 
   Container, 
   Paper, 
-  Box, 
   Typography, 
-  Grid, 
   Button, 
-  IconButton, 
-  TextField, 
-  MenuItem, 
-  FormControl, 
-  FormControlLabel, 
-  Radio, 
+  TextField,
+  Grid,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Autocomplete,
   RadioGroup,
-  InputAdornment,
-  Divider,
-  Tabs,
-  Tab
+  FormControlLabel,
+  Radio,
+  IconButton,
+  Chip,
+  Stack
 } from '@mui/material';
-import { 
-  FlightTakeoff, 
-  FlightLand, 
-  DateRange, 
-  SwapHoriz, 
-  People, 
-  ArrowForward, 
-  ArrowBack 
-} from '@mui/icons-material';
-import { styled } from '@mui/system';
-import { Helmet } from 'react-helmet';
-import { format } from 'date-fns';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import SearchIcon from '@mui/icons-material/Search';
 import TabNavigation from '@/components/TabNavigation';
-import { useQuery } from '@tanstack/react-query';
-import { Flight } from '@/lib/types';
-import { useSearchParams } from '@/lib/utils';
-import { useLocation } from 'wouter';
 
-// Styled Components
-const SearchContainer = styled(Container)(({ theme }) => ({
-  marginTop: '-50px',
-  marginBottom: '30px',
-  position: 'relative',
-  zIndex: 10,
-}));
-
-const FlightCard = styled(Paper)(({ theme }) => ({
-  padding: '24px',
-  marginBottom: '16px',
-  borderRadius: '8px',
-  cursor: 'pointer',
-  '&:hover': {
-    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
-  },
-}));
-
-const DateTab = styled(Tab)(({ theme }) => ({
-  minWidth: '110px',
-  padding: '10px 16px',
-  fontSize: '14px',
-  fontWeight: 600,
-  color: '#000',
-  '&.Mui-selected': {
-    color: '#008cff',
-    backgroundColor: 'rgba(0, 140, 255, 0.1)',
-    borderRadius: '4px',
-  }
-}));
-
-// Data for the city selection
-const cities = [
-  { code: 'BOM', name: 'Mumbai', country: 'India' },
-  { code: 'DEL', name: 'Delhi', country: 'India' },
-  { code: 'BLR', name: 'Bengaluru', country: 'India' },
-  { code: 'CCU', name: 'Kolkata', country: 'India' },
-  { code: 'HYD', name: 'Hyderabad', country: 'India' },
-  { code: 'MAA', name: 'Chennai', country: 'India' },
-  { code: 'GOI', name: 'Goa', country: 'India' },
+// Mock airport data
+const airports = [
+  { code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi International Airport' },
+  { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj International Airport' },
+  { code: 'MAA', city: 'Chennai', name: 'Chennai International Airport' },
+  { code: 'BLR', city: 'Bangalore', name: 'Kempegowda International Airport' },
+  { code: 'CCU', city: 'Kolkata', name: 'Netaji Subhas Chandra Bose International Airport' },
+  { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi International Airport' },
+  { code: 'COK', city: 'Kochi', name: 'Cochin International Airport' },
+  { code: 'JFK', city: 'New York', name: 'John F. Kennedy International Airport' },
+  { code: 'LHR', city: 'London', name: 'Heathrow Airport' },
+  { code: 'DXB', city: 'Dubai', name: 'Dubai International Airport' },
+  { code: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport' },
 ];
 
-const ticketClasses = [
-  { value: 'economy', label: 'Economy' },
-  { value: 'premiumEconomy', label: 'Premium Economy' },
-  { value: 'business', label: 'Business' },
-  { value: 'first', label: 'First Class' },
-];
-
-const fareTypes = [
-  { value: 'regular', label: 'Regular' },
-  { value: 'student', label: 'Student' },
-  { value: 'seniorCitizen', label: 'Senior Citizen' },
-  { value: 'armedForces', label: 'Armed Forces' },
-  { value: 'doctor', label: 'Doctor & Nurses' },
-];
+// Fare types
+const fareTypes = ['Regular Fare', 'Armed Forces Fare', 'Student Fare', 'Senior Citizen Fare'];
 
 const FlightSearchPage = () => {
-  const [location, setLocation] = useLocation();
-  const { getParam } = useSearchParams();
-  
-  // Get URL params or default values
-  const source = getParam('source') || 'BOM';
-  const destination = getParam('destination') || 'BLR';
-  const departureDate = getParam('departureDate') || format(new Date(), 'yyyy-MM-dd');
-  const returnDate = getParam('returnDate') || '';
-  const travelers = getParam('travelers') || '1 Adult';
-  const classType = getParam('class') || 'economy';
-  
-  // Form state
-  const [tripType, setTripType] = useState<'one-way' | 'round-trip'>(returnDate ? 'round-trip' : 'one-way');
-  const [sourceCity, setSourceCity] = useState(source);
-  const [destinationCity, setDestinationCity] = useState(destination);
-  const [departDate, setDepartDate] = useState(departureDate);
-  const [returnDeptDate, setReturnDeptDate] = useState(returnDate);
-  const [passengerCount, setPassengerCount] = useState(travelers);
-  const [travelClass, setTravelClass] = useState(classType);
-  const [fareType, setFareType] = useState('regular');
-  const [dateTabValue, setDateTabValue] = useState(0);
-
-  // Mock dates for the date navigation tabs
-  const dateTabs = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    return {
-      day: format(date, 'EEE'),
-      date: format(date, 'MMM dd'),
-      formattedDate: format(date, 'yyyy-MM-dd'),
-      price: Math.floor(Math.random() * 2000) + 4000 // Random price
-    };
+  const [, navigate] = useNavigate();
+  const [tripType, setTripType] = useState('roundTrip');
+  const [from, setFrom] = useState<{code: string; city: string; name: string} | null>(null);
+  const [to, setTo] = useState<{code: string; city: string; name: string} | null>(null);
+  const [departureDate, setDepartureDate] = useState<Date | null>(new Date());
+  const [returnDate, setReturnDate] = useState<Date | null>(
+    new Date(new Date().setDate(new Date().getDate() + 7))
+  );
+  const [passengerCounts, setPassengerCounts] = useState({
+    adults: 1,
+    children: 0,
+    infants: 0
   });
+  const [cabinClass, setCabinClass] = useState('Economy');
+  const [fareType, setFareType] = useState('Regular Fare');
 
-  const handleDateTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setDateTabValue(newValue);
-    setDepartDate(dateTabs[newValue].formattedDate);
+  // Swap from and to airports
+  const handleSwapAirports = () => {
+    const temp = from;
+    setFrom(to);
+    setTo(temp);
   };
 
-  // Swap source and destination
-  const handleSwapCities = () => {
-    const temp = sourceCity;
-    setSourceCity(destinationCity);
-    setDestinationCity(temp);
+  // Update passenger count
+  const updatePassengerCount = (type: 'adults' | 'children' | 'infants', increment: boolean) => {
+    setPassengerCounts(prev => {
+      const newCount = prev[type] + (increment ? 1 : -1);
+      
+      // Apply constraints
+      if (type === 'adults' && newCount < 1) return prev; // At least 1 adult
+      if (newCount < 0) return prev;
+      if (type === 'infants' && newCount > prev.adults) return prev; // No more infants than adults
+      if (prev.adults + prev.children + prev.infants + (increment ? 1 : -1) > 9) return prev; // Max 9 passengers
+      
+      return {
+        ...prev,
+        [type]: newCount
+      };
+    });
   };
 
-  // Handle search submission
+  // Handle search
   const handleSearch = () => {
-    const searchParams = new URLSearchParams();
-    searchParams.set('source', sourceCity);
-    searchParams.set('destination', destinationCity);
-    searchParams.set('departureDate', departDate);
+    if (!from || !to || !departureDate) {
+      // Show validation error
+      alert('Please select origin, destination, and departure date');
+      return;
+    }
+
+    // Build search params
+    const params = new URLSearchParams();
+    params.append('origin', from.code);
+    params.append('destination', to.code);
+    params.append('departureDate', departureDate.toISOString().split('T')[0]);
     
-    if (tripType === 'round-trip' && returnDeptDate) {
-      searchParams.set('returnDate', returnDeptDate);
+    if (tripType === 'roundTrip' && returnDate) {
+      params.append('returnDate', returnDate.toISOString().split('T')[0]);
     }
     
-    searchParams.set('travelers', passengerCount);
-    searchParams.set('class', travelClass);
-    searchParams.set('fareType', fareType);
+    params.append('adults', passengerCounts.adults.toString());
+    params.append('children', passengerCounts.children.toString());
+    params.append('infants', passengerCounts.infants.toString());
+    params.append('cabinClass', cabinClass);
+    params.append('fareType', fareType);
     
-    // Navigate to flight results
-    setLocation(`/flights/search?${searchParams.toString()}`);
-  };
-
-  // Fetch flights from API if on search results page
-  const { data, isLoading } = useQuery<{data: Flight[]}>({
-    queryKey: ['/api/flights/search', sourceCity, destinationCity, departDate],
-    enabled: location.includes('/flights/search')
-  });
-
-  const flights = data?.data || [];
-
-  // Format flight departure/arrival times
-  const formatTime = (timeString: string) => {
-    const date = new Date(timeString);
-    return format(date, 'HH:mm');
-  };
-
-  // Calculate flight duration
-  const calculateDuration = (departure: string, arrival: string) => {
-    const dep = new Date(departure);
-    const arr = new Date(arrival);
-    const diffInMinutes = Math.round((arr.getTime() - dep.getTime()) / 60000);
-    const hours = Math.floor(diffInMinutes / 60);
-    const minutes = diffInMinutes % 60;
-    return `${hours}h ${minutes}m`;
+    // Navigate to results page
+    navigate('/flights/search?' + params.toString());
   };
 
   return (
     <>
-      <Helmet>
-        <title>{location.includes('/flights/search') 
-          ? `${cities.find(c => c.code === sourceCity)?.name || sourceCity} to ${cities.find(c => c.code === destinationCity)?.name || destinationCity} Flights` 
-          : 'Flight Booking | TravelEase'}</title>
-        <meta name="description" content="Book flights online with the best deals and offers. Compare airfares across airlines and find the cheapest flights." />
-      </Helmet>
-
-      {/* Hero header */}
-      <Box sx={{ bgcolor: '#051423', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Container>
-          <Typography variant="h4" component="h1" sx={{ color: 'white', textAlign: 'center', mt: 3 }}>
-            {location.includes('/flights/search') 
-              ? `${cities.find(c => c.code === sourceCity)?.name || sourceCity} to ${cities.find(c => c.code === destinationCity)?.name || destinationCity} Flights` 
-              : 'Flight Booking'}
+      <TabNavigation />
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+          <Typography variant="h5" gutterBottom fontWeight="bold" color="#008cff">
+            Flight Search
           </Typography>
-        </Container>
-      </Box>
-
-      {/* Tab Navigation */}
-      <Container sx={{ mt: -2, mb: 2 }}>
-        <TabNavigation />
-      </Container>
-
-      {/* Search Form */}
-      <SearchContainer maxWidth="lg">
-        <Paper elevation={3} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
-          <Box sx={{ p: 3, bgcolor: '#f8f8f8' }}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <RadioGroup
-                  row
-                  name="trip-type"
-                  value={tripType}
-                  onChange={(e) => setTripType(e.target.value as 'one-way' | 'round-trip')}
-                  sx={{ mb: 2 }}
-                >
-                  <FormControlLabel value="one-way" control={<Radio color="primary" />} label="One Way" />
-                  <FormControlLabel value="round-trip" control={<Radio color="primary" />} label="Round Trip" />
-                </RadioGroup>
-              </Grid>
-
-              <Grid item xs={12} md={5}>
-                <Grid container spacing={2}>
-                  <Grid item xs={5.5}>
-                    <FormControl fullWidth variant="outlined">
-                      <TextField
-                        select
-                        label="FROM"
-                        value={sourceCity}
-                        onChange={(e) => setSourceCity(e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FlightTakeoff color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      >
-                        {cities.map((city) => (
-                          <MenuItem key={city.code} value={city.code}>
-                            <Box>
-                              <Typography component="span" fontWeight="bold">{city.name}</Typography>
-                              <Typography component="span" color="textSecondary" sx={{ ml: 1, fontSize: '0.875rem' }}>
-                                {city.code}
-                              </Typography>
-                              <Typography variant="body2" color="textSecondary" display="block">
-                                {city.country}
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </FormControl>
-                  </Grid>
-                  
-                  <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <IconButton 
-                      color="primary" 
-                      onClick={handleSwapCities}
-                      sx={{ 
-                        bgcolor: '#e8f4ff', 
-                        border: '1px solid #cce5ff',
-                        '&:hover': { bgcolor: '#d1e9ff' }
-                      }}
-                    >
-                      <SwapHoriz />
-                    </IconButton>
-                  </Grid>
-                  
-                  <Grid item xs={5.5}>
-                    <FormControl fullWidth variant="outlined">
-                      <TextField
-                        select
-                        label="TO"
-                        value={destinationCity}
-                        onChange={(e) => setDestinationCity(e.target.value)}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position="start">
-                              <FlightLand color="primary" />
-                            </InputAdornment>
-                          ),
-                        }}
-                      >
-                        {cities.map((city) => (
-                          <MenuItem 
-                            key={city.code} 
-                            value={city.code}
-                            disabled={city.code === sourceCity}
-                          >
-                            <Box>
-                              <Typography component="span" fontWeight="bold">{city.name}</Typography>
-                              <Typography component="span" color="textSecondary" sx={{ ml: 1, fontSize: '0.875rem' }}>
-                                {city.code}
-                              </Typography>
-                              <Typography variant="body2" color="textSecondary" display="block">
-                                {city.country}
-                              </Typography>
-                            </Box>
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </FormControl>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} md={4}>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="DEPART"
-                      type="date"
-                      value={departDate}
-                      onChange={(e) => setDepartDate(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <DateRange color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      label="RETURN"
-                      type="date"
-                      value={returnDeptDate}
-                      onChange={(e) => setReturnDeptDate(e.target.value)}
-                      disabled={tripType === 'one-way'}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <DateRange color={tripType === 'one-way' ? 'disabled' : 'primary'} />
-                          </InputAdornment>
-                        ),
-                      }}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item xs={12} md={3}>
-                <Grid container spacing={2}>
-                  <Grid item xs={8}>
-                    <TextField
-                      select
-                      fullWidth
-                      label="TRAVELERS & CLASS"
-                      value={travelClass}
-                      onChange={(e) => setTravelClass(e.target.value)}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <People color="primary" />
-                          </InputAdornment>
-                        ),
-                      }}
-                    >
-                      {ticketClasses.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          <Typography>{passengerCount} - {option.label}</Typography>
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Button 
-                      variant="contained" 
-                      fullWidth 
-                      sx={{ 
-                        height: '56px', 
-                        bgcolor: '#ff9800', 
-                        '&:hover': { bgcolor: '#f57c00' }
-                      }}
-                      onClick={handleSearch}
-                    >
-                      SEARCH
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
+          
+          {/* Trip Type */}
+          <RadioGroup
+            row
+            value={tripType}
+            onChange={(e) => setTripType(e.target.value)}
+            sx={{ mb: 3 }}
+          >
+            <FormControlLabel 
+              value="oneWay" 
+              control={<Radio />} 
+              label="One Way" 
+            />
+            <FormControlLabel 
+              value="roundTrip" 
+              control={<Radio />} 
+              label="Round Trip" 
+            />
+            <FormControlLabel 
+              value="multiCity" 
+              control={<Radio />} 
+              label="Multi City" 
+            />
+          </RadioGroup>
+          
+          {/* Flight Search Form */}
+          <Grid container spacing={3}>
+            {/* From */}
+            <Grid item xs={12} md={5.5}>
+              <Autocomplete
+                value={from}
+                onChange={(event, newValue) => {
+                  setFrom(newValue);
+                }}
+                options={airports}
+                getOptionLabel={(option) => `${option.city} (${option.code})`}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params} 
+                    label="From" 
+                    placeholder="Enter city or airport" 
+                    fullWidth
+                    required 
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <div>
+                      <Typography variant="body1">{option.city} ({option.code})</Typography>
+                      <Typography variant="body2" color="text.secondary">{option.name}</Typography>
+                    </div>
+                  </li>
+                )}
+              />
             </Grid>
-
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" gutterBottom>Fare Type:</Typography>
-              <RadioGroup
-                row
-                name="fare-type"
-                value={fareType}
-                onChange={(e) => setFareType(e.target.value)}
+            
+            {/* Swap button */}
+            <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <IconButton 
+                onClick={handleSwapAirports}
+                sx={{ 
+                  bgcolor: '#f2f2f2', 
+                  '&:hover': { bgcolor: '#e6e6e6' },
+                  height: 40, 
+                  width: 40
+                }}
               >
+                <CompareArrowsIcon />
+              </IconButton>
+            </Grid>
+            
+            {/* To */}
+            <Grid item xs={12} md={5.5}>
+              <Autocomplete
+                value={to}
+                onChange={(event, newValue) => {
+                  setTo(newValue);
+                }}
+                options={airports.filter(airport => airport.code !== from?.code)}
+                getOptionLabel={(option) => `${option.city} (${option.code})`}
+                renderInput={(params) => (
+                  <TextField 
+                    {...params} 
+                    label="To" 
+                    placeholder="Enter city or airport" 
+                    fullWidth 
+                    required
+                  />
+                )}
+                renderOption={(props, option) => (
+                  <li {...props}>
+                    <div>
+                      <Typography variant="body1">{option.city} ({option.code})</Typography>
+                      <Typography variant="body2" color="text.secondary">{option.name}</Typography>
+                    </div>
+                  </li>
+                )}
+              />
+            </Grid>
+            
+            {/* Departure Date */}
+            <Grid item xs={12} md={tripType === 'roundTrip' ? 6 : 4}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DatePicker
+                  label="Departure Date"
+                  value={departureDate}
+                  onChange={(newValue) => setDepartureDate(newValue)}
+                  disablePast
+                  sx={{ width: '100%' }}
+                />
+              </LocalizationProvider>
+            </Grid>
+            
+            {/* Return Date (only for round trip) */}
+            {tripType === 'roundTrip' && (
+              <Grid item xs={12} md={6}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Return Date"
+                    value={returnDate}
+                    onChange={(newValue) => setReturnDate(newValue)}
+                    disablePast
+                    minDate={departureDate || undefined}
+                    sx={{ width: '100%' }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+            )}
+            
+            {/* Cabin Class */}
+            {tripType !== 'roundTrip' && (
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth>
+                  <InputLabel id="cabin-class-label">Cabin Class</InputLabel>
+                  <Select
+                    labelId="cabin-class-label"
+                    value={cabinClass}
+                    label="Cabin Class"
+                    onChange={(e) => setCabinClass(e.target.value)}
+                  >
+                    <MenuItem value="Economy">Economy</MenuItem>
+                    <MenuItem value="Premium Economy">Premium Economy</MenuItem>
+                    <MenuItem value="Business">Business</MenuItem>
+                    <MenuItem value="First">First Class</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            )}
+            
+            {/* Passengers */}
+            {tripType !== 'roundTrip' && (
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Passengers"
+                  value={`${passengerCounts.adults + passengerCounts.children + passengerCounts.infants} Traveller(s)`}
+                  onClick={() => {
+                    // This would typically open a dropdown in a real implementation
+                  }}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+              </Grid>
+            )}
+            
+            {/* Passenger selection controls */}
+            <Grid item xs={12}>
+              <Paper elevation={2} sx={{ p: 2, mt: 1, display: tripType === 'roundTrip' ? 'block' : 'none' }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={tripType === 'roundTrip' ? 4 : 12}>
+                    <FormControl fullWidth>
+                      <InputLabel id="cabin-class-label">Cabin Class</InputLabel>
+                      <Select
+                        labelId="cabin-class-label"
+                        value={cabinClass}
+                        label="Cabin Class"
+                        onChange={(e) => setCabinClass(e.target.value)}
+                      >
+                        <MenuItem value="Economy">Economy</MenuItem>
+                        <MenuItem value="Premium Economy">Premium Economy</MenuItem>
+                        <MenuItem value="Business">Business</MenuItem>
+                        <MenuItem value="First">First Class</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={tripType === 'roundTrip' ? 8 : 12}>
+                    <Typography variant="subtitle2" gutterBottom>Passengers</Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography>Adults (12+ yrs)</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('adults', false)}
+                          disabled={passengerCounts.adults <= 1}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{passengerCounts.adults}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('adults', true)}
+                          disabled={passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography>Children (2-11 yrs)</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('children', false)}
+                          disabled={passengerCounts.children <= 0}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{passengerCounts.children}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('children', true)}
+                          disabled={passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography>Infants (below 2 yrs)</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('infants', false)}
+                          disabled={passengerCounts.infants <= 0}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <Typography sx={{ mx: 1 }}>{passengerCounts.infants}</Typography>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updatePassengerCount('infants', true)}
+                          disabled={
+                            passengerCounts.infants >= passengerCounts.adults || 
+                            passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9
+                          }
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Paper>
+            </Grid>
+            
+            {/* Fare Type */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle2" gutterBottom>Select A Fare Type</Typography>
+              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
                 {fareTypes.map((type) => (
-                  <FormControlLabel 
-                    key={type.value} 
-                    value={type.value} 
-                    control={<Radio color="primary" size="small" />} 
-                    label={type.label}
-                    sx={{ mr: 2 }}
+                  <Chip
+                    key={type}
+                    label={type}
+                    onClick={() => setFareType(type)}
+                    variant={fareType === type ? 'filled' : 'outlined'}
+                    color={fareType === type ? 'primary' : 'default'}
+                    sx={{ mb: 1 }}
                   />
                 ))}
-              </RadioGroup>
-            </Box>
-          </Box>
-        </Paper>
-      </SearchContainer>
-
-      {/* Flight Results Section */}
-      {location.includes('/flights/search') && (
-        <Container maxWidth="lg">
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
-              {sourceCity} → {destinationCity}
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              {new Date(departDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} 
-              • {passengerCount}
-            </Typography>
-          </Box>
-
-          {/* Date navigation */}
-          <Paper elevation={1} sx={{ mb: 3, borderRadius: '8px', overflow: 'hidden' }}>
-            <Tabs
-              value={dateTabValue}
-              onChange={handleDateTabChange}
-              variant="scrollable"
-              scrollButtons="auto"
-              aria-label="date navigation tabs"
-              sx={{ 
-                bgcolor: '#f8f8f8',
-                '& .MuiTabs-indicator': { backgroundColor: 'transparent' }
-              }}
-            >
-              {dateTabs.map((tab, index) => (
-                <DateTab
-                  key={index}
-                  label={
-                    <Box sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" component="div" fontWeight={600}>
-                        {tab.day}, {tab.date}
-                      </Typography>
-                      <Typography 
-                        variant="body2" 
-                        component="div" 
-                        color={dateTabValue === index ? 'primary' : 'textSecondary'}
-                        fontWeight={500}
-                      >
-                        ₹{tab.price}
-                      </Typography>
-                    </Box>
-                  }
-                />
-              ))}
-            </Tabs>
-          </Paper>
-
-          {/* Sort options */}
-          <Paper elevation={1} sx={{ mb: 3, p: 2, borderRadius: '8px' }}>
-            <Grid container spacing={2} alignItems="center">
-              <Grid item>
-                <Typography variant="body1" fontWeight={600}>Sort by:</Typography>
-              </Grid>
-              
-              <Grid item>
-                <Button 
-                  variant="contained" 
-                  disableElevation
-                  sx={{ 
-                    bgcolor: '#e8f4ff', 
-                    color: '#0070c9',
-                    fontWeight: 600,
-                    '&:hover': { bgcolor: '#d1e9ff' }
-                  }}
-                >
-                  Cheapest
-                </Button>
-              </Grid>
-              
-              <Grid item>
-                <Button 
-                  variant="text" 
-                  sx={{ color: '#666', fontWeight: 500 }}
-                >
-                  Non-Stop
-                </Button>
-              </Grid>
-              
-              <Grid item>
-                <Button 
-                  variant="text" 
-                  sx={{ color: '#666', fontWeight: 500 }}
-                >
-                  Fastest
-                </Button>
-              </Grid>
+              </Stack>
             </Grid>
-          </Paper>
-
-          {/* Flight results */}
-          {isLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <Typography>Loading flights...</Typography>
-            </Box>
-          ) : flights.length === 0 ? (
-            <Paper sx={{ p: 4, textAlign: 'center', borderRadius: '8px' }}>
-              <Typography variant="h6" gutterBottom>No flights found</Typography>
-              <Typography variant="body1">
-                Try adjusting your search criteria or select a different date.
-              </Typography>
-            </Paper>
-          ) : (
-            <>
-              {flights.map((flight, index) => (
-                <FlightCard key={index} elevation={1}>
-                  <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={2} sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
-                        <img
-                          src={flight.airline.logo || 'https://via.placeholder.com/40'}
-                          alt={flight.airline.name}
-                          style={{ width: 40, height: 40, marginRight: 8 }}
-                        />
-                        <Box>
-                          <Typography variant="subtitle1" fontWeight={600}>
-                            {flight.airline.name}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {flight.flightNumber}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={3}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' } }}>
-                        <Typography variant="h6" fontWeight={700}>
-                          {formatTime(flight.departureTime)}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {sourceCity}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={3} sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                        {calculateDuration(flight.departureTime, flight.arrivalTime)}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Box sx={{ height: 1, bgcolor: '#ddd', flex: 1 }} />
-                        <FlightTakeoff sx={{ mx: 1, transform: 'rotate(90deg)', color: '#0070c9' }} />
-                        <Box sx={{ height: 1, bgcolor: '#ddd', flex: 1 }} />
-                      </Box>
-                      <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                        {flight.stopCount === 0 ? 'Non-stop' : `${flight.stopCount} stop(s)`}
-                      </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} sm={2}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'center', sm: 'flex-start' } }}>
-                        <Typography variant="h6" fontWeight={700}>
-                          {formatTime(flight.arrivalTime)}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {destinationCity}
-                        </Typography>
-                      </Box>
-                    </Grid>
-
-                    <Grid item xs={12} sm={2} sx={{ textAlign: 'right' }}>
-                      <Typography variant="h5" fontWeight={700} color="primary">
-                        ₹{flight.price.amount}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        per passenger
-                      </Typography>
-                      <Button 
-                        variant="contained" 
-                        sx={{ 
-                          mt: 1,
-                          bgcolor: '#ff9800', 
-                          '&:hover': { bgcolor: '#f57c00' }
-                        }}
-                        fullWidth
-                      >
-                        Book Now
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </FlightCard>
-              ))}
-            </>
-          )}
-        </Container>
-      )}
+            
+            {/* Recent Searches would go here */}
+            
+            {/* Search Button */}
+            <Grid item xs={12}>
+              <Button
+                variant="contained"
+                size="large"
+                color="primary"
+                startIcon={<SearchIcon />}
+                onClick={handleSearch}
+                fullWidth
+                sx={{ 
+                  mt: 2, 
+                  py: 1.5,
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  bgcolor: '#008cff',
+                  '&:hover': {
+                    bgcolor: '#0071ce',
+                  }
+                }}
+              >
+                SEARCH
+              </Button>
+            </Grid>
+          </Grid>
+        </Paper>
+        
+        <Box sx={{ mt: 4 }}>
+          <Typography variant="h6" gutterBottom color="#008cff">
+            Popular Flight Routes
+          </Typography>
+          <Grid container spacing={2}>
+            {[
+              { from: 'Delhi', to: 'Mumbai' },
+              { from: 'Mumbai', to: 'Bangalore' },
+              { from: 'Bangalore', to: 'Hyderabad' },
+              { from: 'Chennai', to: 'Kolkata' }
+            ].map((route, index) => (
+              <Grid item xs={6} md={3} key={index}>
+                <Link href={`/flights/search?origin=${route.from}&destination=${route.to}`}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 2,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      '&:hover': { bgcolor: '#f5f5f5' }
+                    }}
+                  >
+                    <Typography variant="body1">{route.from} to {route.to}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Flights from ₹3,499
+                    </Typography>
+                  </Paper>
+                </Link>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      </Container>
     </>
   );
 };

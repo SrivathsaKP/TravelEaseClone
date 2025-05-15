@@ -1,102 +1,172 @@
 import { useState, useEffect } from 'react';
-import { Tabs, Tab, Box, Typography, Container, Paper, useTheme } from '@mui/material';
-import { styled } from '@mui/system';
 import { useLocation, useRoute } from 'wouter';
+import { TabType, setCurrentTab } from '@/store/tabSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { setCurrentTab, type TabType } from '@/store/tabSlice';
+import { 
+  Tabs, 
+  Tab, 
+  Box 
+} from '@mui/material';
+import FlightIcon from '@mui/icons-material/Flight';
+import HotelIcon from '@mui/icons-material/Hotel';
+import HomeIcon from '@mui/icons-material/Home';
+import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
+import TrainIcon from '@mui/icons-material/Train';
+import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
+import CardTravelIcon from '@mui/icons-material/CardTravel';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 
-const StyledTab = styled(Tab)(({ theme }) => ({
-  fontWeight: 600,
-  color: '#3a3a3a',
-  padding: '12px 24px',
-  fontSize: '14px',
-  textTransform: 'none',
-  minWidth: 'auto',
-  '&.Mui-selected': {
-    color: '#ffffff',
-    backgroundColor: '#008cff',
-    borderRadius: '4px 4px 0 0',
+// Tab configuration
+const tabs: { type: TabType; label: string; icon: JSX.Element; path: string }[] = [
+  { 
+    type: 'flights', 
+    label: 'Flights', 
+    icon: <FlightIcon />, 
+    path: '/flights' 
   },
-}));
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  '& .MuiTabs-indicator': {
-    display: 'none',
+  { 
+    type: 'hotels', 
+    label: 'Hotels', 
+    icon: <HotelIcon />, 
+    path: '/hotels' 
   },
-  backgroundColor: '#f2f2f2',
-  borderRadius: '4px 4px 0 0',
-}));
+  { 
+    type: 'homestays', 
+    label: 'Homestays', 
+    icon: <HomeIcon />, 
+    path: '/homestays' 
+  },
+  { 
+    type: 'holidayPackages', 
+    label: 'Holiday Packages', 
+    icon: <CardTravelIcon />, 
+    path: '/holiday-packages' 
+  },
+  { 
+    type: 'trains', 
+    label: 'Trains', 
+    icon: <TrainIcon />, 
+    path: '/trains' 
+  },
+  { 
+    type: 'buses', 
+    label: 'Buses', 
+    icon: <DirectionsBusIcon />, 
+    path: '/buses' 
+  },
+  { 
+    type: 'cabs', 
+    label: 'Cabs & Taxi', 
+    icon: <LocalTaxiIcon />, 
+    path: '/cabs' 
+  },
+  { 
+    type: 'forexCards', 
+    label: 'Forex Cards', 
+    icon: <AccountBalanceWalletIcon />, 
+    path: '/forex-cards' 
+  },
+  { 
+    type: 'travelInsurance', 
+    label: 'Travel Insurance', 
+    icon: <VerifiedUserIcon />, 
+    path: '/travel-insurance' 
+  }
+];
 
-interface TabNavigationProps {
-  onTabChange?: (tabValue: TabType) => void;
-}
+// Map paths to tab types
+const pathToTabType: Record<string, TabType> = {
+  '/flights': 'flights',
+  '/hotels': 'hotels',
+  '/homestays': 'homestays',
+  '/holiday-packages': 'holidayPackages',
+  '/trains': 'trains',
+  '/buses': 'buses',
+  '/cabs': 'cabs',
+  '/forex-cards': 'forexCards',
+  '/travel-insurance': 'travelInsurance'
+};
 
-export const TabNavigation: React.FC<TabNavigationProps> = ({ onTabChange }) => {
+export default function TabNavigation() {
   const dispatch = useAppDispatch();
   const currentTab = useAppSelector((state) => state.tab.currentTab);
-  const [, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
+  const [value, setValue] = useState(0);
 
-  const handleTabChange = (_: React.SyntheticEvent, newValue: TabType) => {
-    dispatch(setCurrentTab(newValue));
+  // Update tab based on current location
+  useEffect(() => {
+    // Extract the base path without query parameters
+    const path = location.split('?')[0];
     
-    // Navigate to the appropriate page based on the tab
-    switch (newValue) {
-      case 'flights':
-        navigate('/flights');
-        break;
-      case 'hotels':
-        navigate('/hotels');
-        break;
-      case 'homestays':
-        navigate('/homestays');
-        break;
-      case 'holidayPackages':
-        navigate('/holiday-packages');
-        break;
-      case 'trains':
-        navigate('/trains');
-        break;
-      case 'buses':
-        navigate('/buses');
-        break;
-      case 'cabs':
-        navigate('/cabs');
-        break;
-      case 'forexCards':
-        navigate('/forex-cards');
-        break;
-      case 'travelInsurance':
-        navigate('/travel-insurance');
-        break;
-    }
+    // Find the tab index based on the current path
+    const tabIndex = tabs.findIndex((tab) => tab.path === path);
     
-    // Callback if provided
-    if (onTabChange) {
-      onTabChange(newValue);
+    if (tabIndex !== -1) {
+      setValue(tabIndex);
+      
+      // Update Redux state if necessary
+      const tabType = pathToTabType[path];
+      if (tabType && tabType !== currentTab) {
+        dispatch(setCurrentTab(tabType));
+      }
     }
+  }, [location, currentTab, dispatch]);
+
+  // Handle tab change
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    const selectedTab = tabs[newValue];
+    
+    // Update Redux state
+    dispatch(setCurrentTab(selectedTab.type));
+    
+    // Navigate to the new route
+    setLocation(selectedTab.path);
   };
 
   return (
-    <Paper elevation={0} square sx={{ borderRadius: '8px 8px 0 0' }}>
-      <StyledTabs
-        value={currentTab}
-        onChange={handleTabChange}
+    <Box sx={{ 
+      width: '100%', 
+      bgcolor: '#ffcc01',
+      position: 'sticky',
+      top: 0,
+      zIndex: 10
+    }}>
+      <Tabs
+        value={value}
+        onChange={handleChange}
         variant="scrollable"
         scrollButtons="auto"
-        aria-label="travel services tabs"
+        aria-label="Travel options tabs"
+        sx={{
+          '& .MuiTabs-indicator': { 
+            backgroundColor: '#008cff',
+            height: 3
+          },
+          '& .MuiTab-root': { 
+            color: '#333',
+            fontWeight: 500,
+            fontSize: '0.9rem',
+            textTransform: 'none',
+            minHeight: 56,
+            '&.Mui-selected': {
+              color: '#008cff',
+              fontWeight: 700
+            }
+          }
+        }}
       >
-        <StyledTab label="Flights" value="flights" />
-        <StyledTab label="Hotels" value="hotels" />
-        <StyledTab label="Homestays" value="homestays" />
-        <StyledTab label="Holiday Packages" value="holidayPackages" />
-        <StyledTab label="Trains" value="trains" />
-        <StyledTab label="Buses" value="buses" />
-        <StyledTab label="Cabs" value="cabs" />
-        <StyledTab label="Forex Cards" value="forexCards" />
-        <StyledTab label="Travel Insurance" value="travelInsurance" />
-      </StyledTabs>
-    </Paper>
+        {tabs.map((tab) => (
+          <Tab 
+            key={tab.type} 
+            icon={tab.icon} 
+            label={tab.label} 
+            iconPosition="top"
+            sx={{ minWidth: { xs: 80, sm: 100, md: 120 } }}
+          />
+        ))}
+      </Tabs>
+    </Box>
   );
-};
-
-export default TabNavigation;
+}

@@ -16,7 +16,7 @@ interface TabState {
 }
 
 const initialState: TabState = {
-  currentTab: 'flights'
+  currentTab: 'flights',
 };
 
 export const tabSlice = createSlice({
@@ -30,5 +30,4 @@ export const tabSlice = createSlice({
 });
 
 export const { setCurrentTab } = tabSlice.actions;
-
 export default tabSlice.reducer;
