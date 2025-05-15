@@ -203,28 +203,38 @@ const MaterialSearchTabs: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
-      <Paper elevation={3} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+      <Paper elevation={3} sx={{ 
+        borderRadius: 3, 
+        overflow: 'hidden',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        background: 'white',
+      }}>
         <Tabs 
           value={tabValue} 
           onChange={handleTabChange} 
           variant="scrollable"
           scrollButtons="auto"
           sx={{ 
-            background: 'linear-gradient(to right, #2196f3, #42a5f5)',
-            color: 'white',
+            background: 'white',
+            borderRadius: '15px 15px 0 0',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             '& .MuiTab-root': { 
-              color: 'rgba(255, 255, 255, 0.7)',
+              color: '#555',
               fontSize: '0.9rem',
               fontWeight: 500,
               p: 2,
-              minWidth: 120
+              minWidth: 120,
+              borderRadius: '50px',
+              margin: '8px 4px',
+              transition: 'all 0.3s ease',
             },
             '& .Mui-selected': { 
               color: 'white',
-              fontWeight: 600
+              fontWeight: 600,
+              backgroundColor: '#2196f3',
             },
             '& .MuiTabs-indicator': { 
-              backgroundColor: 'white' 
+              display: 'none'
             }
           }}
         >
