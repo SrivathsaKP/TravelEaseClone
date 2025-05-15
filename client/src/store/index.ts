@@ -1,10 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import tabReducer from './tabSlice';
+import searchReducer from './searchSlice';
 
 export const store = configureStore({
   reducer: {
     tab: tabReducer,
-    // Add other reducers here as needed
+    search: searchReducer,
   },
 });
 

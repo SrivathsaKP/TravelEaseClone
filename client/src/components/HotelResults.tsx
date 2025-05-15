@@ -4,7 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Hotel } from "@/lib/types";
-import { ChevronDown, ChevronUp, Star, MapPin, Wifi, Coffee, Car, Snowflake } from "lucide-react";
+import { ChevronDown, ChevronUp, Star, MapPin, Wifi, Coffee, Car, Snowflake, Plus, Heart } from "lucide-react";
+import { 
+  Box, 
+  Paper, 
+  Typography, 
+  Tab, 
+  Tabs, 
+  Chip, 
+  Card, 
+  CardContent,
+  CardMedia,
+  Divider,
+  Grid,
+  Container,
+  CircularProgress,
+  IconButton,
+  Rating,
+  Badge,
+} from "@mui/material";
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import KingBedIcon from '@mui/icons-material/KingBed';
+import FreeBreakfastIcon from '@mui/icons-material/FreeBreakfast';
+import WifiIcon from '@mui/icons-material/Wifi';
+import PoolIcon from '@mui/icons-material/Pool';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 interface HotelResultsProps {
   hotels: Hotel[];
