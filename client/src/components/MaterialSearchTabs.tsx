@@ -359,153 +359,358 @@ const MaterialSearchTabs: React.FC<MaterialSearchTabsProps> = ({ onTabChange }) 
         {/* Flight Search Tab */}
         <TabPanel value={tabValue} index={0}>
           <form onSubmit={handleFlightSearch}>
-            <Box sx={{ mb: 3 }}>
-              <RadioGroup
-                row
-                name="tripType"
-                value={flightSearch.tripType}
-                onChange={(e) => setFlightSearch({...flightSearch, tripType: e.target.value as 'one-way' | 'round-trip'})}
-              >
-                <FormControlLabel value="one-way" control={<Radio />} label="One Way" />
-                <FormControlLabel value="round-trip" control={<Radio />} label="Round Trip" />
-              </RadioGroup>
+            <Box sx={{ mb: 3, p: 1, display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Box sx={{ mr: 4 }}>
+                <RadioGroup
+                  row
+                  name="tripType"
+                  value={flightSearch.tripType}
+                  onChange={(e) => setFlightSearch({...flightSearch, tripType: e.target.value as 'one-way' | 'round-trip'})}
+                >
+                  <FormControlLabel 
+                    value="one-way" 
+                    control={
+                      <Radio sx={{ 
+                        color: '#008cff',
+                        '&.Mui-checked': {
+                          color: '#008cff',
+                        } 
+                      }}/>
+                    } 
+                    label="One Way" 
+                  />
+                  <FormControlLabel 
+                    value="round-trip" 
+                    control={
+                      <Radio sx={{ 
+                        color: '#008cff',
+                        '&.Mui-checked': {
+                          color: '#008cff',
+                        } 
+                      }}/>
+                    } 
+                    label="Round Trip" 
+                  />
+                  <FormControlLabel 
+                    value="multi-city" 
+                    control={
+                      <Radio sx={{ 
+                        color: '#008cff',
+                        '&.Mui-checked': {
+                          color: '#008cff',
+                        } 
+                      }}/>
+                    } 
+                    label="Multi City" 
+                    disabled
+                  />
+                </RadioGroup>
+              </Box>
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+                <Typography variant="body2" sx={{ mr: 1 }}>Book International and Domestic Flights</Typography>
+              </Box>
             </Box>
 
-            <Grid container spacing={3}>
-              <Grid item={true} xs={12} md={3}>
-                <FormControl fullWidth>
-                  <TextField
-                    select
-                    label="From"
-                    value={flightSearch.source}
-                    onChange={(e) => setFlightSearch({...flightSearch, source: e.target.value})}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <FlightTakeoff />
-                        </InputAdornment>
-                      ),
-                    }}
-                  >
-                    {cities.map((city) => (
-                      <MenuItem key={city} value={city}>{city}</MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
-              </Grid>
-
-              <Grid xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <IconButton 
-                  onClick={() => swapLocations('flight')}
-                  color="primary"
-                  size="large"
-                  sx={{ 
-                    bgcolor: 'rgba(25, 118, 210, 0.08)', 
-                    '&:hover': { bgcolor: 'rgba(25, 118, 210, 0.15)' } 
-                  }}
-                >
-                  <SwapVert />
-                </IconButton>
-              </Grid>
-
-              <Grid xs={12} md={3}>
-                <FormControl fullWidth>
-                  <TextField
-                    select
-                    label="To"
-                    value={flightSearch.destination}
-                    onChange={(e) => setFlightSearch({...flightSearch, destination: e.target.value})}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <FlightLand />
-                        </InputAdornment>
-                      ),
-                    }}
-                  >
-                    {cities.map((city) => (
-                      <MenuItem key={city} value={city}>{city}</MenuItem>
-                    ))}
-                  </TextField>
-                </FormControl>
-              </Grid>
-
-              <Grid xs={12} md={2}>
-                <TextField
-                  fullWidth
-                  label="Departure Date"
-                  type="date"
-                  InputLabelProps={{ shrink: true }}
-                  value={flightSearch.departureDate}
-                  onChange={(e) => setFlightSearch({...flightSearch, departureDate: e.target.value})}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <CalendarMonth />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-
-              {flightSearch.tripType === 'round-trip' && (
-                <Grid xs={12} md={2}>
-                  <TextField
-                    fullWidth
-                    label="Return Date"
-                    type="date"
-                    InputLabelProps={{ shrink: true }}
-                    value={flightSearch.returnDate}
-                    onChange={(e) => setFlightSearch({...flightSearch, returnDate: e.target.value})}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <CalendarMonth />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+            <Box sx={{ px: 2 }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={3}>
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1,
+                    '&:hover': { borderColor: '#008cff' }
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
+                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                      <TextField
+                        select
+                        value={flightSearch.source}
+                        onChange={(e) => setFlightSearch({...flightSearch, source: e.target.value})}
+                        variant="standard"
+                        placeholder="Enter city"
+                        InputProps={{
+                          disableUnderline: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <FlightTakeoff sx={{ color: '#008cff' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            fontSize: '1.1rem',
+                            fontWeight: 600
+                          }
+                        }}
+                      >
+                        {cities.map((city) => (
+                          <MenuItem key={city} value={city}>{city}</MenuItem>
+                        ))}
+                      </TextField>
+                    </FormControl>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      POPULAR CITIES
+                    </Typography>
+                  </Box>
                 </Grid>
-              )}
 
-              <Grid xs={12} md={flightSearch.tripType === 'one-way' ? 3 : 2}>
-                <FormControl fullWidth>
-                  <TextField
-                    select
-                    label="Travelers"
-                    value={flightSearch.travelers}
-                    onChange={(e) => setFlightSearch({...flightSearch, travelers: e.target.value})}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Person />
-                        </InputAdornment>
-                      ),
+                <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconButton 
+                    onClick={() => swapLocations('flight')}
+                    color="primary"
+                    size="medium"
+                    sx={{ 
+                      bgcolor: 'rgba(0, 140, 255, 0.08)', 
+                      color: '#008cff',
+                      '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.15)' } 
                     }}
                   >
-                    <MenuItem value="1 Adult">1 Adult</MenuItem>
-                    <MenuItem value="2 Adults">2 Adults</MenuItem>
-                    <MenuItem value="2 Adults, 1 Child">2 Adults, 1 Child</MenuItem>
-                    <MenuItem value="2 Adults, 2 Children">2 Adults, 2 Children</MenuItem>
-                  </TextField>
-                </FormControl>
-              </Grid>
-            </Grid>
+                    <SwapVert />
+                  </IconButton>
+                </Grid>
 
-            <Box sx={{ mt: 4, textAlign: 'center' }}>
+                <Grid item xs={12} md={3}>
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1,
+                    '&:hover': { borderColor: '#008cff' }
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TO</Typography>
+                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                      <TextField
+                        select
+                        value={flightSearch.destination}
+                        onChange={(e) => setFlightSearch({...flightSearch, destination: e.target.value})}
+                        variant="standard"
+                        placeholder="Enter city"
+                        InputProps={{
+                          disableUnderline: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <FlightLand sx={{ color: '#008cff' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            fontSize: '1.1rem',
+                            fontWeight: 600
+                          }
+                        }}
+                      >
+                        {cities.map((city) => (
+                          <MenuItem key={city} value={city}>{city}</MenuItem>
+                        ))}
+                      </TextField>
+                    </FormControl>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} md={2}>
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1,
+                    '&:hover': { borderColor: '#008cff' }
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>DEPARTURE</Typography>
+                    <TextField
+                      fullWidth
+                      type="date"
+                      variant="standard"
+                      InputLabelProps={{ shrink: true }}
+                      value={flightSearch.departureDate}
+                      onChange={(e) => setFlightSearch({...flightSearch, departureDate: e.target.value})}
+                      InputProps={{
+                        disableUnderline: true,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarMonth sx={{ color: '#008cff' }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      sx={{
+                        '& .MuiInputBase-input': {
+                          fontSize: '1.1rem',
+                          fontWeight: 600
+                        }
+                      }}
+                    />
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      Saturday
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                {flightSearch.tripType === 'round-trip' && (
+                  <Grid item xs={12} md={2}>
+                    <Box sx={{ 
+                      p: 2, 
+                      border: '1px solid #e0e0e0', 
+                      borderRadius: 1,
+                      '&:hover': { borderColor: '#008cff' }
+                    }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>RETURN</Typography>
+                      <TextField
+                        fullWidth
+                        type="date"
+                        variant="standard"
+                        InputLabelProps={{ shrink: true }}
+                        value={flightSearch.returnDate}
+                        onChange={(e) => setFlightSearch({...flightSearch, returnDate: e.target.value})}
+                        InputProps={{
+                          disableUnderline: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <CalendarMonth sx={{ color: '#008cff' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            fontSize: '1.1rem',
+                            fontWeight: 600
+                          }
+                        }}
+                      />
+                      <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', mt: 0.5, color: '#008cff' }}>
+                        Tap to add a return date
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
+
+                <Grid item xs={12} md={flightSearch.tripType === 'one-way' ? 3 : 2}>
+                  <Box sx={{ 
+                    p: 2, 
+                    border: '1px solid #e0e0e0', 
+                    borderRadius: 1,
+                    '&:hover': { borderColor: '#008cff' },
+                    height: '100%'
+                  }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TRAVELLERS & CLASS</Typography>
+                    <FormControl fullWidth variant="standard" sx={{ border: 'none' }}>
+                      <TextField
+                        select
+                        value={flightSearch.travelers}
+                        onChange={(e) => setFlightSearch({...flightSearch, travelers: e.target.value})}
+                        variant="standard"
+                        InputProps={{
+                          disableUnderline: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <Person sx={{ color: '#008cff' }} />
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          '& .MuiInputBase-input': {
+                            fontSize: '1.1rem',
+                            fontWeight: 600
+                          }
+                        }}
+                      >
+                        <MenuItem value="1 Adult">1 Adult</MenuItem>
+                        <MenuItem value="2 Adults">2 Adults</MenuItem>
+                        <MenuItem value="1 Adult, 1 Child">1 Adult, 1 Child</MenuItem>
+                        <MenuItem value="2 Adults, 1 Child">2 Adults, 1 Child</MenuItem>
+                        <MenuItem value="2 Adults, 2 Children">2 Adults, 2 Children</MenuItem>
+                      </TextField>
+                    </FormControl>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      Economy/Premium Economy
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+              
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        sx={{ 
+                          color: '#008cff',
+                          '&.Mui-checked': {
+                            color: '#008cff',
+                          } 
+                        }}
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        Student
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          Extra discounts/baggage
+                        </Typography>
+                      </Typography>
+                    }
+                  />
+                  
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        sx={{ 
+                          color: '#008cff',
+                          '&.Mui-checked': {
+                            color: '#008cff',
+                          } 
+                        }}
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        Senior Citizen
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          Up to ₹600 off
+                        </Typography>
+                      </Typography>
+                    }
+                  />
+                  
+                  <FormControlLabel
+                    control={
+                      <Radio
+                        sx={{ 
+                          color: '#008cff',
+                          '&.Mui-checked': {
+                            color: '#008cff',
+                          } 
+                        }}
+                        size="small"
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        Armed Forces
+                        <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                          Up to ₹300 off
+                        </Typography>
+                      </Typography>
+                    }
+                  />
+                </Box>
+              </Box>
+            </Box>
+
+            <Box sx={{ mt: 3, mb: 2, display: 'flex', justifyContent: 'center' }}>
               <Button 
                 type="submit" 
                 variant="contained" 
                 size="large"
-                sx={{ 
-                  px: 4, 
-                  py: 1.5, 
-                  borderRadius: 28,
-                  textTransform: 'uppercase',
+                sx={{
+                  px: 5,
+                  py: 1.5,
+                  borderRadius: 32,
                   fontWeight: 'bold',
-                  fontSize: '1rem',
-                  bgcolor: '#2196f3',
-                  '&:hover': { bgcolor: '#1976d2' }
+                  fontSize: '1.1rem',
+                  textTransform: 'uppercase',
+                  backgroundColor: '#008cff',
+                  '&:hover': { backgroundColor: '#0070ce' }
                 }}
               >
                 SEARCH
