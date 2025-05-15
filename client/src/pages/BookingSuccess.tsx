@@ -1,196 +1,307 @@
-import { useEffect, useState } from 'react';
-import { Container, Typography, Button, Box, Paper, Divider, Chip, Grid } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
-import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
-import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
-import ShareIcon from '@mui/icons-material/Share';
+import { 
+  Container, 
+  Typography, 
+  Button, 
+  Box, 
+  Paper, 
+  Divider,
+  CircularProgress,
+  Chip
+} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PrintIcon from '@mui/icons-material/Print';
+import EmailIcon from '@mui/icons-material/Email';
 import HomeIcon from '@mui/icons-material/Home';
 
 export default function BookingSuccess() {
   const [, setLocation] = useLocation();
-  const [bookingReference, setBookingReference] = useState<string>('');
-  
-  // In a real app, you would retrieve the booking details based on the URL params
-  // Here we're generating a simulated booking reference
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   useEffect(() => {
-    // Generate a random booking reference for demonstration
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let reference = '';
-    for (let i = 0; i < 8; i++) {
-      reference += characters.charAt(Math.floor(Math.random() * characters.length));
+    // Try to retrieve booking data from sessionStorage
+    try {
+      const confirmedBooking = sessionStorage.getItem('confirmedBooking');
+      if (confirmedBooking) {
+        setBooking(JSON.parse(confirmedBooking));
+      } else {
+        setError('Booking information not found.');
+      }
+    } catch (err) {
+      setError('Error retrieving booking information.');
+      console.error(err);
     }
-    setBookingReference(reference);
+    
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleShare = () => {
-    // In a real app, this would open a sharing dialog
-    alert('Sharing functionality would be implemented here');
+  const handleEmailTicket = () => {
+    alert('Email functionality would be implemented here.');
+  };
+  
+  const renderBookingDetails = () => {
+    if (!booking) return null;
+    
+    switch(booking.type) {
+      case 'flight':
+        return (
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography>Route:</Typography>
+              <Typography>
+                {booking.details.from} → {booking.details.to}
+              </Typography>
+            </Box>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography>Date:</Typography>
+              <Typography>
+                {new Date(booking.details.date).toLocaleDateString()}
+              </Typography>
+            </Box>
+            
+            {booking.details.airline && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>Airline:</Typography>
+                <Typography>{booking.details.airline}</Typography>
+              </Box>
+            )}
+            
+            {booking.details.flightNumber && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>Flight Number:</Typography>
+                <Typography>{booking.details.flightNumber}</Typography>
+              </Box>
+            )}
+            
+            {booking.details.departureTime && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>Departure Time:</Typography>
+                <Typography>{booking.details.departureTime}</Typography>
+              </Box>
+            )}
+            
+            {booking.details.arrivalTime && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>Arrival Time:</Typography>
+                <Typography>{booking.details.arrivalTime}</Typography>
+              </Box>
+            )}
+            
+            {booking.details.duration && (
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>Duration:</Typography>
+                <Typography>{booking.details.duration}</Typography>
+              </Box>
+            )}
+            
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography>Passengers:</Typography>
+              <Typography>{booking.details.passengers}</Typography>
+            </Box>
+          </>
+        );
+      // Add other cases for hotel, bus, etc. as needed
+      default:
+        return (
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography>No details available</Typography>
+            </Box>
+          </>
+        );
+    }
   };
 
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <CircularProgress size={60} color="primary" />
+          <Typography variant="h6" sx={{ mt: 3 }}>
+            Processing Your Booking...
+          </Typography>
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            {error}
+          </Typography>
+          <Typography paragraph>
+            Please try again or contact customer support if the problem persists.
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={() => setLocation('/')}
+            sx={{ mt: 2 }}
+          >
+            Back to Home
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Paper elevation={2} sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h5" color="error" gutterBottom>
+            No booking information found
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={() => setLocation('/')}
+            sx={{ mt: 2 }}
+          >
+            Back to Home
+          </Button>
+        </Paper>
+      </Container>
+    );
+  }
+
   return (
-    <Container maxWidth="md" sx={{ py: 5 }}>
+    <Container maxWidth="md" sx={{ py: 6 }}>
       <Box sx={{ 
         display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center',
+        flexDirection: 'column', 
+        alignItems: 'center', 
         textAlign: 'center',
         mb: 4
       }}>
-        <CheckCircleOutlinedIcon 
+        <CheckCircleIcon 
+          color="success" 
           sx={{ 
-            fontSize: 80, 
-            color: 'success.main',
-            mb: 2
+            fontSize: 80,
+            animation: 'fadeInScale 0.5s ease-out',
+            '@keyframes fadeInScale': {
+              '0%': {
+                opacity: 0,
+                transform: 'scale(0.5)'
+              },
+              '100%': {
+                opacity: 1,
+                transform: 'scale(1)'
+              }
+            }
           }} 
         />
-        <Typography variant="h4" gutterBottom>
+        <Typography variant="h4" component="h1" sx={{ mt: 2, fontWeight: 'bold' }}>
           Booking Confirmed!
         </Typography>
-        <Typography variant="subtitle1" color="text.secondary">
-          Your booking was successful. Thank you for choosing TravelEase.
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
+          Your booking has been confirmed. Thank you for choosing TravelEase.
         </Typography>
       </Box>
       
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
           <Typography variant="h6">
-            Booking Details
+            Booking Reference: <strong>{booking.bookingId}</strong>
           </Typography>
           <Chip 
-            icon={<FlightTakeoffIcon />} 
-            label="Flight" 
-            color="primary" 
-            variant="outlined" 
+            label={booking.status} 
+            color="success" 
+            sx={{ fontWeight: 'bold' }}
           />
         </Box>
         
         <Divider sx={{ mb: 3 }} />
         
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Booking Reference
-            </Typography>
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-              {bookingReference}
-            </Typography>
-          </Grid>
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            Booking Details
+          </Typography>
           
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Booking Date
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+            <Typography>Booking Date:</Typography>
+            <Typography>
+              {new Date(booking.bookingDate).toLocaleDateString()}
             </Typography>
-            <Typography variant="body1">
-              {new Date().toLocaleDateString()}
-            </Typography>
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Passenger
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+            <Typography>Type:</Typography>
+            <Typography sx={{ fontWeight: 'medium', textTransform: 'capitalize' }}>
+              {booking.type}
             </Typography>
-            <Typography variant="body1">
-              John Doe
-            </Typography>
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Payment Method
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+            <Typography>Payment Status:</Typography>
+            <Typography color="success.main" fontWeight="medium">
+              {booking.paymentStatus}
             </Typography>
-            <Typography variant="body1">
-              Credit Card (xxxx-xxxx-xxxx-1234)
-            </Typography>
-          </Grid>
+          </Box>
+        </Box>
+        
+        <Divider sx={{ mb: 3 }} />
+        
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
+            Trip Details
+          </Typography>
           
-          <Grid item xs={12}>
-            <Divider sx={{ my: 2 }} />
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              From
-            </Typography>
-            <Typography variant="body1">
-              New Delhi (DEL)
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              To
-            </Typography>
-            <Typography variant="body1">
-              Mumbai (BOM)
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Date
-            </Typography>
-            <Typography variant="body1">
-              June 15, 2025
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12} sm={6}>
-            <Typography variant="body2" color="text.secondary">
-              Flight
-            </Typography>
-            <Typography variant="body1">
-              Air India AI-123
-            </Typography>
-          </Grid>
-          
-          <Grid item xs={12}>
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              mt: 2,
-              pt: 2,
-              borderTop: '1px solid #eee'
-            }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                Total Amount
-              </Typography>
-              <Typography variant="h6" color="primary.main" sx={{ fontWeight: 'bold' }}>
-                ₹12,999.00
-              </Typography>
-            </Box>
-          </Grid>
-        </Grid>
+          {renderBookingDetails()}
+        </Box>
+        
+        <Divider sx={{ mb: 3 }} />
+        
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+            Total Amount:
+          </Typography>
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+            ₹{booking.amount.toFixed(2)}
+          </Typography>
+        </Box>
       </Paper>
       
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
         <Button 
           variant="outlined" 
+          startIcon={<PrintIcon />}
+          onClick={handlePrint}
+        >
+          Print Ticket
+        </Button>
+        
+        <Button 
+          variant="outlined" 
+          startIcon={<EmailIcon />}
+          onClick={handleEmailTicket}
+        >
+          Email Ticket
+        </Button>
+        
+        <Button 
+          variant="contained" 
+          color="primary"
           startIcon={<HomeIcon />}
           onClick={() => setLocation('/')}
         >
           Back to Home
-        </Button>
-        
-        <Button
-          variant="outlined"
-          startIcon={<LocalPrintshopIcon />}
-          onClick={handlePrint}
-        >
-          Print
-        </Button>
-        
-        <Button
-          variant="outlined"
-          startIcon={<ShareIcon />}
-          onClick={handleShare}
-        >
-          Share
         </Button>
       </Box>
     </Container>

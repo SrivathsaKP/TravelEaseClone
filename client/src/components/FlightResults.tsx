@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,7 @@ const FlightResults: React.FC<FlightResultsProps> = ({
   sourceCity,
   destinationCity
 }) => {
+  const [, setLocation] = useLocation();
   const [priceRange, setPriceRange] = useState([1500, 10000]);
   const [selectedAirlines, setSelectedAirlines] = useState<string[]>([]);
   const [selectedDepartureTimes, setSelectedDepartureTimes] = useState<string[]>([]);
@@ -297,7 +299,33 @@ const FlightResults: React.FC<FlightResultsProps> = ({
                   <div className="flex flex-col items-end">
                     <div className="text-lg font-bold text-primary">₹{flight.fare.totalFare}</div>
                     <div className="text-xs text-neutral-400">per person</div>
-                    <Button className="mt-2 bg-secondary hover:bg-secondary/90 text-white py-2 px-4 rounded-lg text-sm font-medium transition">
+                    <Button 
+                      className="mt-2 bg-secondary hover:bg-secondary/90 text-white py-2 px-4 rounded-lg text-sm font-medium transition"
+                      onClick={() => {
+                        // Create a booking data object to pass to checkout
+                        const bookingData = {
+                          type: 'flight',
+                          amount: flight.fare.totalFare,
+                          details: {
+                            from: sourceCity,
+                            to: destinationCity,
+                            date: flight.source.departureTime?.split('T')[0] || new Date().toISOString().split('T')[0],
+                            passengers: 1,
+                            flightNumber: flight.flightNumber,
+                            airline: flight.airline.name,
+                            departureTime: formatTime(flight.source.departureTime || ''),
+                            arrivalTime: formatTime(flight.destination.arrivalTime || ''),
+                            duration: formatDuration(flight.duration)
+                          }
+                        };
+                        
+                        // Store booking data in sessionStorage
+                        sessionStorage.setItem('bookingData', JSON.stringify(bookingData));
+                        
+                        // Navigate to checkout page
+                        setLocation('/checkout');
+                      }}
+                    >
                       Book Now
                     </Button>
                   </div>
