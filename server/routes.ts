@@ -498,8 +498,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get('/api/insurance-plans/search', async (req: Request, res: Response) => {
+    try {
+      // Get all insurance plans for any search parameters for development
+      const plans = await storage.getInsurancePlans();
+      res.status(200).json({ success: true, data: plans });
+    } catch (error) {
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to search insurance plans' 
+      });
+    }
+  });
+
   app.get('/api/insurance-plans/:id', async (req: Request, res: Response) => {
     try {
+      // If we're looking for a 'search' endpoint, return all insurance plans
+      if (req.params.id === 'search') {
+        const plans = await storage.getInsurancePlans();
+        return res.status(200).json({ success: true, data: plans });
+      }
+      
       const plan = await storage.getInsurancePlanById(req.params.id);
       
       if (!plan) {
@@ -514,19 +533,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ 
         success: false, 
         message: error instanceof Error ? error.message : 'Failed to get insurance plan' 
-      });
-    }
-  });
-
-  app.get('/api/insurance-plans/search', async (req: Request, res: Response) => {
-    try {
-      // Get all insurance plans for any search parameters for development
-      const plans = await storage.getInsurancePlans();
-      res.status(200).json({ success: true, data: plans });
-    } catch (error) {
-      res.status(400).json({ 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to search insurance plans' 
       });
     }
   });
