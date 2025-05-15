@@ -310,7 +310,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Flights
                 </Button>
               </div>
@@ -323,18 +323,11 @@ const SearchTabs = () => {
                 <div className="col-span-1 md:col-span-2">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">Destination/Property</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Jaipur, Rajasthan" 
-                        value={hotelSearch.destination}
-                        onChange={(e) => setHotelSearch({...hotelSearch, destination: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={hotelSearch.destination}
+                      onChange={(value) => setHotelSearch({...hotelSearch, destination: value})}
+                      placeholder="Select destination"
+                    />
                   </div>
                 </div>
                 
@@ -418,7 +411,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Hotels
                 </Button>
               </div>
@@ -540,36 +533,22 @@ const SearchTabs = () => {
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">From</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Delhi" 
-                        value={trainSearch.source}
-                        onChange={(e) => setTrainSearchState({...trainSearch, source: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={trainSearch.source}
+                      onChange={(value) => setTrainSearchState({...trainSearch, source: value})}
+                      placeholder="Select departure station"
+                    />
                   </div>
                 </div>
                 
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">To</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Jaipur" 
-                        value={trainSearch.destination}
-                        onChange={(e) => setTrainSearchState({...trainSearch, destination: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={trainSearch.destination}
+                      onChange={(value) => setTrainSearchState({...trainSearch, destination: value})}
+                      placeholder="Select destination station"
+                    />
                   </div>
                 </div>
                 
@@ -629,36 +608,22 @@ const SearchTabs = () => {
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">From</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Delhi" 
-                        value={busSearch.source}
-                        onChange={(e) => setBusSearchState({...busSearch, source: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={busSearch.source}
+                      onChange={(value) => setBusSearchState({...busSearch, source: value})}
+                      placeholder="Select departure city"
+                    />
                   </div>
                 </div>
                 
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">To</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Jaipur" 
-                        value={busSearch.destination}
-                        onChange={(e) => setBusSearchState({...busSearch, destination: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={busSearch.destination}
+                      onChange={(value) => setBusSearchState({...busSearch, destination: value})}
+                      placeholder="Select destination city"
+                    />
                   </div>
                 </div>
                 
