@@ -34,10 +34,10 @@ function Router() {
   const [location] = useLocation();
   const isHomePage = location === '/';
   
-  // Show Header and TabNavigation only on non-home pages
+  // Show Header on all pages, but TabNavigation only on non-home pages
   return (
     <div className="flex flex-col min-h-screen">
-      {!isHomePage && <Header />}
+      <Header />
       {!isHomePage && <TabNavigation />}
       <main className="flex-grow">
         <Switch>
