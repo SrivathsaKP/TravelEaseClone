@@ -210,7 +210,7 @@ const MaterialSearchTabs: React.FC = () => {
           variant="scrollable"
           scrollButtons="auto"
           sx={{ 
-            background: 'linear-gradient(to right, #1976d2, #2196f3)',
+            background: 'linear-gradient(to right, #2196f3, #42a5f5)',
             color: 'white',
             '& .MuiTab-root': { 
               color: 'rgba(255, 255, 255, 0.7)',
