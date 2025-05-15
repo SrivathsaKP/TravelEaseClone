@@ -1,465 +1,366 @@
-import { useState } from 'react';
-import { useLocation, Link } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
   Box, 
   Container, 
-  Paper, 
   Typography, 
-  Button, 
-  TextField,
-  Grid,
+  Paper, 
+  Tabs, 
+  Tab,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  Autocomplete,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
+  TextField,
   IconButton,
-  Chip,
-  Stack
+  Button,
+  Grid,
+  CircularProgress
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-import SearchIcon from '@mui/icons-material/Search';
-import TabNavigation from '@/components/TabNavigation';
+import { Flight } from '@/lib/types';
+import { selectFlightSearch, updateFlightSearch } from '@/store/searchSlice';
+import FlightSearchDataGrid from '@/components/FlightSearchDataGrid';
+import FlightResults from '@/components/FlightResults';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PersonIcon from '@mui/icons-material/Person';
+import dayjs from 'dayjs';
 
-// Mock airport data
-const airports = [
-  { code: 'DEL', city: 'New Delhi', name: 'Indira Gandhi International Airport' },
-  { code: 'BOM', city: 'Mumbai', name: 'Chhatrapati Shivaji Maharaj International Airport' },
-  { code: 'MAA', city: 'Chennai', name: 'Chennai International Airport' },
-  { code: 'BLR', city: 'Bangalore', name: 'Kempegowda International Airport' },
-  { code: 'CCU', city: 'Kolkata', name: 'Netaji Subhas Chandra Bose International Airport' },
-  { code: 'HYD', city: 'Hyderabad', name: 'Rajiv Gandhi International Airport' },
-  { code: 'COK', city: 'Kochi', name: 'Cochin International Airport' },
-  { code: 'JFK', city: 'New York', name: 'John F. Kennedy International Airport' },
-  { code: 'LHR', city: 'London', name: 'Heathrow Airport' },
-  { code: 'DXB', city: 'Dubai', name: 'Dubai International Airport' },
-  { code: 'SIN', city: 'Singapore', name: 'Singapore Changi Airport' },
+// City options for the dropdowns
+const cityOptions = [
+  'Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 
+  'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Goa'
 ];
 
-// Fare types
-const fareTypes = ['Regular Fare', 'Armed Forces Fare', 'Student Fare', 'Senior Citizen Fare'];
-
 const FlightSearchPage = () => {
-  const [, setLocation] = useLocation();
-  const [tripType, setTripType] = useState('roundTrip');
-  const [from, setFrom] = useState<{code: string; city: string; name: string} | null>(null);
-  const [to, setTo] = useState<{code: string; city: string; name: string} | null>(null);
-  const [departureDate, setDepartureDate] = useState<Date | null>(new Date());
-  const [returnDate, setReturnDate] = useState<Date | null>(
-    new Date(new Date().setDate(new Date().getDate() + 7))
-  );
-  const [passengerCounts, setPassengerCounts] = useState({
-    adults: 1,
-    children: 0,
-    infants: 0
-  });
-  const [cabinClass, setCabinClass] = useState('Economy');
-  const [fareType, setFareType] = useState('Regular Fare');
-
-  // Swap from and to airports
-  const handleSwapAirports = () => {
-    const temp = from;
-    setFrom(to);
-    setTo(temp);
-  };
-
-  // Update passenger count
-  const updatePassengerCount = (type: 'adults' | 'children' | 'infants', increment: boolean) => {
-    setPassengerCounts(prev => {
-      const newCount = prev[type] + (increment ? 1 : -1);
-      
-      // Apply constraints
-      if (type === 'adults' && newCount < 1) return prev; // At least 1 adult
-      if (newCount < 0) return prev;
-      if (type === 'infants' && newCount > prev.adults) return prev; // No more infants than adults
-      if (prev.adults + prev.children + prev.infants + (increment ? 1 : -1) > 9) return prev; // Max 9 passengers
-      
-      return {
-        ...prev,
-        [type]: newCount
-      };
-    });
-  };
-
-  // Handle search
+  const dispatch = useDispatch();
+  const flightSearchParams = useSelector(selectFlightSearch);
+  const [viewMode, setViewMode] = useState<'card' | 'grid'>('grid');
+  
+  // State for flight search results
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  // State for form fields
+  const [source, setSource] = useState(flightSearchParams.source || 'Mumbai');
+  const [destination, setDestination] = useState(flightSearchParams.destination || 'Delhi');
+  const [departureDate, setDepartureDate] = useState(flightSearchParams.departureDate || dayjs().format('YYYY-MM-DD'));
+  const [returnDate, setReturnDate] = useState(flightSearchParams.returnDate || dayjs().add(7, 'day').format('YYYY-MM-DD'));
+  const [travelers, setTravelers] = useState(flightSearchParams.travelers || 1);
+  const [cabinClass, setCabinClass] = useState(flightSearchParams.class || 'Economy');
+  const [tripType, setTripType] = useState<'one-way' | 'round-trip'>(flightSearchParams.tripType || 'round-trip');
+  
+  // Handle form submission
   const handleSearch = () => {
-    if (!from || !to || !departureDate) {
-      // Show validation error
-      alert('Please select origin, destination, and departure date');
-      return;
-    }
-
-    // Build search params
-    const params = new URLSearchParams();
-    params.append('origin', from.code);
-    params.append('destination', to.code);
-    params.append('departureDate', departureDate.toISOString().split('T')[0]);
+    setLoading(true);
     
-    if (tripType === 'roundTrip' && returnDate) {
-      params.append('returnDate', returnDate.toISOString().split('T')[0]);
-    }
+    // Update Redux store with current search parameters
+    dispatch(updateFlightSearch({
+      source,
+      destination,
+      departureDate,
+      returnDate: tripType === 'round-trip' ? returnDate : undefined,
+      travelers,
+      class: cabinClass,
+      tripType
+    }));
     
-    params.append('adults', passengerCounts.adults.toString());
-    params.append('children', passengerCounts.children.toString());
-    params.append('infants', passengerCounts.infants.toString());
-    params.append('cabinClass', cabinClass);
-    params.append('fareType', fareType);
-    
-    // Navigate to results page
-    setLocation('/flights/search?' + params.toString());
+    // Fetch flight results
+    fetchFlights();
   };
-
+  
+  // Fetch flights from API
+  const fetchFlights = async () => {
+    try {
+      const response = await fetch(`/api/flights/search?source=${source}&destination=${destination}&date=${departureDate}`);
+      const data = await response.json();
+      
+      if (data && Array.isArray(data)) {
+        setFlights(data);
+      } else {
+        setFlights([]);
+      }
+    } catch (error) {
+      console.error("Error fetching flights:", error);
+      setFlights([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Swap source and destination
+  const handleSwapCities = () => {
+    const temp = source;
+    setSource(destination);
+    setDestination(temp);
+  };
+  
+  // Load flights on mount with default values
+  useEffect(() => {
+    handleSearch();
+  }, []);
+  
   return (
-    <>
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
-          <Typography variant="h5" gutterBottom fontWeight="bold" color="#008cff">
-            Flight Search
-          </Typography>
-          
-          {/* Trip Type */}
-          <RadioGroup
-            row
-            value={tripType}
-            onChange={(e) => setTripType(e.target.value)}
-            sx={{ mb: 3 }}
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 8 }}>
+      {/* Search form */}
+      <Paper elevation={2} sx={{ p: 3, mb: 4, borderRadius: 2 }}>
+        <Box sx={{ mb: 3 }}>
+          <Tabs 
+            value={tripType === 'one-way' ? 0 : 1}
+            onChange={(_, newValue) => setTripType(newValue === 0 ? 'one-way' : 'round-trip')}
+            sx={{ 
+              mb: 3,
+              '.MuiTabs-indicator': { 
+                height: '3px',
+                borderTopLeftRadius: '3px',
+                borderTopRightRadius: '3px',
+                bgcolor: '#008cff'
+              }
+            }}
           >
-            <FormControlLabel 
-              value="oneWay" 
-              control={<Radio />} 
+            <Tab 
               label="One Way" 
+              sx={{ 
+                textTransform: 'none',
+                fontWeight: tripType === 'one-way' ? 'bold' : 'normal',
+                color: tripType === 'one-way' ? '#008cff' : 'text.primary'
+              }}
             />
-            <FormControlLabel 
-              value="roundTrip" 
-              control={<Radio />} 
+            <Tab 
               label="Round Trip" 
+              sx={{
+                textTransform: 'none',
+                fontWeight: tripType === 'round-trip' ? 'bold' : 'normal',
+                color: tripType === 'round-trip' ? '#008cff' : 'text.primary'
+              }}
             />
-            <FormControlLabel 
-              value="multiCity" 
-              control={<Radio />} 
-              label="Multi City" 
-            />
-          </RadioGroup>
+          </Tabs>
           
-          {/* Flight Search Form */}
-          <Grid container spacing={3}>
-            {/* From */}
-            <Grid item xs={12} md={5.5}>
-              <Autocomplete
-                value={from}
-                onChange={(event, newValue) => {
-                  setFrom(newValue);
-                }}
-                options={airports}
-                getOptionLabel={(option) => `${option.city} (${option.code})`}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="From" 
-                    placeholder="Enter city or airport" 
-                    fullWidth
-                    required 
-                  />
-                )}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    <div>
-                      <Typography variant="body1">{option.city} ({option.code})</Typography>
-                      <Typography variant="body2" color="text.secondary">{option.name}</Typography>
-                    </div>
-                  </li>
-                )}
-              />
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} sm={6} md={2.5}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel>From</InputLabel>
+                <Select
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                  label="From"
+                >
+                  {cityOptions.map((city) => (
+                    <MenuItem key={city} value={city}>{city}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             
-            {/* Swap button */}
-            <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Grid item xs={12} sm={12} md={0.5} sx={{ display: 'flex', justifyContent: 'center' }}>
               <IconButton 
-                onClick={handleSwapAirports}
+                onClick={handleSwapCities}
                 sx={{ 
-                  bgcolor: '#f2f2f2', 
-                  '&:hover': { bgcolor: '#e6e6e6' },
-                  height: 40, 
-                  width: 40
+                  bgcolor: 'rgba(0, 140, 255, 0.1)',
+                  '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.2)' },
+                  color: '#008cff'
                 }}
               >
-                <CompareArrowsIcon />
+                <SwapHorizIcon />
               </IconButton>
             </Grid>
             
-            {/* To */}
-            <Grid item xs={12} md={5.5}>
-              <Autocomplete
-                value={to}
-                onChange={(event, newValue) => {
-                  setTo(newValue);
-                }}
-                options={airports.filter(airport => airport.code !== from?.code)}
-                getOptionLabel={(option) => `${option.city} (${option.code})`}
-                renderInput={(params) => (
-                  <TextField 
-                    {...params} 
-                    label="To" 
-                    placeholder="Enter city or airport" 
-                    fullWidth 
-                    required
-                  />
-                )}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    <div>
-                      <Typography variant="body1">{option.city} ({option.code})</Typography>
-                      <Typography variant="body2" color="text.secondary">{option.name}</Typography>
-                    </div>
-                  </li>
-                )}
-              />
+            <Grid item xs={12} sm={6} md={2.5}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel>To</InputLabel>
+                <Select
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                  label="To"
+                >
+                  {cityOptions.map((city) => (
+                    <MenuItem key={city} value={city}>{city}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             
-            {/* Departure Date */}
-            <Grid item xs={12} md={tripType === 'roundTrip' ? 6 : 4}>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DatePicker
-                  label="Departure Date"
+            <Grid item xs={12} sm={6} md={tripType === 'one-way' ? 2.5 : 1.5}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <TextField
+                  type="date"
+                  label="Departure"
                   value={departureDate}
-                  onChange={(newValue) => setDepartureDate(newValue)}
-                  disablePast
-                  sx={{ width: '100%' }}
+                  onChange={(e) => setDepartureDate(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                  size="small"
                 />
-              </LocalizationProvider>
+              </FormControl>
             </Grid>
             
-            {/* Return Date (only for round trip) */}
-            {tripType === 'roundTrip' && (
-              <Grid item xs={12} md={6}>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    label="Return Date"
+            {tripType === 'round-trip' && (
+              <Grid item xs={12} sm={6} md={1.5}>
+                <FormControl fullWidth variant="outlined" size="small">
+                  <TextField
+                    type="date"
+                    label="Return"
                     value={returnDate}
-                    onChange={(newValue) => setReturnDate(newValue)}
-                    disablePast
-                    minDate={departureDate || undefined}
-                    sx={{ width: '100%' }}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    size="small"
                   />
-                </LocalizationProvider>
-              </Grid>
-            )}
-            
-            {/* Cabin Class */}
-            {tripType !== 'roundTrip' && (
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
-                  <InputLabel id="cabin-class-label">Cabin Class</InputLabel>
-                  <Select
-                    labelId="cabin-class-label"
-                    value={cabinClass}
-                    label="Cabin Class"
-                    onChange={(e) => setCabinClass(e.target.value)}
-                  >
-                    <MenuItem value="Economy">Economy</MenuItem>
-                    <MenuItem value="Premium Economy">Premium Economy</MenuItem>
-                    <MenuItem value="Business">Business</MenuItem>
-                    <MenuItem value="First">First Class</MenuItem>
-                  </Select>
                 </FormControl>
               </Grid>
             )}
             
-            {/* Passengers */}
-            {tripType !== 'roundTrip' && (
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Passengers"
-                  value={`${passengerCounts.adults + passengerCounts.children + passengerCounts.infants} Traveller(s)`}
-                  onClick={() => {
-                    // This would typically open a dropdown in a real implementation
-                  }}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                />
-              </Grid>
-            )}
-            
-            {/* Passenger selection controls */}
-            <Grid item xs={12}>
-              <Paper elevation={2} sx={{ p: 2, mt: 1, display: tripType === 'roundTrip' ? 'block' : 'none' }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={tripType === 'roundTrip' ? 4 : 12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="cabin-class-label">Cabin Class</InputLabel>
-                      <Select
-                        labelId="cabin-class-label"
-                        value={cabinClass}
-                        label="Cabin Class"
-                        onChange={(e) => setCabinClass(e.target.value)}
-                      >
-                        <MenuItem value="Economy">Economy</MenuItem>
-                        <MenuItem value="Premium Economy">Premium Economy</MenuItem>
-                        <MenuItem value="Business">Business</MenuItem>
-                        <MenuItem value="First">First Class</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  
-                  <Grid item xs={12} md={tripType === 'roundTrip' ? 8 : 12}>
-                    <Typography variant="subtitle2" gutterBottom>Passengers</Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography>Adults (12+ yrs)</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('adults', false)}
-                          disabled={passengerCounts.adults <= 1}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <Typography sx={{ mx: 1 }}>{passengerCounts.adults}</Typography>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('adults', true)}
-                          disabled={passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography>Children (2-11 yrs)</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('children', false)}
-                          disabled={passengerCounts.children <= 0}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <Typography sx={{ mx: 1 }}>{passengerCounts.children}</Typography>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('children', true)}
-                          disabled={passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9}
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography>Infants (below 2 yrs)</Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('infants', false)}
-                          disabled={passengerCounts.infants <= 0}
-                        >
-                          <RemoveIcon fontSize="small" />
-                        </IconButton>
-                        <Typography sx={{ mx: 1 }}>{passengerCounts.infants}</Typography>
-                        <IconButton 
-                          size="small" 
-                          onClick={() => updatePassengerCount('infants', true)}
-                          disabled={
-                            passengerCounts.infants >= passengerCounts.adults || 
-                            passengerCounts.adults + passengerCounts.children + passengerCounts.infants >= 9
-                          }
-                        >
-                          <AddIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
+            <Grid item xs={12} sm={6} md={1.5}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel>Travelers</InputLabel>
+                <Select
+                  value={travelers}
+                  onChange={(e) => setTravelers(Number(e.target.value))}
+                  label="Travelers"
+                >
+                  {[1, 2, 3, 4, 5, 6].map((num) => (
+                    <MenuItem key={num} value={num}>{num} {num === 1 ? 'Traveler' : 'Travelers'}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             
-            {/* Fare Type */}
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" gutterBottom>Select A Fare Type</Typography>
-              <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-                {fareTypes.map((type) => (
-                  <Chip
-                    key={type}
-                    label={type}
-                    onClick={() => setFareType(type)}
-                    variant={fareType === type ? 'filled' : 'outlined'}
-                    color={fareType === type ? 'primary' : 'default'}
-                    sx={{ mb: 1 }}
-                  />
-                ))}
-              </Stack>
+            <Grid item xs={12} sm={6} md={2}>
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel>Class</InputLabel>
+                <Select
+                  value={cabinClass}
+                  onChange={(e) => setCabinClass(e.target.value)}
+                  label="Class"
+                >
+                  <MenuItem value="Economy">Economy</MenuItem>
+                  <MenuItem value="Premium Economy">Premium Economy</MenuItem>
+                  <MenuItem value="Business">Business</MenuItem>
+                  <MenuItem value="First">First Class</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             
-            {/* Recent Searches would go here */}
-            
-            {/* Search Button */}
-            <Grid item xs={12}>
+            <Grid item xs={12} sm={12} md={1}>
               <Button
-                variant="contained"
-                size="large"
-                color="primary"
-                startIcon={<SearchIcon />}
-                onClick={handleSearch}
                 fullWidth
+                variant="contained"
                 sx={{ 
-                  mt: 2, 
-                  py: 1.5,
-                  fontSize: '1rem',
-                  fontWeight: 'bold',
-                  bgcolor: '#008cff',
-                  '&:hover': {
-                    bgcolor: '#0071ce',
-                  }
+                  bgcolor: '#008cff', 
+                  '&:hover': { bgcolor: '#0071ce' },
+                  py: 1,
+                  fontSize: '0.9rem'
                 }}
+                onClick={handleSearch}
+                disabled={loading}
               >
-                SEARCH
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'SEARCH'}
               </Button>
             </Grid>
           </Grid>
-        </Paper>
-        
-        <Box sx={{ mt: 4 }}>
-          <Typography variant="h6" gutterBottom color="#008cff">
-            Popular Flight Routes
-          </Typography>
-          <Grid container spacing={2}>
-            {[
-              { from: 'Delhi', to: 'Mumbai' },
-              { from: 'Mumbai', to: 'Bangalore' },
-              { from: 'Bangalore', to: 'Hyderabad' },
-              { from: 'Chennai', to: 'Kolkata' }
-            ].map((route, index) => (
-              <Grid item xs={6} md={3} key={index}>
-                <Link href={`/flights/search?origin=${route.from}&destination=${route.to}`}>
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 2,
-                      textAlign: 'center',
-                      cursor: 'pointer',
-                      '&:hover': { bgcolor: '#f5f5f5' }
-                    }}
-                  >
-                    <Typography variant="body1">{route.from} to {route.to}</Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Flights from ₹3,499
-                    </Typography>
-                  </Paper>
-                </Link>
-              </Grid>
-            ))}
-          </Grid>
         </Box>
-      </Container>
-    </>
+      </Paper>
+      
+      {/* View Mode Selector */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button 
+          variant={viewMode === 'card' ? 'contained' : 'outlined'}
+          onClick={() => setViewMode('card')}
+          sx={{ 
+            mr: 1,
+            bgcolor: viewMode === 'card' ? '#008cff' : 'transparent',
+            color: viewMode === 'card' ? 'white' : '#008cff',
+            borderColor: '#008cff',
+            '&:hover': { 
+              bgcolor: viewMode === 'card' ? '#0071ce' : 'rgba(0, 140, 255, 0.1)'
+            }
+          }}
+        >
+          Card View
+        </Button>
+        <Button 
+          variant={viewMode === 'grid' ? 'contained' : 'outlined'}
+          onClick={() => setViewMode('grid')}
+          sx={{ 
+            bgcolor: viewMode === 'grid' ? '#008cff' : 'transparent',
+            color: viewMode === 'grid' ? 'white' : '#008cff',
+            borderColor: '#008cff',
+            '&:hover': { 
+              bgcolor: viewMode === 'grid' ? '#0071ce' : 'rgba(0, 140, 255, 0.1)'
+            }
+          }}
+        >
+          Grid View
+        </Button>
+      </Box>
+      
+      {/* Results */}
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+          <CircularProgress />
+        </Box>
+      ) : flights.length === 0 ? (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="h6" gutterBottom>No flights found</Typography>
+          <Typography variant="body2" color="text.secondary">
+            Try changing your search parameters or select different dates.
+          </Typography>
+        </Paper>
+      ) : viewMode === 'grid' ? (
+        <FlightSearchDataGrid 
+          flights={flights} 
+          sourceCity={source} 
+          destinationCity={destination} 
+        />
+      ) : (
+        <FlightResults 
+          flights={flights} 
+          loading={false} 
+          sourceCity={source} 
+          destinationCity={destination} 
+        />
+      )}
+      
+      {/* Popular city pairs and deals */}
+      <Box sx={{ mt: 6 }}>
+        <Typography variant="h6" fontWeight="bold" gutterBottom>
+          Popular Flight Routes from {source}
+        </Typography>
+        <Grid container spacing={2}>
+          {['Delhi', 'Bangalore', 'Chennai', 'Hyderabad'].map((city) => (
+            <Grid item xs={12} sm={6} md={3} key={city}>
+              <Paper 
+                sx={{ 
+                  p: 2, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  height: '100%',
+                  cursor: 'pointer',
+                  '&:hover': { boxShadow: 3 }
+                }}
+                onClick={() => {
+                  setDestination(city);
+                  handleSearch();
+                }}
+              >
+                <Typography variant="subtitle1" fontWeight="bold">
+                  {source} to {city}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  {Math.floor(Math.random() * 10) + 1} flights daily
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 'auto' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
+                    Starting from
+                  </Typography>
+                  <Typography variant="subtitle1" fontWeight="bold" color="#008cff">
+                    ₹{Math.floor(Math.random() * 3000) + 3000}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 
