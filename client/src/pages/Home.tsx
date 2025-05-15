@@ -4,7 +4,7 @@ import FeaturedDestinations from "@/components/FeaturedDestinations";
 import PopularHotels from "@/components/PopularHotels";
 import DownloadApp from "@/components/DownloadApp";
 import { Helmet } from 'react-helmet';
-import MaterialSearchTabs from "@/components/MaterialSearchTabs";
+import MaterialSearchTabs from "../components/MaterialSearchTabs.jsx";
 import { Box, Typography, Container } from '@mui/material';
 
 const Home = () => {
