@@ -391,8 +391,8 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
             bgcolor: 'rgba(0, 140, 255, 0.04)',
           }
         }}
-        components={{
-          Toolbar: GridToolbar,
+        slots={{
+          toolbar: GridToolbar,
         }}
       />
     </Paper>
