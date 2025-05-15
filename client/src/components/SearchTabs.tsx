@@ -683,36 +683,22 @@ const SearchTabs = () => {
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">Pickup Location</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Delhi" 
-                        value={cabSearch.source}
-                        onChange={(e) => setCabSearch({...cabSearch, source: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={cabSearch.source}
+                      onChange={(value) => setCabSearch({...cabSearch, source: value})}
+                      placeholder="Select pickup location"
+                    />
                   </div>
                 </div>
                 
                 <div className="col-span-1">
                   <div className="relative">
                     <Label className="block text-sm font-medium text-neutral-400 mb-1">Dropoff Location</Label>
-                    <div className="relative">
-                      <Input 
-                        type="text" 
-                        placeholder="Airport, Hotel, or Address" 
-                        value={cabSearch.destination}
-                        onChange={(e) => setCabSearch({...cabSearch, destination: e.target.value})}
-                        className="pl-3 pr-10"
-                      />
-                      <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-300">
-                        <MapPinIcon className="h-4 w-4" />
-                      </span>
-                    </div>
+                    <CitySelect 
+                      value={cabSearch.destination}
+                      onChange={(value) => setCabSearch({...cabSearch, destination: value})}
+                      placeholder="Select dropoff location"
+                    />
                   </div>
                 </div>
                 
@@ -878,7 +864,7 @@ const SearchTabs = () => {
               </div>
               
               <div className="mt-6 flex justify-center">
-                <Button type="submit" className="bg-secondary hover:bg-secondary-dark text-white py-3 px-8 rounded-lg font-medium text-base transition">
+                <Button type="submit" className="bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-lg font-medium text-base transition shadow-md hover:shadow-lg">
                   Search Insurance Plans
                 </Button>
               </div>
