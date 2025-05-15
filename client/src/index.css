@@ -110,4 +110,52 @@
   .font-inter {
     font-family: 'Inter', sans-serif;
   }
+  
+  /* Material Design Elevation/Shadow Utilities */
+  .elevation-1 {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  }
+  
+  .elevation-2 {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  }
+  
+  .elevation-3 {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+  }
+  
+  .elevation-4 {
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+  }
+  
+  .elevation-5 {
+    box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22);
+  }
+  
+  /* Material Design Card */
+  .material-card {
+    @apply bg-white dark:bg-card rounded-lg elevation-1 transition-shadow duration-300;
+  }
+  
+  .material-card:hover {
+    @apply elevation-2;
+  }
+  
+  /* Material Design Button */
+  .material-btn {
+    @apply px-4 py-2 rounded-md font-medium text-sm tracking-wide uppercase transition-all duration-300;
+    letter-spacing: 0.8px;
+  }
+  
+  .material-btn-contained {
+    @apply material-btn bg-primary text-primary-foreground elevation-1 hover:elevation-2;
+  }
+  
+  .material-btn-outlined {
+    @apply material-btn border-2 border-primary text-primary hover:bg-primary/5;
+  }
+  
+  .material-btn-text {
+    @apply material-btn text-primary hover:bg-primary/10;
+  }
 }
