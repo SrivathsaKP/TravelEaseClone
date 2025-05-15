@@ -38,7 +38,12 @@ const Header = () => {
         </nav>
         
         <div className="flex items-center space-x-4">
-          <Button variant="default" className="bg-primary hover:bg-primary/90">
+          <Link href="/checkout">
+            <Button variant="outline" className="hover:bg-secondary/20 mr-2">
+              Test Checkout
+            </Button>
+          </Link>
+          <Button variant="default" className="bg-primary hover:bg-primary/90" onClick={() => window.location.href = '/api/login'}>
             Log In
           </Button>
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
