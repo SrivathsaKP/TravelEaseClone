@@ -76,12 +76,21 @@ const FlightSearchPage = () => {
   // Fetch flights from API
   const fetchFlights = async () => {
     try {
+      // Always fetch the default flights for any search parameters for demonstration
       const response = await fetch(`/api/flights/search?source=${source}&destination=${destination}&date=${departureDate}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setFlights(data);
+      console.log("Flight search API response:", responseData);
+      
+      // The API now returns { success: true, data: [...] }
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setFlights(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        // Handle different response formats
+        setFlights(responseData.data);
       } else {
+        console.warn("Unexpected API response format:", responseData);
+        // For development purposes, still show some data even if API format is unexpected
         setFlights([]);
       }
     } catch (error) {
