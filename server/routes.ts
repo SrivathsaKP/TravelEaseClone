@@ -2,10 +2,21 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import { setupAuth, isAuthenticated } from "./replitAuth";
+import Stripe from "stripe";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  console.log('Missing STRIPE_SECRET_KEY environment variable. Stripe payment features will be disabled.');
+}
+
+// Initialize Stripe if the API key is available
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2023-10-16" })
+  : null;
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // All API routes should be prefixed with /api
-  const apiRouter = app.route('/api');
+  // Setup Auth middleware first
+  await setupAuth(app);
 
   // User routes
   app.post('/api/users/register', async (req: Request, res: Response) => {
@@ -293,9 +304,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/users/:userId/bookings', async (req: Request, res: Response) => {
+  app.get('/api/users/:userId/bookings', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const userId = parseInt(req.params.userId);
+      // Get user ID from authenticated user
+      const userId = (req.user as any).claims.sub;
       const bookings = await storage.getBookingsByUserId(userId);
       
       res.status(200).json({ success: true, data: bookings });
@@ -465,6 +477,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Add authentication endpoint for Replit Auth
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Stripe payment routes
+  if (stripe) {
+    // One-time payment endpoint
+    app.post("/api/create-payment-intent", isAuthenticated, async (req: Request, res: Response) => {
+      try {
+        const { amount } = req.body;
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: Math.round(amount * 100), // Convert to cents
+          currency: "usd",
+        });
+        res.json({ clientSecret: paymentIntent.client_secret });
+      } catch (error: any) {
+        res
+          .status(500)
+          .json({ message: "Error creating payment intent: " + error.message });
+      }
+    });
+
+    // Subscription endpoint
+    app.post('/api/get-or-create-subscription', isAuthenticated, async (req: any, res: Response) => {
+      if (!req.isAuthenticated()) {
+        return res.sendStatus(401);
+      }
+
+      const userId = req.user.claims.sub;
+      let user = await storage.getUser(userId);
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (user.stripeSubscriptionId) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+
+          res.send({
+            subscriptionId: subscription.id,
+            clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+          });
+          return;
+        } catch (error) {
+          // Subscription may have been deleted in Stripe
+          console.log("Failed to retrieve subscription:", error);
+          // Continue to create a new one
+        }
+      }
+      
+      if (!user.email) {
+        return res.status(400).json({ message: 'No user email on file' });
+      }
+
+      try {
+        // If we don't have a Stripe customer ID yet, create one
+        if (!user.stripeCustomerId) {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            name: user.firstName || "TravelEase User",
+          });
+
+          user = await storage.updateStripeCustomerId(userId, customer.id);
+        }
+
+        // Make sure we have a price ID
+        if (!process.env.STRIPE_PRICE_ID) {
+          return res.status(400).json({ message: "Missing STRIPE_PRICE_ID environment variable" });
+        }
+
+        // Create the subscription
+        const subscription = await stripe.subscriptions.create({
+          customer: user.stripeCustomerId!,
+          items: [{
+            price: process.env.STRIPE_PRICE_ID,
+          }],
+          payment_behavior: 'default_incomplete',
+          expand: ['latest_invoice.payment_intent'],
+        });
+
+        // Update user with subscription ID
+        await storage.updateUserStripeInfo(userId, {
+          customerId: user.stripeCustomerId!, 
+          subscriptionId: subscription.id
+        });
+    
+        res.send({
+          subscriptionId: subscription.id,
+          clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
+        });
+      } catch (error: any) {
+        return res.status(400).send({ error: { message: error.message } });
+      }
+    });
+  }
 
   const httpServer = createServer(app);
   return httpServer;

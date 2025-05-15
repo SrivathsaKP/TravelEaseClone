@@ -14,6 +14,8 @@ import BusSearch from "@/pages/BusSearch";
 import CabSearch from "@/pages/CabSearch";
 import HomeStaySearch from "@/pages/HomeStaySearch";
 import InsuranceSearch from "@/pages/InsuranceSearch";
+import Checkout from "@/pages/Checkout";
+import BookingSuccess from "@/pages/BookingSuccess";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -31,6 +33,8 @@ function Router() {
           <Route path="/buses" component={BusSearch}/>
           <Route path="/cabs" component={CabSearch}/>
           <Route path="/insurance" component={InsuranceSearch}/>
+          <Route path="/checkout" component={Checkout}/>
+          <Route path="/booking-success" component={BookingSuccess}/>
           <Route component={NotFound} />
         </Switch>
       </main>
