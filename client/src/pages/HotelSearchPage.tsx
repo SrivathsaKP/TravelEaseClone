@@ -73,12 +73,21 @@ const HotelSearchPage = () => {
   // Fetch hotels from API
   const fetchHotels = async () => {
     try {
+      // Always fetch the default hotels for any search parameters for demonstration
       const response = await fetch(`/api/hotels/search?city=${city}&checkIn=${checkIn}&checkOut=${checkOut}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setHotels(data);
+      console.log("Hotel search API response:", responseData);
+      
+      // Handle different API response formats
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setHotels(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        setHotels(responseData.data);
+      } else if (Array.isArray(responseData)) {
+        setHotels(responseData);
       } else {
+        console.warn("Unexpected API response format:", responseData);
         setHotels([]);
       }
     } catch (error) {

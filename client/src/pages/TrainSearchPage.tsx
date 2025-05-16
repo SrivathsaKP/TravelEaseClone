@@ -94,12 +94,21 @@ const TrainSearchPage = () => {
   // Fetch trains from API
   const fetchTrains = async () => {
     try {
+      // Always fetch the default trains for any search parameters for demonstration
       const response = await fetch(`/api/trains/search?source=${source}&destination=${destination}&date=${date}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setTrains(data);
+      console.log("Train search API response:", responseData);
+      
+      // Handle different API response formats
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setTrains(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        setTrains(responseData.data);
+      } else if (Array.isArray(responseData)) {
+        setTrains(responseData);
       } else {
+        console.warn("Unexpected API response format:", responseData);
         setTrains([]);
       }
     } catch (error) {

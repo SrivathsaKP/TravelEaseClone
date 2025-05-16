@@ -96,12 +96,21 @@ const BusSearchPage = () => {
   // Fetch buses from API
   const fetchBuses = async () => {
     try {
+      // Always fetch the default buses for any search parameters for demonstration
       const response = await fetch(`/api/buses/search?source=${source}&destination=${destination}&date=${date}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setBuses(data);
+      console.log("Bus search API response:", responseData);
+      
+      // Handle different API response formats
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setBuses(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        setBuses(responseData.data);
+      } else if (Array.isArray(responseData)) {
+        setBuses(responseData);
       } else {
+        console.warn("Unexpected API response format:", responseData);
         setBuses([]);
       }
     } catch (error) {
