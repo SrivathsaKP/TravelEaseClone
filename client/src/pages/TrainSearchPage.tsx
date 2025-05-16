@@ -120,12 +120,22 @@ const TrainSearchPage = () => {
   };
   
   // Format time (24hr to 12hr)
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = hour % 12 || 12;
-    return `${formattedHour}:${minutes} ${ampm}`;
+  const formatTime = (time: string | undefined) => {
+    // If time is undefined or not a string, return a default value
+    if (!time || typeof time !== 'string') {
+      return 'N/A';
+    }
+    
+    try {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const formattedHour = hour % 12 || 12;
+      return `${formattedHour}:${minutes || '00'} ${ampm}`;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return time; // Return original time if it can't be formatted
+    }
   };
   
   // Format duration (minutes to hours and minutes)
@@ -168,16 +178,35 @@ const TrainSearchPage = () => {
       field: 'departureTime',
       headerName: 'Departure',
       width: 160,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {formatTime(params.value)}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.source}
-          </Typography>
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle nested source object or direct value
+        let departureTime = params.value;
+        let sourceCity = '';
+        
+        // Handle different data structures
+        if (params.row.source) {
+          if (typeof params.row.source === 'string') {
+            sourceCity = params.row.source;
+          } else if (typeof params.row.source === 'object') {
+            // Handle nested source data
+            departureTime = params.row.source.departureTime || departureTime;
+            sourceCity = params.row.source.city || 
+                       params.row.source.stationName || 
+                       (params.row.source.station?.name) || '';
+          }
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {formatTime(departureTime)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {sourceCity}
+            </Typography>
+          </Box>
+        );
+      }
     },
     {
       field: 'duration',
@@ -224,8 +253,26 @@ const TrainSearchPage = () => {
       headerName: 'Arrival',
       width: 160,
       renderCell: (params: GridRenderCellParams) => {
-        const displayTime = params.value 
-          ? formatTime(params.value)
+        // Handle nested destination object or direct value
+        let arrivalTime = params.value;
+        let destCity = '';
+        
+        // Handle different data structures
+        if (params.row.destination) {
+          if (typeof params.row.destination === 'string') {
+            destCity = params.row.destination;
+          } else if (typeof params.row.destination === 'object') {
+            // Handle nested destination data
+            arrivalTime = params.row.destination.arrivalTime || arrivalTime;
+            destCity = params.row.destination.city || 
+                     params.row.destination.stationName || 
+                     (params.row.destination.station?.name) || '';
+          }
+        }
+        
+        // Calculate arrival time if not provided
+        const displayTime = arrivalTime 
+          ? formatTime(arrivalTime)
           : params.row.durationMinutes 
             ? formatTime(calculateArrivalTime(params.row.departureTime, params.row.durationMinutes))
             : "N/A";
@@ -236,7 +283,7 @@ const TrainSearchPage = () => {
               {displayTime}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {params.row.destination}
+              {destCity}
             </Typography>
           </Box>
         );
@@ -247,7 +294,22 @@ const TrainSearchPage = () => {
       headerName: 'Availability',
       width: 150,
       renderCell: (params: GridRenderCellParams) => {
-        const availStatus = params.value.toLowerCase();
+        let availStatus = 'available';
+        
+        // Safely handle availability data which can be in different formats
+        if (params.value) {
+          if (typeof params.value === 'string') {
+            availStatus = params.value.toLowerCase();
+          } else if (typeof params.value === 'object' && params.value.status) {
+            availStatus = params.value.status.toLowerCase();
+          }
+        } else if (params.row.classes && Array.isArray(params.row.classes) && params.row.classes.length > 0) {
+          // Try to extract from first class
+          const firstClass = params.row.classes[0];
+          if (firstClass.availability && firstClass.availability.status) {
+            availStatus = firstClass.availability.status.toLowerCase();
+          }
+        }
         
         return (
           <Box>
@@ -257,15 +319,27 @@ const TrainSearchPage = () => {
                 fontWeight: 'bold',
                 color: availStatus.includes('available') 
                   ? 'success.main' 
-                  : availStatus.includes('wait') 
+                  : availStatus.includes('wait') || availStatus.includes('wl') 
                     ? 'warning.main' 
                     : 'error.main'
               }}
             >
-              {params.value}
+              {/* Display appropriate status text */}
+              {availStatus.includes('available') 
+                ? 'Available' 
+                : availStatus.includes('wait') || availStatus.includes('wl')
+                  ? 'Waitlist' 
+                  : 'Not Available'}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {params.row.classes.join(', ')}
+              {/* Handle different class data formats */}
+              {params.row.classes 
+                ? (Array.isArray(params.row.classes) 
+                    ? params.row.classes.map((c: any) => typeof c === 'string' ? c : c.name || c.code).join(', ')
+                    : typeof params.row.classes === 'string' 
+                      ? params.row.classes 
+                      : '')
+                : ''}
             </Typography>
           </Box>
         );
