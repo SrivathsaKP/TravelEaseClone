@@ -280,6 +280,7 @@ const InsuranceSearchPage = () => {
             )}
           </Box>
         );
+      }
     },
     {
       field: 'actions',
