@@ -211,9 +211,15 @@ const HomeStaySearchPage = () => {
   };
 
   // Fetch homestays from API if on search results page
-  const { data, isLoading } = useQuery<{data: Homestay[]}>({
+  const { data, isLoading } = useQuery<{success: boolean, data: Homestay[]}>({
     queryKey: ['/api/homestays/search', locationValue, checkInDate, checkOutDate],
-    enabled: location.includes('/homestays/search')
+    enabled: location.includes('/homestays/search'),
+    onSuccess: (data) => {
+      console.log("Homestay search API response:", data);
+    },
+    onError: (error) => {
+      console.error("Error fetching homestays:", error);
+    }
   });
 
   const allHomestays = data?.data || [];

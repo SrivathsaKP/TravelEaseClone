@@ -89,12 +89,21 @@ const CabSearchPage = () => {
   // Fetch cabs from API
   const fetchCabs = async () => {
     try {
+      // Always fetch the default cabs for any search parameters for demonstration
       const response = await fetch(`/api/cabs/search?cityOrLocation=${city}&pickupDate=${pickupDate}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setCabs(data);
+      console.log("Cab search API response:", responseData);
+      
+      // Handle different API response formats
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setCabs(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        setCabs(responseData.data);
+      } else if (Array.isArray(responseData)) {
+        setCabs(responseData);
       } else {
+        console.warn("Unexpected API response format:", responseData);
         setCabs([]);
       }
     } catch (error) {

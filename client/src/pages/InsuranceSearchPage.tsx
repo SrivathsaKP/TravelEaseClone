@@ -107,12 +107,21 @@ const InsuranceSearchPage = () => {
   // Fetch insurance plans from API
   const fetchInsurancePlans = async () => {
     try {
+      // Always fetch the default insurance plans for any search parameters for demonstration
       const response = await fetch(`/api/insurance-plans/search?coverageType=${travelType}&duration=${duration}`);
-      const data = await response.json();
+      const responseData = await response.json();
       
-      if (data && Array.isArray(data)) {
-        setInsurancePlans(data);
+      console.log("Insurance search API response:", responseData);
+      
+      // Handle different API response formats
+      if (responseData.success && Array.isArray(responseData.data)) {
+        setInsurancePlans(responseData.data);
+      } else if (responseData.data && Array.isArray(responseData.data)) {
+        setInsurancePlans(responseData.data);
+      } else if (Array.isArray(responseData)) {
+        setInsurancePlans(responseData);
       } else {
+        console.warn("Unexpected API response format:", responseData);
         setInsurancePlans([]);
       }
     } catch (error) {
