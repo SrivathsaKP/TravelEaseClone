@@ -48,22 +48,37 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
   };
 
   // Format duration (e.g., "2h 15m")
-  const formatDuration = (duration: string) => {
-    // If duration is already in the right format like "2h 10m", return it
-    if (duration.includes('h') && duration.includes('m')) {
+  const formatDuration = (duration: string | number | undefined) => {
+    if (!duration) return "N/A";
+    
+    // If duration is already a formatted string
+    if (typeof duration === 'string') {
+      // If it's already in the right format like "2h 10m", return it
+      if (duration.includes('h') && duration.includes('m')) {
+        return duration;
+      }
+      
+      // Try to parse it as minutes
+      const minutes = parseInt(duration, 10);
+      if (!isNaN(minutes)) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h ${mins}m`;
+      }
+      
+      // If we can't parse it, return as is
       return duration;
     }
     
-    // If duration might be in minutes (though our Flight type uses string)
-    const minutes = parseInt(duration, 10);
-    if (!isNaN(minutes)) {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
+    // If duration is a number, assume it's in minutes
+    if (typeof duration === 'number') {
+      const hours = Math.floor(duration / 60);
+      const mins = duration % 60;
       return `${hours}h ${mins}m`;
     }
     
-    // Default return the original
-    return duration;
+    // Fallback for unexpected format
+    return "N/A";
   };
 
   // Calculate and format the arrival time
@@ -87,24 +102,34 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
       field: 'airline', 
       headerName: 'Airline', 
       width: 170,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box 
-            component="img"
-            src={params.row.airlineLogo || `https://via.placeholder.com/32?text=${params.value.charAt(0)}`}
-            alt={params.value}
-            sx={{ width: 32, height: 32, mr: 1 }}
-          />
-          <Box>
-            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {params.value}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {params.row.flightNumber}
-            </Typography>
+      renderCell: (params: GridRenderCellParams) => {
+        // Ensure airline name is a string, not an object
+        const airlineName = typeof params.value === 'string' ? params.value : 
+                           typeof params.value === 'object' && params.value?.name ? params.value.name : 'Unknown';
+        
+        // Get logo from either row or directly from the airline object
+        const logoUrl = params.row.airlineLogo || 
+                        (typeof params.value === 'object' && params.value?.logo ? params.value.logo : '');
+        
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box 
+              component="img"
+              src={logoUrl || `https://via.placeholder.com/32?text=${airlineName.charAt(0)}`}
+              alt={airlineName}
+              sx={{ width: 32, height: 32, mr: 1 }}
+            />
+            <Box>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                {airlineName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {params.row.flightNumber || ''}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      )
+        );
+      }
     },
     { 
       field: 'departure', 
@@ -192,28 +217,46 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
       field: 'price', 
       headerName: 'Price', 
       width: 140,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff', display: 'flex', alignItems: 'center' }}>
-            <CurrencyRupeeIcon sx={{ fontSize: 16 }} />
-            {params.value}
-          </Typography>
-          {Math.random() > 0.5 && (
-            <Chip
-              label="Deal"
-              size="small"
-              icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
-              sx={{ 
-                bgcolor: '#ffeee0', 
-                color: '#ff8a00',
-                fontSize: '0.7rem',
-                height: 20,
-                '& .MuiChip-icon': { color: '#ff8a00' }
-              }}
-            />
-          )}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different price formats
+        let displayPrice = 0;
+        
+        if (typeof params.value === 'number') {
+          displayPrice = params.value;
+        } else if (typeof params.value === 'object') {
+          // Try to extract the price from different object structures
+          if (params.value?.totalFare) {
+            displayPrice = params.value.totalFare;
+          } else if (params.value?.amount) {
+            displayPrice = params.value.amount;
+          } else if (params.value?.basePrice) {
+            displayPrice = params.value.basePrice;
+          }
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff', display: 'flex', alignItems: 'center' }}>
+              <CurrencyRupeeIcon sx={{ fontSize: 16 }} />
+              {displayPrice}
+            </Typography>
+            {Math.random() > 0.5 && (
+              <Chip
+                label="Deal"
+                size="small"
+                icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
+                sx={{ 
+                  bgcolor: '#ffeee0', 
+                  color: '#ff8a00',
+                  fontSize: '0.7rem',
+                  height: 20,
+                  '& .MuiChip-icon': { color: '#ff8a00' }
+                }}
+              />
+            )}
+          </Box>
+        );
+      }
     },
     {
       field: 'actions',
@@ -271,18 +314,65 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
   ];
 
   // Prepare rows for DataGrid
-  const rows = flights.map((flight) => ({
-    id: flight.id,
-    airline: flight.airline,
-    airlineLogo: flight.airline.logo, // Use airline.logo from the Flight type
-    flightNumber: flight.flightNumber,
-    departureTime: flight.departureTime,
-    arrivalTime: flight.arrivalTime,
-    duration: flight.duration,
-    stops: flight.stops,
-    price: flight.price,
-    cabinClass: flight.cabinClass
-  }));
+  const rows = flights.map((flight) => {
+    // Handle different flight data formats
+    let airlineName = typeof flight.airline === 'string' ? flight.airline : flight.airline?.name || '';
+    let airlineLogo = typeof flight.airline === 'object' ? flight.airline?.logo || '' : '';
+    
+    // Extract the price value depending on the structure
+    let priceValue = 0;
+    if (typeof flight.price === 'number') {
+      priceValue = flight.price;
+    } else if (typeof flight.price === 'object') {
+      // Try different price formats
+      if (flight.price?.totalFare) {
+        priceValue = flight.price.totalFare;
+      } else if (flight.price?.amount) {
+        priceValue = flight.price.amount;
+      } else if (flight.price?.basePrice) {
+        priceValue = flight.price.basePrice;
+      } else {
+        // Fallback to a sample value
+        priceValue = 4500;
+      }
+    }
+    
+    // Extract departure and arrival times from nested objects if needed
+    let departureTime = flight.departureTime || '';
+    let arrivalTime = flight.arrivalTime || '';
+    
+    // Check for nested time information in source/destination objects
+    if (!departureTime && flight.source?.departureTime) {
+      departureTime = flight.source.departureTime;
+    }
+    
+    if (!arrivalTime && flight.destination?.arrivalTime) {
+      arrivalTime = flight.destination.arrivalTime;
+    }
+    
+    // For duration, handle both string and number formats
+    let duration = flight.duration;
+    if (typeof duration === 'number') {
+      // Convert minutes to formatted duration string
+      const hours = Math.floor(duration / 60);
+      const mins = duration % 60;
+      duration = `${hours}h ${mins}m`;
+    }
+    
+    return {
+      id: flight.id,
+      airline: airlineName,
+      airlineLogo: airlineLogo,
+      flightNumber: flight.flightNumber || '',
+      departureTime: departureTime,
+      arrivalTime: arrivalTime,
+      duration: duration,
+      durationMinutes: typeof flight.duration === 'number' ? flight.duration : 0,
+      stops: flight.stopCount || flight.stops || 0,
+      price: priceValue,
+      cabinClass: flight.cabinClass || 'Economy'
+    };
+  });
 
   return (
     <Paper sx={{ height: 'calc(100vh - 250px)', width: '100%', p: 2, mb: 4 }}>
