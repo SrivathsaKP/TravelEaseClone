@@ -202,61 +202,84 @@ const InsuranceSearchPage = () => {
       field: 'benefits',
       headerName: 'Key Benefits',
       width: 250,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {params.value.slice(0, 3).map((benefit: string, index: number) => (
-            <Chip 
-              key={index}
-              label={benefit}
-              size="small"
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 140, 255, 0.08)',
-                color: '#008cff'
-              }}
-            />
-          ))}
-          {params.value.length > 3 && (
-            <Chip 
-              label={`+${params.value.length - 3} more`}
-              size="small"
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 0, 0, 0.08)',
-                color: 'text.secondary'
-              }}
-            />
-          )}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different data structures for benefits
+        let benefits = [];
+        
+        if (Array.isArray(params.value)) {
+          benefits = params.value.map((benefit) => {
+            if (typeof benefit === 'string') {
+              return benefit;
+            } else if (benefit && typeof benefit === 'object' && benefit.name) {
+              return benefit.name;
+            }
+            return '';
+          }).filter(b => b !== '');
+        }
+        
+        return (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {benefits.slice(0, 3).map((benefit: string, index: number) => (
+              <Chip 
+                key={index}
+                label={benefit}
+                size="small"
+                sx={{ 
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 140, 255, 0.08)',
+                  color: '#008cff'
+                }}
+              />
+            ))}
+            {benefits.length > 3 && (
+              <Chip 
+                label={`+${benefits.length - 3} more`}
+                size="small"
+                sx={{ 
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 0, 0, 0.08)',
+                  color: 'text.secondary'
+                }}
+              />
+            )}
+          </Box>
+        );
+      }
     },
     {
       field: 'price',
       headerName: 'Price',
       width: 130,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
-            ₹{params.value}
-          </Typography>
-          {Math.random() > 0.6 && (
-            <Chip
-              label="Deal"
-              size="small"
-              icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 140, 255, 0.08)',
-                color: '#008cff',
-                '.MuiChip-icon': { color: '#008cff' }
-              }}
-            />
-          )}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different price field names (price, premium, fare, etc.)
+        let priceValue = params.value;
+        if (priceValue === undefined || priceValue === null) {
+          priceValue = params.row.premium || params.row.fare || 0;
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
+              ₹{priceValue}
+            </Typography>
+            {Math.random() > 0.6 && (
+              <Chip
+                label="Deal"
+                size="small"
+                icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
+                sx={{
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 140, 255, 0.08)',
+                  color: '#008cff',
+                  '.MuiChip-icon': { color: '#008cff' }
+                }}
+              />
+            )}
+          </Box>
+        );
     },
     {
       field: 'actions',
