@@ -139,7 +139,10 @@ const TrainSearchPage = () => {
   };
   
   // Format duration (minutes to hours and minutes)
-  const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes: number | undefined) => {
+    if (minutes === undefined || isNaN(minutes)) {
+      return 'N/A';
+    }
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -212,41 +215,57 @@ const TrainSearchPage = () => {
       field: 'duration',
       headerName: 'Duration',
       width: 120,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="body2">
-            {formatDuration(params.row.durationMinutes)}
-          </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            justifyContent: 'center',
-            mt: 0.5
-          }}>
+      renderCell: (params: GridRenderCellParams) => {
+        // Extract duration in minutes from different data structures
+        let durationMinutes = 0;
+        
+        if (params.value !== undefined && typeof params.value === 'number') {
+          // Direct duration value
+          durationMinutes = params.value;
+        } else if (params.row.durationMinutes !== undefined && typeof params.row.durationMinutes === 'number') {
+          // Duration minutes field
+          durationMinutes = params.row.durationMinutes;
+        } else if (params.row.duration !== undefined && typeof params.row.duration === 'number') {
+          // Duration field
+          durationMinutes = params.row.duration;
+        }
+        
+        return (
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2">
+              {formatDuration(durationMinutes)}
+            </Typography>
             <Box sx={{ 
-              height: '2px', 
-              width: '80%', 
-              bgcolor: '#e0e0e0',
-              position: 'relative',
-              '&::before, &::after': {
-                content: '""',
-                position: 'absolute',
-                top: '-3px',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                bgcolor: '#008cff'
-              },
-              '&::before': {
-                left: 0
-              },
-              '&::after': {
-                right: 0
-              }
-            }}/>
+              display: 'flex', 
+              alignItems: 'center',
+              justifyContent: 'center',
+              mt: 0.5
+            }}>
+              <Box sx={{ 
+                height: '2px', 
+                width: '80%', 
+                bgcolor: '#e0e0e0',
+                position: 'relative',
+                '&::before, &::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '-3px',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  bgcolor: '#008cff'
+                },
+                '&::before': {
+                  left: 0
+                },
+                '&::after': {
+                  right: 0
+                }
+              }}/>
+            </Box>
           </Box>
-        </Box>
-      )
+        );
+      }
     },
     {
       field: 'arrivalTime',
@@ -349,27 +368,49 @@ const TrainSearchPage = () => {
       field: 'fare',
       headerName: 'Fare',
       width: 130,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
-            ₹{params.value}
-          </Typography>
-          {Math.random() > 0.6 && (
-            <Chip
-              label="Deal"
-              size="small"
-              icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 140, 255, 0.08)',
-                color: '#008cff',
-                '.MuiChip-icon': { color: '#008cff' }
-              }}
-            />
-          )}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Extract fare from different data structures
+        let fare = 0;
+        
+        if (params.value !== undefined && (typeof params.value === 'number' || typeof params.value === 'string')) {
+          // Direct fare value
+          fare = Number(params.value);
+        } else if (params.row.fare !== undefined && (typeof params.row.fare === 'number' || typeof params.row.fare === 'string')) {
+          // Fare field
+          fare = Number(params.row.fare);
+        } else if (params.row.classes && Array.isArray(params.row.classes) && params.row.classes.length > 0) {
+          // Try to extract from first class
+          const firstClass = params.row.classes[0];
+          if (firstClass.fare) {
+            fare = Number(firstClass.fare);
+          }
+        }
+        
+        // Show deal chip for some trains (deterministic based on ID to avoid random changes on render)
+        const showDeal = params.row.id && String(params.row.id).charCodeAt(0) % 3 === 0;
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
+              ₹{isNaN(fare) ? '0' : fare}
+            </Typography>
+            {showDeal && (
+              <Chip
+                label="Deal"
+                size="small"
+                icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
+                sx={{ 
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 140, 255, 0.08)',
+                  color: '#008cff',
+                  '.MuiChip-icon': { color: '#008cff' }
+                }}
+              />
+            )}
+          </Box>
+        );
+      }
     },
     {
       field: 'actions',

@@ -122,16 +122,29 @@ const BusSearchPage = () => {
   };
   
   // Format time (24hr to 12hr)
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = hour % 12 || 12;
-    return `${formattedHour}:${minutes} ${ampm}`;
+  const formatTime = (time: string | undefined) => {
+    // If time is undefined or not a string, return a default value
+    if (!time || typeof time !== 'string') {
+      return 'N/A';
+    }
+    
+    try {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const formattedHour = hour % 12 || 12;
+      return `${formattedHour}:${minutes || '00'} ${ampm}`;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return time; // Return original time if it can't be formatted
+    }
   };
   
   // Format duration (minutes to hours and minutes)
-  const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes: number | undefined) => {
+    if (minutes === undefined || isNaN(minutes)) {
+      return 'N/A';
+    }
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
@@ -155,16 +168,32 @@ const BusSearchPage = () => {
       field: 'operator',
       headerName: 'Bus Operator',
       width: 220,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {params.value}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.busType} • {params.row.busModel}
-          </Typography>
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Extract operator info from different data structures
+        let operatorName = '';
+        let busType = '';
+        
+        if (params.value && typeof params.value === 'string') {
+          operatorName = params.value;
+        } else if (params.row.operatorName) {
+          operatorName = params.row.operatorName;
+        }
+        
+        if (params.row.busType) {
+          busType = params.row.busType;
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {operatorName}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {busType} {params.row.busModel ? `• ${params.row.busModel}` : ''}
+            </Typography>
+          </Box>
+        );
+      }
     },
     {
       field: 'departureTime',
