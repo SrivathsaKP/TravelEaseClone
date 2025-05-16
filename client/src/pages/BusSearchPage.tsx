@@ -199,75 +199,147 @@ const BusSearchPage = () => {
       field: 'departureTime',
       headerName: 'Departure',
       width: 160,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {formatTime(params.value)}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.departurePoint}
-          </Typography>
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different data structures for departure information
+        let departureTime = '';
+        let departurePoint = '';
+        
+        if (params.value) {
+          if (typeof params.value === 'string') {
+            departureTime = params.value;
+          } else if (typeof params.value === 'object' && params.value.time) {
+            departureTime = params.value.time;
+          }
+        } else if (params.row.source && typeof params.row.source === 'object' && params.row.source.time) {
+          departureTime = params.row.source.time;
+        }
+        
+        // Extract departure point
+        if (params.row.departurePoint) {
+          departurePoint = params.row.departurePoint;
+        } else if (params.row.source) {
+          if (typeof params.row.source === 'string') {
+            departurePoint = params.row.source;
+          } else if (typeof params.row.source === 'object') {
+            departurePoint = params.row.source.terminal || params.row.source.city || '';
+          }
+        }
+        
+        // Handle ISO date format
+        if (departureTime && departureTime.includes('T')) {
+          departureTime = departureTime.split('T')[1].substring(0, 5);
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {formatTime(departureTime)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {departurePoint}
+            </Typography>
+          </Box>
+        );
+      }
     },
     {
       field: 'duration',
       headerName: 'Duration',
       width: 120,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="body2">
-            {formatDuration(params.row.durationMinutes)}
-          </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            justifyContent: 'center',
-            mt: 0.5
-          }}>
+      renderCell: (params: GridRenderCellParams) => {
+        // Extract duration from different data structures
+        let durationValue = params.value;
+        
+        if (durationValue === undefined || durationValue === null) {
+          durationValue = params.row.durationMinutes || params.row.duration;
+        }
+        
+        return (
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2">
+              {formatDuration(durationValue)}
+            </Typography>
             <Box sx={{ 
-              height: '2px', 
-              width: '80%', 
-              bgcolor: '#e0e0e0',
-              position: 'relative',
-              '&::before, &::after': {
-                content: '""',
-                position: 'absolute',
-                top: '-3px',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                bgcolor: '#008cff'
-              },
-              '&::before': {
-                left: 0
-              },
-              '&::after': {
-                right: 0
-              }
-            }}/>
+              display: 'flex', 
+              alignItems: 'center',
+              justifyContent: 'center',
+              mt: 0.5
+            }}>
+              <Box sx={{ 
+                height: '2px', 
+                width: '80%', 
+                bgcolor: '#e0e0e0',
+                position: 'relative',
+                '&::before, &::after': {
+                  content: '""',
+                  position: 'absolute',
+                  top: '-3px',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  bgcolor: '#008cff'
+                },
+                '&::before': {
+                  left: 0
+                },
+                '&::after': {
+                  right: 0
+                }
+              }}/>
+            </Box>
           </Box>
-        </Box>
-      )
+        );
+      }
     },
     {
       field: 'arrivalTime',
       headerName: 'Arrival',
       width: 160,
       renderCell: (params: GridRenderCellParams) => {
-        const displayTime = params.value 
-          ? formatTime(params.value)
-          : params.row.durationMinutes 
-            ? formatTime(calculateArrivalTime(params.row.departureTime, params.row.durationMinutes))
-            : "N/A";
+        // Handle different data structures for arrival information
+        let arrivalTime = '';
+        let arrivalPoint = '';
+        
+        if (params.value) {
+          if (typeof params.value === 'string') {
+            arrivalTime = params.value;
+          } else if (typeof params.value === 'object' && params.value.time) {
+            arrivalTime = params.value.time;
+          }
+        } else if (params.row.destination && typeof params.row.destination === 'object' && params.row.destination.time) {
+          arrivalTime = params.row.destination.time;
+        } else if (params.row.departureTime && params.row.duration) {
+          // Calculate arrival time from departure and duration
+          arrivalTime = calculateArrivalTime(
+            typeof params.row.departureTime === 'string' ? params.row.departureTime : 
+            params.row.departureTime?.time || params.row.source?.time || '',
+            params.row.duration
+          );
+        }
+        
+        // Extract arrival point
+        if (params.row.arrivalPoint) {
+          arrivalPoint = params.row.arrivalPoint;
+        } else if (params.row.destination) {
+          if (typeof params.row.destination === 'string') {
+            arrivalPoint = params.row.destination;
+          } else if (typeof params.row.destination === 'object') {
+            arrivalPoint = params.row.destination.terminal || params.row.destination.city || '';
+          }
+        }
+        
+        // Handle ISO date format
+        if (arrivalTime && arrivalTime.includes('T')) {
+          arrivalTime = arrivalTime.split('T')[1].substring(0, 5);
+        }
         
         return (
           <Box>
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {displayTime}
+              {formatTime(arrivalTime)}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {params.row.arrivalPoint}
+              {arrivalPoint}
             </Typography>
           </Box>
         );
