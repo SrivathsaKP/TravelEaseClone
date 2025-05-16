@@ -134,53 +134,75 @@ const CabSearchPage = () => {
       field: 'type',
       headerName: 'Cab Type',
       width: 200,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {params.value}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.provider}
-          </Typography>
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different data structures for cab type
+        const cabType = params.value || 
+                      (params.row.vehicleType?.name ? params.row.vehicleType.name : 'Standard');
+        const provider = params.row.provider || 
+                      (params.row.driver?.name ? params.row.driver.name : 'TravelEase Cabs');
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {cabType}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {provider}
+            </Typography>
+          </Box>
+        );
+      }
     },
     {
       field: 'model',
       headerName: 'Car Model',
       width: 160,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-            {params.value}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {params.row.capacity} Seater
-          </Typography>
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different data formats
+        const model = params.value || 
+                     (params.row.vehicleType?.name ? params.row.vehicleType.name : 'Standard');
+        const capacity = params.row.capacity || 
+                       (params.row.vehicleType?.capacity ? params.row.vehicleType.capacity : 4);
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {model}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {capacity} Seater
+            </Typography>
+          </Box>
+        );
+      }
     },
     {
       field: 'features',
       headerName: 'Included',
       width: 220,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {params.value.map((feature: string, index: number) => (
-            <Chip 
-              key={index}
-              label={feature}
-              size="small"
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 140, 255, 0.08)',
-                color: '#008cff'
-              }}
-            />
-          ))}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Safely handle features when it might be undefined or not an array
+        const features = Array.isArray(params.value) ? params.value : 
+                         params.row.amenities ? params.row.amenities : [];
+        
+        return (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {features.map((feature: string, index: number) => (
+              <Chip 
+                key={index}
+                label={feature}
+                size="small"
+                sx={{ 
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 140, 255, 0.08)',
+                  color: '#008cff'
+                }}
+              />
+            ))}
+          </Box>
+        );
+      }
     },
     {
       field: 'rating',
@@ -204,27 +226,52 @@ const CabSearchPage = () => {
       field: 'price',
       headerName: 'Price',
       width: 130,
-      renderCell: (params: GridRenderCellParams) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
-            ₹{params.value}
-          </Typography>
-          {Math.random() > 0.6 && (
-            <Chip
-              label="Deal"
-              size="small"
-              icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
-              sx={{ 
-                height: '20px',
-                fontSize: '0.7rem',
-                bgcolor: 'rgba(0, 140, 255, 0.08)',
-                color: '#008cff',
-                '.MuiChip-icon': { color: '#008cff' }
-              }}
-            />
-          )}
-        </Box>
-      )
+      renderCell: (params: GridRenderCellParams) => {
+        // Handle different price formats
+        let displayPrice = 0;
+        
+        if (typeof params.value === 'number') {
+          displayPrice = params.value;
+        } else if (typeof params.value === 'object') {
+          // Try to extract the price from different object structures
+          if (params.value?.totalFare) {
+            displayPrice = params.value.totalFare;
+          } else if (params.value?.amount) {
+            displayPrice = params.value.amount;
+          } else if (params.value?.basePrice) {
+            displayPrice = params.value.basePrice;
+          }
+        } else if (params.row.fare) {
+          // Special case for cab fare
+          if (typeof params.row.fare === 'number') {
+            displayPrice = params.row.fare;
+          } else if (typeof params.row.fare === 'object') {
+            displayPrice = params.row.fare.totalFare || params.row.fare.baseFare || 0;
+          }
+        }
+        
+        return (
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#008cff' }}>
+              ₹{displayPrice}
+            </Typography>
+            {Math.random() > 0.6 && (
+              <Chip
+                label="Deal"
+                size="small"
+                icon={<LocalOfferIcon sx={{ fontSize: '0.8rem' }} />}
+                sx={{ 
+                  height: '20px',
+                  fontSize: '0.7rem',
+                  bgcolor: 'rgba(0, 140, 255, 0.08)',
+                  color: '#008cff',
+                  '.MuiChip-icon': { color: '#008cff' }
+                }}
+              />
+            )}
+          </Box>
+        );
+      }
     },
     {
       field: 'actions',
