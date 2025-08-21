@@ -1,6 +1,6 @@
 [build]
   # Build command to run
-  command = "npm run build:frontend"
+  command = "npm ci --include=dev && npm run build:frontend"
   
   # Directory to publish (relative to root of your repo)
   publish = "dist/public"
@@ -14,6 +14,10 @@
   
   # Build environment
   NODE_ENV = "production"
+  
+  # Ensure npm installs dependencies including devDependencies
+  NPM_FLAGS = "--legacy-peer-deps"
+  NPM_CONFIG_PRODUCTION = "false"
 
 # Redirects for SPA routing
 [[redirects]]
