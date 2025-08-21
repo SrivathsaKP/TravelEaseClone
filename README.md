@@ -114,7 +114,7 @@ npm start            # Start production server
 
 ## 🚀 Deployment
 
-### Frontend-Only Deployment (Recommended for Portfolio)
+### Frontend-Only Deployment 
 ```bash
 # Build frontend
 npm run build:frontend
@@ -134,8 +134,6 @@ npm run build
 npm start
 ```
 
-## 🎯 Portfolio Value
-
 ### What This Project Demonstrates:
 - **Full-Stack Development**: React frontend + Node.js backend + PostgreSQL
 - **Modern Tech Stack**: React 18, TypeScript, Material-UI, Redux Toolkit, Vite
@@ -150,12 +148,6 @@ npm start
 - Responsive design for all devices
 - Authentication and user management
 - Mock data system for development
-
-### Resume Talking Points:
-- "Built a fully functional travel booking platform"
-- "Implemented production-ready architecture with modern React patterns"
-- "Created comprehensive mock data system for demonstration"
-- "Designed scalable component architecture with TypeScript"
 
 ## 🐛 Troubleshooting
 
