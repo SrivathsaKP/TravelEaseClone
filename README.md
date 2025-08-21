@@ -1,4 +1,4 @@
-# TravelEase - Make My Trip Clone
+# TravelEase
 
 A comprehensive travel booking platform built with React, TypeScript, Express.js, and Node.js. This project provides a full-stack solution for booking flights, hotels, buses, trains, cabs, and travel insurance.
 
