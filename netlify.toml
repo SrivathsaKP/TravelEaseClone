@@ -1,0 +1,150 @@
+[build]
+  # Build command to run
+  command = "npm run build:frontend"
+  
+  # Directory to publish (relative to root of your repo)
+  publish = "dist/public"
+  
+  # Base directory for the build
+  base = "."
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  
+  # Build environment
+  NODE_ENV = "production"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Headers for static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for HTML files
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Headers for CSS and JS files
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for images
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.gif"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for fonts
+[[headers]]
+  for = "*.woff"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.woff2"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.ttf"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.eot"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Context-specific settings
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "production"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "production"
+
+# Functions (if you add serverless functions later)
+# [functions]
+#   directory = "netlify/functions"
+#   node_bundler = "esbuild"
+
+# Edge functions (if you add edge functions later)
+# [edge_functions]
+#   directory = "netlify/edge-functions"
+
+# Form handling (if you add forms later)
+# [forms]
+#   external_redirect = "https://example.com/thank-you"
+
+# Processing (for image optimization)
+[processing]
+  skip_processing = false
+
+[processing.images]
+  compress = true
+
+# Dev settings (for local development)
+[dev]
+  command = "npm run dev"
+  port = 5173
+  publish = "dist/public"
+  framework = "#custom"
+
+# Plugin settings (if you add Netlify plugins later)
+# [[plugins]]
+#   package = "@netlify/plugin-lighthouse"
+#   [plugins.inputs]
+#     audits = "performance,accessibility,best-practices,seo"
