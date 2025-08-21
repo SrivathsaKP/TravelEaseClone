@@ -9,7 +9,8 @@ import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { pool } from "./db";
 
-if (!process.env.REPLIT_DOMAINS) {
+// Only require REPLIT_DOMAINS in production
+if (process.env.NODE_ENV === 'production' && !process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
@@ -73,6 +74,12 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Skip Replit auth setup in development if REPLIT_DOMAINS is not available
+  if (!process.env.REPLIT_DOMAINS) {
+    console.log('Skipping Replit auth setup in development mode');
+    return;
+  }
+
   const config = await getOidcConfig();
 
   const verify: VerifyFunction = async (
@@ -85,8 +92,7 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  for (const domain of process.env.REPLIT_DOMAINS.split(",")) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
