@@ -1,6 +1,6 @@
 [build]
   # Build command to run
-  command = "npm ci --include=dev && npm run build:frontend"
+  command = "npm ci --include=dev && npm run build"
   
   # Directory to publish (relative to root of your repo)
   publish = "dist/public"
