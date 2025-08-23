@@ -224,11 +224,11 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Filters Sidebar */}
         <Box sx={{ 
-          width: { xs: '100%', md: '270px' }, 
+          width: { xs: '100%', sm: '240px', md: '270px' }, 
           bgcolor: 'white', 
           borderRadius: 2,
           boxShadow: 1,
-          p: 2,
+          p: { xs: 1.5, md: 2 },
           alignSelf: 'flex-start',
           position: { xs: 'static', md: 'sticky' },
           top: { xs: 'auto', md: '90px' }
@@ -257,7 +257,13 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
           <Box sx={{ 
             display: { xs: showFilters ? 'block' : 'none', md: 'block' }
           }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Box sx={{ 
+              borderBottom: 1, 
+              borderColor: 'divider', 
+              pb: 2, 
+              mb: 2,
+              display: { xs: 'none', md: 'block' }
+            }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Price Per Night</Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography variant="caption" color="text.secondary">₹{priceRange[0]}</Typography>
@@ -274,7 +280,13 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
               />
             </Box>
             
-            <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+            <Box sx={{ 
+              borderBottom: 1, 
+              borderColor: 'divider', 
+              pb: 2, 
+              mb: 2,
+              display: { xs: 'none', md: 'block' }
+            }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Star Category</Typography>
               {starRatingOptions.map(rating => (
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }} key={rating}>

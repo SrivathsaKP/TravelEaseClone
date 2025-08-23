@@ -189,8 +189,15 @@ const HotelSearchPage = () => {
       {/* Results */}
       <Box sx={{ display: 'flex', gap: 3 }}>
         {/* Filters */}
-        <Box sx={{ width: 280 }}>
-          <Paper sx={{ p: 2, mb: 2 }}>
+        <Box sx={{ 
+          width: { xs: '100%', sm: '240px', md: '280px' },
+          display: { xs: 'none', md: 'block' }
+        }}>
+          <Paper sx={{ 
+            p: 2, 
+            mb: 2,
+            display: { xs: 'none', md: 'block' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" mb={2}>
               Price per night
             </Typography>
@@ -221,7 +228,11 @@ const HotelSearchPage = () => {
             </Box>
           </Paper>
           
-          <Paper sx={{ p: 2, mb: 2 }}>
+          <Paper sx={{ 
+            p: 2, 
+            mb: 2,
+            display: { xs: 'none', md: 'block' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" mb={2}>
               Star Category
             </Typography>
@@ -261,7 +272,10 @@ const HotelSearchPage = () => {
             ))}
           </Paper>
           
-          <Paper sx={{ p: 2 }}>
+          <Paper sx={{ 
+            p: 2,
+            display: { xs: 'none', md: 'block' }
+          }}>
             <Typography variant="subtitle1" fontWeight="bold" mb={2}>
               Property Type
             </Typography>

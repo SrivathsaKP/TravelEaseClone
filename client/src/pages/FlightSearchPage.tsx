@@ -26,6 +26,8 @@ import FlightResults from '@/components/FlightResults';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import dayjs from 'dayjs';
 
 // City options for the dropdowns
@@ -263,35 +265,37 @@ const FlightSearchPage = () => {
       
       {/* View Mode Selector */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-        <Button 
-          variant={viewMode === 'card' ? 'contained' : 'outlined'}
+        <IconButton 
           onClick={() => setViewMode('card')}
           sx={{ 
             mr: 1,
             bgcolor: viewMode === 'card' ? '#008cff' : 'transparent',
             color: viewMode === 'card' ? 'white' : '#008cff',
+            border: '1px solid',
             borderColor: '#008cff',
             '&:hover': { 
               bgcolor: viewMode === 'card' ? '#0071ce' : 'rgba(0, 140, 255, 0.1)'
             }
           }}
+          title="Card View"
         >
-          Card View
-        </Button>
-        <Button 
-          variant={viewMode === 'grid' ? 'contained' : 'outlined'}
+          <ViewModuleIcon />
+        </IconButton>
+        <IconButton 
           onClick={() => setViewMode('grid')}
           sx={{ 
             bgcolor: viewMode === 'grid' ? '#008cff' : 'transparent',
             color: viewMode === 'grid' ? 'white' : '#008cff',
+            border: '1px solid',
             borderColor: '#008cff',
             '&:hover': { 
               bgcolor: viewMode === 'grid' ? '#0071ce' : 'rgba(0, 140, 255, 0.1)'
             }
           }}
+          title="Grid View"
         >
-          Grid View
-        </Button>
+          <ViewListIcon />
+        </IconButton>
       </Box>
       
       {/* Results */}
