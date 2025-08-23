@@ -46,20 +46,25 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
   const [sortBy, setSortBy] = useState<string>("price-low-high");
   const [activeTab, setActiveTab] = useState(0);
 
-  // Hotel image mapping - using the same reliable images as landing page
-  const getHotelImage = (hotelName: string, hotelId: number) => {
-    // Use the same reliable Unsplash images as the landing page
+  // Hotel image mapping - using exact same URLs as landing page with tab-based randomization
+  const getHotelImage = (hotelName: string, hotelId: any) => {
+    // Use the exact same URLs as the landing page PopularHotels component
     const hotelImages = [
       "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
       "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
-      "https://images.unsplash.com/photo-1631049035182-249067d7618e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
-      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500"
+      "https://images.unsplash.com/photo-1631049035182-249067d7618e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500"
     ];
     
-    // Use hotel ID to consistently assign images
-    return hotelImages[hotelId % hotelImages.length];
+    // Handle hotel ID properly - convert to number and provide fallback
+    const id = typeof hotelId === 'number' ? hotelId : 
+               typeof hotelId === 'string' ? parseInt(hotelId) || 0 : 0;
+    
+    // Add tab-based randomization - activeTab changes the starting point
+    const randomOffset = activeTab * 2; // Different offset for each tab
+    const imageIndex = (Math.abs(id) + randomOffset) % 3;
+    
+    // Use hotel ID with randomization to cycle through the 3 images
+    return hotelImages[imageIndex];
   };
   
   // Filter options
@@ -446,41 +451,41 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                     )}
                     
                     {/* Hotel Image - Full Width like landing page */}
-                    <Box sx={{ 
+                      <Box sx={{ 
                       width: '100%', 
                       height: '280px',
-                      position: 'relative'
-                    }}>
-                      <img 
-                        src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500"
-                        alt={hotel.name}
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'cover',
-                          display: 'block'
-                        }}
-                      />
-                      <Box sx={{ 
-                        position: 'absolute', 
+                        position: 'relative'
+                      }}>
+                                              <img 
+                          src={getHotelImage(hotel.name, sortedHotels.indexOf(hotel))}
+                          alt={hotel.name}
+                          style={{ 
+                            width: '100%', 
+                            height: '100%', 
+                            objectFit: 'cover',
+                            display: 'block'
+                          }}
+                        />
+                        <Box sx={{ 
+                          position: 'absolute', 
                         top: '12px', 
                         right: '12px',
-                        bgcolor: 'white',
+                          bgcolor: 'white',
                         borderRadius: '6px',
                         p: 1,
-                        display: 'flex',
+                          display: 'flex',
                         alignItems: 'center',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                      }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold', mr: 0.5 }}>
-                          {avgRating.toFixed(1)}
-                        </Typography>
+                        }}>
+                          <Typography variant="body2" sx={{ fontWeight: 'bold', mr: 0.5 }}>
+                            {avgRating.toFixed(1)}
+                          </Typography>
                         <Star size={16} className="fill-yellow-400 text-yellow-400" />
-                      </Box>
-                      <IconButton
-                        size="small"
-                        sx={{ 
-                          position: 'absolute', 
+                        </Box>
+                        <IconButton
+                          size="small"
+                          sx={{ 
+                            position: 'absolute', 
                           top: '12px', 
                           left: '12px',
                           bgcolor: 'rgba(255,255,255,0.9)',
@@ -489,9 +494,9 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                         }}
                       >
                         <Heart size={18} />
-                      </IconButton>
-                    </Box>
-                    
+                        </IconButton>
+                      </Box>
+                      
                     {/* Hotel Details - Below image like landing page */}
                     <Box sx={{ p: 3 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -596,10 +601,10 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                               >
                                 VIEW ROOMS
                               </Button>
-                            </Box>
                           </Box>
                         </Box>
                       </Box>
+                    </Box>
                     
                     {/* Additional options */}
                     <Box sx={{ 
