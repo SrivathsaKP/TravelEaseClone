@@ -65,7 +65,7 @@ const Home = () => {
           <Box sx={{ py: 4, backgroundColor: '#f5f5f5' }}>
             <Container>
               <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
-                Comfortable Homestays
+                Comfortable Homestays & Villas
               </Typography>
               <Typography variant="body1" sx={{ mb: 2 }}>
                 Experience local life with our curated homestay options:
@@ -79,10 +79,65 @@ const Home = () => {
             </Container>
           </Box>
         );
-      case 3: // Trains
-      case 4: // Buses
-      case 5: // Cabs
-      case 6: // Insurance
+      case 3: // Holiday Packages
+        return (
+          <Box sx={{ py: 4, backgroundColor: '#f5f5f5' }}>
+            <Container>
+              <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+                Amazing Holiday Packages
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Discover curated holiday packages with exclusive benefits:
+              </Typography>
+              <ul style={{ paddingLeft: '20px' }}>
+                <li>All-inclusive packages with flights, hotels, and activities</li>
+                <li>Honeymoon specials with romantic experiences</li>
+                <li>Adventure packages for thrill-seekers</li>
+                <li>Family-friendly packages with kid-friendly activities</li>
+              </ul>
+            </Container>
+          </Box>
+        );
+      case 4: // Trains
+      case 5: // Buses
+      case 6: // Cabs
+        return (
+          <Box sx={{ py: 4, backgroundColor: '#f5f5f5' }}>
+            <Container>
+              <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+                Convenient Transportation
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Book your preferred mode of transportation:
+              </Typography>
+              <ul style={{ paddingLeft: '20px' }}>
+                <li>Reliable train services across India</li>
+                <li>Comfortable bus journeys with modern amenities</li>
+                <li>Premium cab services for city and intercity travel</li>
+                <li>24/7 customer support for all bookings</li>
+              </ul>
+            </Container>
+          </Box>
+        );
+      case 7: // Insurance
+        return (
+          <Box sx={{ py: 4, backgroundColor: '#f5f5f5' }}>
+            <Container>
+              <Typography variant="h4" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+                Travel Insurance Protection
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                Travel with peace of mind with comprehensive insurance:
+              </Typography>
+              <ul style={{ paddingLeft: '20px' }}>
+                <li>Medical coverage for domestic and international travel</li>
+                <li>Trip cancellation and interruption protection</li>
+                <li>Baggage loss and delay coverage</li>
+                <li>24/7 emergency assistance worldwide</li>
+              </ul>
+            </Container>
+          </Box>
+        );
       default:
         return <DownloadApp />;
     }

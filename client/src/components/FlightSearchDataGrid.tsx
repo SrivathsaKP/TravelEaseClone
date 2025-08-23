@@ -375,7 +375,7 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
   });
 
   return (
-    <Paper sx={{ height: 'calc(100vh - 250px)', width: '100%', p: 2, mb: 4 }}>
+    <Paper sx={{ width: '100%', p: 2, mb: 4 }}>
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -470,6 +470,7 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
         onPaginationModelChange={(model) => setPageSize(model.pageSize)}
         disableRowSelectionOnClick
         getRowHeight={() => 'auto'}
+        autoHeight
         sx={{
           '& .MuiDataGrid-cell': {
             py: 1,

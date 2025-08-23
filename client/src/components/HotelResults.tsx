@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -305,10 +305,11 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                 borderRadius: 1,
                 boxShadow: 1,
                 '.MuiTabs-indicator': { 
-                  height: '4px',
-                  borderTopLeftRadius: '4px',
-                  borderTopRightRadius: '4px',
-                  bgcolor: '#008cff'
+                  height: '3px',
+                  borderTopLeftRadius: '3px',
+                  borderTopRightRadius: '3px',
+                  bgcolor: '#008cff',
+                  boxShadow: '0 2px 4px rgba(0, 140, 255, 0.3)'
                 }
               }}
             >
@@ -321,19 +322,26 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                         width: '35px', 
                         height: '35px', 
                         borderRadius: '50%', 
-                        bgcolor: index === activeTab ? '#008cff' : 'rgba(0, 140, 255, 0.1)',
+                        bgcolor: index === activeTab ? 'rgba(0, 140, 255, 0.15)' : 'rgba(0, 140, 255, 0.1)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        mb: 0.5
+                        mb: 0.5,
+                        border: index === activeTab ? '2px solid #008cff' : '2px solid transparent'
                       }}>
-                        {option.icon}
+                        {React.cloneElement(option.icon, { 
+                          sx: { 
+                            color: index === activeTab ? '#008cff' : '#666',
+                            fontSize: '1.2rem'
+                          } 
+                        })}
                       </Box>
                       <Typography 
                         variant="caption" 
                         sx={{ 
                           fontWeight: index === activeTab ? 'bold' : 'normal',
-                          color: index === activeTab ? '#008cff' : 'text.primary' 
+                          color: index === activeTab ? '#008cff' : '#666',
+                          fontSize: '0.75rem'
                         }}
                       >
                         {option.label}

@@ -19,7 +19,8 @@ import {
   CardContent,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  IconButton
 } from '@mui/material';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Train } from '@/lib/types';
@@ -29,7 +30,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import SearchIcon from '@mui/icons-material/Search';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import TrainIcon from '@mui/icons-material/Train';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -429,63 +430,44 @@ const TrainSearchPage = () => {
           Search Trains
         </Typography>
         
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'flex-start' }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
           {/* Source */}
-          <Box sx={{ flex: '1 1 200px', minWidth: '200px', position: 'relative' }}>
+          <Box sx={{ flex: '1 1 240px', minWidth: '200px' }}>
             <FormControl fullWidth variant="outlined" size="small">
-              <InputLabel>FROM</InputLabel>
+              <InputLabel>From</InputLabel>
               <Select
                 value={source}
                 onChange={(e) => setSource(e.target.value)}
-                label="FROM"
-                startAdornment={<LocationOnIcon sx={{ color: 'text.secondary', mr: 1 }} />}
+                label="From"
               >
                 {cityOptions.map((cityOption) => (
                   <MenuItem key={cityOption} value={cityOption}>{cityOption}</MenuItem>
                 ))}
               </Select>
             </FormControl>
-            
-            {/* Swap button */}
-            <Box
-              sx={{
-                position: 'absolute',
-                right: -16,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                zIndex: 10
+          </Box>
+          
+          <Box sx={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center' }}>
+            <IconButton 
+              onClick={handleSwap}
+              sx={{ 
+                bgcolor: 'rgba(0, 140, 255, 0.1)',
+                '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.2)' },
+                color: '#008cff'
               }}
             >
-              <Button
-                sx={{
-                  minWidth: 32,
-                  width: 32,
-                  height: 32,
-                  borderRadius: '50%',
-                  bgcolor: '#fff',
-                  border: '1px solid #e0e0e0',
-                  boxShadow: 1,
-                  color: '#008cff',
-                  '&:hover': {
-                    bgcolor: '#f5f5f5'
-                  }
-                }}
-                onClick={handleSwap}
-              >
-                <SwapVertIcon fontSize="small" />
-              </Button>
-            </Box>
+              <SwapHorizIcon />
+            </IconButton>
           </Box>
           
           {/* Destination */}
-          <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
+          <Box sx={{ flex: '1 1 240px', minWidth: '200px' }}>
             <FormControl fullWidth variant="outlined" size="small">
-              <InputLabel>TO</InputLabel>
+              <InputLabel>To</InputLabel>
               <Select
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
-                label="TO"
-                startAdornment={<LocationOnIcon sx={{ color: 'text.secondary', mr: 1 }} />}
+                label="To"
               >
                 {cityOptions.map((cityOption) => (
                   <MenuItem key={cityOption} value={cityOption}>{cityOption}</MenuItem>

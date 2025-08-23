@@ -37,7 +37,8 @@ import {
   SwapVert,
   BeachAccess,
   CreditCard,
-  AccountBalance
+  AccountBalance,
+  AccessTime
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 
@@ -99,6 +100,22 @@ const MaterialSearchTabs = ({ onTabChange }) => {
     priceRange: 'Any'
   });
 
+  // Homestay search state
+  const [homestaySearch, setHomestaySearch] = useState({
+    location: '',
+    checkIn: today,
+    checkOut: format(new Date(new Date().setDate(new Date().getDate() + 2)), 'yyyy-MM-dd'),
+    guests: '2 Adults'
+  });
+
+  // Holiday Package search state
+  const [holidayPackageSearch, setHolidayPackageSearch] = useState({
+    from: '',
+    to: '',
+    date: today,
+    guests: '2 Adults'
+  });
+
   // Train search state
   const [trainSearch, setTrainSearch] = useState({
     source: '',
@@ -113,6 +130,22 @@ const MaterialSearchTabs = ({ onTabChange }) => {
     destination: '',
     date: today,
     busType: 'Any Bus'
+  });
+
+  // Cab search state
+  const [cabSearch, setCabSearch] = useState({
+    city: '',
+    pickupDate: today,
+    pickupTime: '10:00',
+    cabType: 'All'
+  });
+
+  // Insurance search state
+  const [insuranceSearch, setInsuranceSearch] = useState({
+    travelType: 'domestic',
+    travelers: 1,
+    startDate: today,
+    duration: 5
   });
 
   const handleTabChange = (event, newValue) => {
@@ -134,6 +167,16 @@ const MaterialSearchTabs = ({ onTabChange }) => {
     navigate('/hotels');
   };
 
+  const handleHomestaySearch = (e) => {
+    e.preventDefault();
+    navigate('/homestays');
+  };
+
+  const handleHolidayPackageSearch = (e) => {
+    e.preventDefault();
+    navigate('/holiday-packages');
+  };
+
   const handleTrainSearch = (e) => {
     e.preventDefault();
     navigate('/trains');
@@ -142,6 +185,16 @@ const MaterialSearchTabs = ({ onTabChange }) => {
   const handleBusSearch = (e) => {
     e.preventDefault();
     navigate('/buses');
+  };
+
+  const handleCabSearch = (e) => {
+    e.preventDefault();
+    navigate('/cabs');
+  };
+
+  const handleInsuranceSearch = (e) => {
+    e.preventDefault();
+    navigate('/insurance');
   };
 
   const swapLocations = (type) => {
@@ -162,6 +215,12 @@ const MaterialSearchTabs = ({ onTabChange }) => {
         ...busSearch,
         source: busSearch.destination,
         destination: busSearch.source
+      });
+    } else if (type === 'holiday') {
+      setHolidayPackageSearch({
+        ...holidayPackageSearch,
+        from: holidayPackageSearch.to,
+        to: holidayPackageSearch.from
       });
     }
   };
@@ -739,6 +798,347 @@ const MaterialSearchTabs = ({ onTabChange }) => {
           </form>
         </TabPanel>
 
+        {/* Homestays & Villas Search Tab */}
+        <TabPanel value={tabValue} index={2}>
+          <form onSubmit={handleHomestaySearch}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>LOCATION</Typography>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      value={homestaySearch.location || null}
+                      onChange={(e, newValue) => setHomestaySearch({...homestaySearch, location: newValue})}
+                      options={cityNames}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Enter city or location"
+                          variant="outlined"
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Home sx={{ color: '#008cff' }} />
+                              </InputAdornment>
+                            ),
+                            sx: { 
+                              borderRadius: 1, 
+                              padding: '4px 8px',
+                              background: 'transparent',
+                              '& fieldset': { border: 'none' }
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>CHECK IN</Typography>
+                  <TextField
+                    type="date"
+                    fullWidth
+                    value={homestaySearch.checkIn}
+                    onChange={(e) => setHomestaySearch({...homestaySearch, checkIn: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonth sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>CHECK OUT</Typography>
+                  <TextField
+                    type="date"
+                    fullWidth
+                    value={homestaySearch.checkOut}
+                    onChange={(e) => setHomestaySearch({...homestaySearch, checkOut: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonth sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>GUESTS</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={homestaySearch.guests}
+                      onChange={(e) => setHomestaySearch({...homestaySearch, guests: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Person sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      }
+                    >
+                      <MenuItem value="2 Adults">2 Adults</MenuItem>
+                      <MenuItem value="1 Adult, 1 Child">1 Adult, 1 Child</MenuItem>
+                      <MenuItem value="2 Adults, 1 Child">2 Adults, 1 Child</MenuItem>
+                      <MenuItem value="2 Adults, 2 Children">2 Adults, 2 Children</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large"
+                  sx={{ 
+                    bgcolor: '#008cff', 
+                    minWidth: 200,
+                    '&:hover': { bgcolor: '#0070cc' } 
+                  }}
+                >
+                  Search Homestays & Villas
+                </Button>
+              </Box>
+            </Box>
+          </form>
+        </TabPanel>
+
+        {/* Holiday Packages Search Tab */}
+        <TabPanel value={tabValue} index={3}>
+          <form onSubmit={handleHolidayPackageSearch}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      value={holidayPackageSearch.from || null}
+                      onChange={(e, newValue) => setHolidayPackageSearch({...holidayPackageSearch, from: newValue})}
+                      options={cityNames}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Enter city"
+                          variant="outlined"
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <BeachAccess sx={{ color: '#008cff' }} />
+                              </InputAdornment>
+                            ),
+                            sx: { 
+                              borderRadius: 1, 
+                              padding: '4px 8px',
+                              background: 'transparent',
+                              '& fieldset': { border: 'none' }
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  p: 2,
+                  width: '60px'
+                }}>
+                  <IconButton 
+                    onClick={() => swapLocations('holiday')}
+                    color="primary"
+                    size="medium"
+                    sx={{ 
+                      bgcolor: 'rgba(0, 140, 255, 0.08)', 
+                      color: '#008cff',
+                      '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.15)' } 
+                    }}
+                  >
+                    <SwapVert />
+                  </IconButton>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderLeft: '1px solid #e0e0e0',
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TO</Typography>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      value={holidayPackageSearch.to || null}
+                      onChange={(e, newValue) => setHolidayPackageSearch({...holidayPackageSearch, to: newValue})}
+                      options={cityNames}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Enter city"
+                          variant="outlined"
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <BeachAccess sx={{ color: '#008cff' }} />
+                              </InputAdornment>
+                            ),
+                            sx: { 
+                              borderRadius: 1, 
+                              padding: '4px 8px',
+                              background: 'transparent',
+                              '& fieldset': { border: 'none' }
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TRAVEL DATE</Typography>
+                  <TextField
+                    type="date"
+                    fullWidth
+                    value={holidayPackageSearch.date}
+                    onChange={(e) => setHolidayPackageSearch({...holidayPackageSearch, date: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonth sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>GUESTS</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={holidayPackageSearch.guests}
+                      onChange={(e) => setHolidayPackageSearch({...holidayPackageSearch, guests: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Person sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      }
+                    >
+                      <MenuItem value="2 Adults">2 Adults</MenuItem>
+                      <MenuItem value="1 Adult, 1 Child">1 Adult, 1 Child</MenuItem>
+                      <MenuItem value="2 Adults, 1 Child">2 Adults, 1 Child</MenuItem>
+                      <MenuItem value="2 Adults, 2 Children">2 Adults, 2 Children</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large"
+                  sx={{ 
+                    bgcolor: '#008cff', 
+                    minWidth: 200,
+                    '&:hover': { bgcolor: '#0070cc' } 
+                  }}
+                >
+                  Search Holiday Packages
+                </Button>
+              </Box>
+            </Box>
+          </form>
+        </TabPanel>
+
         {/* Trains Search Tab */}
         <TabPanel value={tabValue} index={4}>
           <form onSubmit={handleTrainSearch}>
@@ -753,7 +1153,6 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                 <Box sx={{ 
                   flex: '1 1 250px',
                   p: 2,
-                  borderRight: '1px solid #e0e0e0',
                   '&:hover': { borderColor: '#008cff' }
                 }}>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
@@ -936,7 +1335,6 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                 <Box sx={{ 
                   flex: '1 1 250px',
                   p: 2,
-                  borderRight: '1px solid #e0e0e0',
                   '&:hover': { borderColor: '#008cff' }
                 }}>
                   <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>FROM</Typography>
@@ -1099,6 +1497,290 @@ const MaterialSearchTabs = ({ onTabChange }) => {
                   }}
                 >
                   Search Buses
+                </Button>
+              </Box>
+            </Box>
+          </form>
+        </TabPanel>
+
+        {/* Cabs Search Tab */}
+        <TabPanel value={tabValue} index={6}>
+          <form onSubmit={handleCabSearch}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>CITY</Typography>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      value={cabSearch.city || null}
+                      onChange={(e, newValue) => setCabSearch({...cabSearch, city: newValue})}
+                      options={cityNames}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder="Enter city"
+                          variant="outlined"
+                          fullWidth
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <LocalTaxi sx={{ color: '#008cff' }} />
+                              </InputAdornment>
+                            ),
+                            sx: { 
+                              borderRadius: 1, 
+                              padding: '4px 8px',
+                              background: 'transparent',
+                              '& fieldset': { border: 'none' }
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>PICKUP DATE</Typography>
+                  <TextField
+                    type="date"
+                    fullWidth
+                    value={cabSearch.pickupDate}
+                    onChange={(e) => setCabSearch({...cabSearch, pickupDate: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonth sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>PICKUP TIME</Typography>
+                  <TextField
+                    type="time"
+                    fullWidth
+                    value={cabSearch.pickupTime}
+                    onChange={(e) => setCabSearch({...cabSearch, pickupTime: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AccessTime sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>CAB TYPE</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={cabSearch.cabType}
+                      onChange={(e) => setCabSearch({...cabSearch, cabType: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                    >
+                      <MenuItem value="All">All</MenuItem>
+                      <MenuItem value="Sedan">Sedan</MenuItem>
+                      <MenuItem value="SUV">SUV</MenuItem>
+                      <MenuItem value="Mini">Mini</MenuItem>
+                      <MenuItem value="Luxury">Luxury</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large"
+                  sx={{ 
+                    bgcolor: '#008cff', 
+                    minWidth: 200,
+                    '&:hover': { bgcolor: '#0070cc' } 
+                  }}
+                >
+                  Search Cabs
+                </Button>
+              </Box>
+            </Box>
+          </form>
+        </TabPanel>
+
+        {/* Travel Insurance Search Tab */}
+        <TabPanel value={tabValue} index={7}>
+          <form onSubmit={handleInsuranceSearch}>
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                border: '1px solid #e0e0e0',
+                borderRadius: 1,
+                overflow: 'hidden'
+              }}>
+                <Box sx={{ 
+                  flex: '1 1 250px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TRAVEL TYPE</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={insuranceSearch.travelType}
+                      onChange={(e) => setInsuranceSearch({...insuranceSearch, travelType: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                    >
+                      <MenuItem value="domestic">Domestic</MenuItem>
+                      <MenuItem value="international">International</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>TRAVELERS</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={insuranceSearch.travelers}
+                      onChange={(e) => setInsuranceSearch({...insuranceSearch, travelers: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                    >
+                      <MenuItem value={1}>1 Traveler</MenuItem>
+                      <MenuItem value={2}>2 Travelers</MenuItem>
+                      <MenuItem value={3}>3 Travelers</MenuItem>
+                      <MenuItem value={4}>4 Travelers</MenuItem>
+                      <MenuItem value={5}>5 Travelers</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  borderRight: '1px solid #e0e0e0',
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>START DATE</Typography>
+                  <TextField
+                    type="date"
+                    fullWidth
+                    value={insuranceSearch.startDate}
+                    onChange={(e) => setInsuranceSearch({...insuranceSearch, startDate: e.target.value})}
+                    variant="outlined"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CalendarMonth sx={{ color: '#008cff' }} />
+                        </InputAdornment>
+                      ),
+                      sx: { 
+                        borderRadius: 1, 
+                        padding: '4px 8px',
+                        background: 'transparent',
+                        '& fieldset': { border: 'none' }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ 
+                  flex: '1 1 180px',
+                  p: 2,
+                  '&:hover': { borderColor: '#008cff' }
+                }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>DURATION (Days)</Typography>
+                  <FormControl fullWidth>
+                    <Select
+                      value={insuranceSearch.duration}
+                      onChange={(e) => setInsuranceSearch({...insuranceSearch, duration: e.target.value})}
+                      displayEmpty
+                      variant="outlined"
+                      sx={{ 
+                        '& fieldset': { border: 'none' }
+                      }}
+                    >
+                      <MenuItem value={5}>5 Days</MenuItem>
+                      <MenuItem value={7}>7 Days</MenuItem>
+                      <MenuItem value={10}>10 Days</MenuItem>
+                      <MenuItem value={15}>15 Days</MenuItem>
+                      <MenuItem value={30}>30 Days</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+              
+              <Box sx={{ mt: 3, textAlign: 'center' }}>
+                <Button 
+                  type="submit" 
+                  variant="contained" 
+                  size="large"
+                  sx={{ 
+                    bgcolor: '#008cff', 
+                    minWidth: 200,
+                    '&:hover': { bgcolor: '#0070cc' } 
+                  }}
+                >
+                  Search Insurance
                 </Button>
               </Box>
             </Box>
