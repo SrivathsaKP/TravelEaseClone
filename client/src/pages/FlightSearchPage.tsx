@@ -37,7 +37,7 @@ const cityOptions = [
 const FlightSearchPage = () => {
   const dispatch = useDispatch();
   const flightSearchParams = useSelector(selectFlightSearch);
-  const [viewMode, setViewMode] = useState<'card' | 'grid'>('grid');
+  const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');
   
   // State for flight search results
   const [flights, setFlights] = useState<Flight[]>([]);

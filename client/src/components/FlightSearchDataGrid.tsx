@@ -452,87 +452,20 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
 
   return (
     <Paper sx={{ width: '100%', p: 2, mb: 4 }}>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 2 
-      }}>
-        <Typography variant="h6" fontWeight="bold">
-          {sourceCity} to {destinationCity} Flights
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button 
-            startIcon={<FilterListIcon />}
-            size="small"
-            sx={{ 
-              mr: 1,
-              color: '#008cff',
-              border: '1px solid',
-              borderColor: '#008cff'
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            sx={{ 
-              color: '#008cff',
-              borderColor: '#008cff'
-            }}
-          >
-            Price Alert
-          </Button>
+              <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 2 
+        }}>
+          <Typography variant="h6" fontWeight="bold">
+            {sourceCity} to {destinationCity} Flights
+          </Typography>
         </Box>
-      </Box>
 
       <Divider sx={{ mb: 2 }} />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Chip 
-          label="Cheapest" 
-          variant="outlined"
-          sx={{ 
-            bgcolor: '#e1f5fe', 
-            borderColor: '#008cff',
-            color: '#008cff',
-            fontWeight: 'bold'
-          }}
-        />
-        <Chip 
-          label="Fastest" 
-          variant="outlined"
-          sx={{ 
-            borderColor: '#757575',
-            color: '#757575'
-          }}
-        />
-        <Chip 
-          label="Early departure" 
-          variant="outlined"
-          sx={{ 
-            borderColor: '#757575',
-            color: '#757575'
-          }}
-        />
-        <Chip 
-          label="Late departure" 
-          variant="outlined"
-          sx={{ 
-            borderColor: '#757575',
-            color: '#757575'
-          }}
-        />
-        <Chip 
-          label="Early arrival" 
-          variant="outlined"
-          sx={{ 
-            borderColor: '#757575',
-            color: '#757575'
-          }}
-        />
-      </Box>
+
 
       <DataGrid
         rows={rows}

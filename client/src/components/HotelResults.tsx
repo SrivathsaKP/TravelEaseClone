@@ -230,8 +230,8 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
           boxShadow: 1,
           p: 2,
           alignSelf: 'flex-start',
-          position: 'sticky',
-          top: '90px'
+          position: { xs: 'static', md: 'sticky' },
+          top: { xs: 'auto', md: '90px' }
         }}>
           <Box sx={{ 
             display: 'flex', 

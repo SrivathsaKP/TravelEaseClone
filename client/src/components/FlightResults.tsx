@@ -20,6 +20,8 @@ import {
   LinearProgress,
   IconButton,
   CircularProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { FlightDataGridSkeleton } from "@/components/ui/skeleton";
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
@@ -43,12 +45,15 @@ const FlightResults: React.FC<FlightResultsProps> = ({
   destinationCity
 }) => {
   const [, setLocation] = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [priceRange, setPriceRange] = useState([1500, 10000]);
   const [selectedAirlines, setSelectedAirlines] = useState<string[]>([]);
   const [selectedDepartureTimes, setSelectedDepartureTimes] = useState<string[]>([]);
   const [selectedStops, setSelectedStops] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("price-low-high");
   const [expandedFlights, setExpandedFlights] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(!isMobile);
   
   const airlines = [...new Set(flights.map(flight => flight.airline.name))];
   
@@ -206,10 +211,33 @@ const FlightResults: React.FC<FlightResultsProps> = ({
           boxShadow: 1,
           p: 2,
           alignSelf: 'flex-start',
-          position: 'sticky',
-          top: '90px'
+          position: { xs: 'static', md: 'sticky' },
+          top: { xs: 'auto', md: '90px' }
         }}>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Filters</Typography>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 2 
+          }}>
+            <Typography variant="h6" fontWeight="bold">Filters</Typography>
+            {isMobile && (
+              <IconButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                sx={{ 
+                  color: '#008cff',
+                  '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.1)' }
+                }}
+              >
+                {showFilters ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </IconButton>
+            )}
+          </Box>
+          
+          <Box sx={{ 
+            display: { xs: showFilters ? 'block' : 'none', md: 'block' }
+          }}>
           
           <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
             <Typography variant="subtitle2" sx={{ mb: 1 }}>One Way Price</Typography>
@@ -307,6 +335,7 @@ const FlightResults: React.FC<FlightResultsProps> = ({
                 </Box>
               ))}
             </Box>
+          </Box>
           </Box>
         </Box>
         
