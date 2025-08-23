@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Hotel } from "@/lib/types";
-import { ChevronDown, ChevronUp, Star, MapPin, Wifi, Coffee, Car, Snowflake, Plus, Heart } from "lucide-react";
+import { ChevronDown, ChevronUp, Star, MapPin, Wifi, Coffee, Car, Snowflake, Plus, Heart, Filter } from "lucide-react";
 import { 
   Box, 
   Paper, 
@@ -21,6 +21,8 @@ import {
   IconButton,
   Rating,
   Badge,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { SearchResultsSkeleton } from "@/components/ui/skeleton";
 import KingBedIcon from '@mui/icons-material/KingBed';
@@ -40,12 +42,15 @@ interface HotelResultsProps {
 
 const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResultsProps) => {
   const [, setLocation] = useLocation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [priceRange, setPriceRange] = useState<[number, number]>([1000, 15000]);
   const [starRating, setStarRating] = useState<number[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("price-low-high");
   const [activeTab, setActiveTab] = useState(0);
+  const [showFilters, setShowFilters] = useState(!isMobile);
 
   // Hotel image mapping - using exact same URLs as landing page with tab-based randomization
   const getHotelImage = (hotelName: string, hotelId: any) => {
@@ -228,83 +233,106 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
           position: 'sticky',
           top: '90px'
         }}>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Filters</Typography>
-          
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>Price Per Night</Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="caption" color="text.secondary">₹{priceRange[0]}</Typography>
-              <Typography variant="caption" color="text.secondary">₹{priceRange[1]}</Typography>
-            </Box>
-            <Slider
-              defaultValue={[1000, 15000]}
-              min={1000}
-              max={15000}
-              step={500}
-              value={priceRange}
-              onValueChange={setPriceRange}
-              className="w-full"
-            />
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 2 
+          }}>
+            <Typography variant="h6" fontWeight="bold">Filters</Typography>
+            {isMobile && (
+              <IconButton
+                size="small"
+                onClick={() => setShowFilters(!showFilters)}
+                sx={{ 
+                  color: '#008cff',
+                  '&:hover': { bgcolor: 'rgba(0, 140, 255, 0.1)' }
+                }}
+              >
+                {showFilters ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+              </IconButton>
+            )}
           </Box>
           
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>Star Category</Typography>
-            {starRatingOptions.map(rating => (
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }} key={rating}>
-                <Checkbox 
-                  id={`rating-${rating}`} 
-                  checked={starRating.includes(rating)}
-                  onCheckedChange={() => handleStarRatingChange(rating)}
-                />
-                <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
-                  <Rating
-                    value={rating}
-                    readOnly
-                    size="small"
-                    sx={{ color: '#FFD700' }}
-                  />
-                </Box>
+          <Box sx={{ 
+            display: { xs: showFilters ? 'block' : 'none', md: 'block' }
+          }}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Price Per Night</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography variant="caption" color="text.secondary">₹{priceRange[0]}</Typography>
+                <Typography variant="caption" color="text.secondary">₹{priceRange[1]}</Typography>
               </Box>
-            ))}
-          </Box>
-          
-          <Box sx={{ pb: 2, mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>Hotel Amenities</Typography>
-            <Box sx={{ ml: 1 }}>
-              {amenities.slice(0, 8).map((amenity, index) => (
-                <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }} key={index}>
+              <Slider
+                defaultValue={[1000, 15000]}
+                min={1000}
+                max={15000}
+                step={500}
+                value={priceRange}
+                onValueChange={(value) => setPriceRange(value as [number, number])}
+                className="w-full"
+              />
+            </Box>
+            
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', pb: 2, mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Star Category</Typography>
+              {starRatingOptions.map(rating => (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }} key={rating}>
                   <Checkbox 
-                    id={`amenity-${index}`} 
-                    checked={selectedAmenities.includes(amenity)}
-                    onCheckedChange={() => handleAmenityChange(amenity)}
+                    id={`rating-${rating}`} 
+                    checked={starRating.includes(rating)}
+                    onCheckedChange={() => handleStarRatingChange(rating)}
                   />
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {amenity === 'WiFi' && <WifiIcon sx={{ fontSize: 16, mr: 0.5 }} />}
-                    {amenity === 'Breakfast' && <FreeBreakfastIcon sx={{ fontSize: 16, mr: 0.5 }} />}
-                    {amenity === 'Parking' && <Car size={16} className="mr-1" />}
-                    {amenity === 'AC' && <Snowflake size={16} className="mr-1" />}
-                    {amenity === 'Pool' && <PoolIcon sx={{ fontSize: 16, mr: 0.5 }} />}
-                    <Typography variant="body2" sx={{ ml: 0.5 }}>
-                      {amenity}
-                    </Typography>
+                  <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
+                    <Rating
+                      value={rating}
+                      readOnly
+                      size="small"
+                      sx={{ color: '#FFD700' }}
+                    />
                   </Box>
                 </Box>
               ))}
             </Box>
+            
+            <Box sx={{ pb: 2, mb: 2 }}>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Hotel Amenities</Typography>
+              <Box sx={{ ml: 1 }}>
+                {amenities.slice(0, 8).map((amenity, index) => (
+                  <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }} key={index}>
+                    <Checkbox 
+                      id={`amenity-${index}`} 
+                      checked={selectedAmenities.includes(amenity)}
+                      onCheckedChange={() => handleAmenityChange(amenity)}
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {amenity === 'WiFi' && <WifiIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                      {amenity === 'Breakfast' && <FreeBreakfastIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                      {amenity === 'Parking' && <Car size={16} className="mr-1" />}
+                      {amenity === 'AC' && <Snowflake size={16} className="mr-1" />}
+                      {amenity === 'Pool' && <PoolIcon sx={{ fontSize: 16, mr: 0.5 }} />}
+                      <Typography variant="body2" sx={{ ml: 0.5 }}>
+                        {amenity}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+            
+            <Button 
+              className="w-full bg-primary text-white py-2 rounded-lg font-medium text-sm"
+              sx={{ 
+                bgcolor: '#008cff', 
+                '&:hover': { bgcolor: '#0071ce' },
+                fontWeight: 'bold',
+                color: 'white',
+                width: '100%'
+              }}
+            >
+              APPLY FILTERS
+            </Button>
           </Box>
-          
-          <Button 
-            className="w-full bg-primary text-white py-2 rounded-lg font-medium text-sm"
-            sx={{ 
-              bgcolor: '#008cff', 
-              '&:hover': { bgcolor: '#0071ce' },
-              fontWeight: 'bold',
-              color: 'white',
-              width: '100%'
-            }}
-          >
-            APPLY FILTERS
-          </Button>
         </Box>
         
         {/* Results List */}

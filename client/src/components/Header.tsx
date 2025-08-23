@@ -79,7 +79,10 @@ const Header = () => {
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link href="/">
-          <div className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center space-x-3 cursor-pointer group">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg group-hover:shadow-lg transition-all duration-200">
+              <PlaneTakeoff className="h-6 w-6 text-white" />
+            </div>
             <h1 className="text-2xl font-bold text-primary heading">
               <span className="text-secondary">Travel</span>Ease
             </h1>
@@ -245,7 +248,12 @@ const Header = () => {
             <SheetContent side="right">
               <SheetHeader>
                 <SheetTitle className="text-2xl font-bold text-primary heading">
-                  <span className="text-secondary">Travel</span>Ease
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                      <PlaneTakeoff className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-secondary">Travel</span>Ease
+                  </div>
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col gap-4 mt-8">

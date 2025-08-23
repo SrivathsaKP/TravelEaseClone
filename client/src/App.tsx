@@ -39,12 +39,13 @@ import { store } from "@/store";
 function Router() {
   const [location] = useLocation();
   const isHomePage = location === '/';
+  const isAuthPage = location === '/login' || location === '/signup';
   
-  // Show Header on all pages, but TabNavigation only on non-home pages
+  // Show Header and TabNavigation on all pages except auth pages
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
-      {!isHomePage && <TabNavigation />}
+      {!isAuthPage && <Header />}
+      {!isHomePage && !isAuthPage && <TabNavigation />}
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home}/>
