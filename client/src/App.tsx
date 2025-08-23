@@ -29,6 +29,8 @@ import CabSearchPage from "@/pages/CabSearchPage";
 import InsuranceSearchPage from "@/pages/InsuranceSearchPage";
 import HomeStaySearchPage from "@/pages/HomeStaySearchPage";
 import HolidayPackagePage from "@/pages/HolidayPackagePage";
+import Login from "@/pages/Login";
+import Signup from "@/pages/Signup";
 
 // Import Redux store provider
 import { Provider } from "react-redux";
@@ -77,6 +79,11 @@ function Router() {
           {/* Checkout & confirmation */}
           <Route path="/checkout" component={Checkout}/>
           <Route path="/booking-success" component={BookingSuccess}/>
+          
+          {/* Authentication */}
+          <Route path="/login" component={Login}/>
+          <Route path="/signup" component={Signup}/>
+          
           <Route component={NotFound} />
         </Switch>
       </main>

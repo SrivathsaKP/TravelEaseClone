@@ -25,6 +25,7 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Bus } from '@/lib/types';
 import { selectBusSearch, setBusSearch } from '@/store/searchSlice';
+import { fetchBusSearchResults } from '@/lib/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -96,23 +97,10 @@ const BusSearchPage = () => {
   // Fetch buses from API
   const fetchBuses = async () => {
     try {
-      // Always fetch the default buses for any search parameters for demonstration
-      const response = await fetch(`/api/buses/search?source=${source}&destination=${destination}&date=${date}`);
-      const responseData = await response.json();
-      
-      console.log("Bus search API response:", responseData);
-      
-      // Handle different API response formats
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setBuses(responseData.data);
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        setBuses(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setBuses(responseData);
-      } else {
-        console.warn("Unexpected API response format:", responseData);
-        setBuses([]);
-      }
+      // Use the integrated API function that includes mock data fallback
+      const buses = await fetchBusSearchResults(source, destination, date);
+      console.log("Bus search results:", buses);
+      setBuses(buses);
     } catch (error) {
       console.error("Error fetching buses:", error);
       setBuses([]);

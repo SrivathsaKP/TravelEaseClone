@@ -15,18 +15,57 @@ export interface FlightPrice {
 
 export interface Flight {
   id: string;
-  flightNumber: string;
+  resultIndex: string;
+  isLCC: boolean;
+  isRefundable: boolean;
   airline: Airline;
-  departureTime: string;
-  arrivalTime: string;
-  departureCode: string;
-  arrivalCode: string;
-  duration: string;
-  stopCount: number;
-  stops?: string[];
-  price: FlightPrice;
+  flightNumber: string;
+  source: {
+    airport: {
+      code: string;
+      name: string;
+      terminal: number;
+      cityCode: string;
+      cityName: string;
+      countryCode: string;
+      countryName: string;
+    };
+    departureTime: string;
+  };
+  destination: {
+    airport: {
+      code: string;
+      name: string;
+      terminal: number;
+      cityCode: string;
+      cityName: string;
+      countryCode: string;
+      countryName: string;
+    };
+    arrivalTime: string;
+  };
+  duration: number; // in minutes
   cabinClass: string;
   availableSeats: number;
+  fare: {
+    currency: string;
+    baseFare: number;
+    tax: number;
+    taxBreakup: Array<{ key: string; value: number }>;
+    totalFare: number;
+  };
+  baggage: string;
+  cabinBaggage: string;
+  mealService: string;
+  seatMap: Array<{
+    row: string;
+    seats: Array<{
+      number: string;
+      available: boolean;
+      price: number;
+      type: string;
+    }>;
+  }>;
 }
 
 // Hotel types

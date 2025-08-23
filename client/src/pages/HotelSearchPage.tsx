@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import { Hotel } from '@/lib/types';
 import { selectHotelSearch, setHotelSearch } from '@/store/searchSlice';
+import { fetchHotelSearchResults } from '@/lib/api';
 import HotelResults from '@/components/HotelResults';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
@@ -73,23 +74,10 @@ const HotelSearchPage = () => {
   // Fetch hotels from API
   const fetchHotels = async () => {
     try {
-      // Always fetch the default hotels for any search parameters for demonstration
-      const response = await fetch(`/api/hotels/search?city=${city}&checkIn=${checkIn}&checkOut=${checkOut}`);
-      const responseData = await response.json();
-      
-      console.log("Hotel search API response:", responseData);
-      
-      // Handle different API response formats
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setHotels(responseData.data);
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        setHotels(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setHotels(responseData);
-      } else {
-        console.warn("Unexpected API response format:", responseData);
-        setHotels([]);
-      }
+      // Use the integrated API function that includes mock data fallback
+      const hotels = await fetchHotelSearchResults(city, checkIn, checkOut);
+      console.log("Hotel search results:", hotels);
+      setHotels(hotels);
     } catch (error) {
       console.error("Error fetching hotels:", error);
       setHotels([]);

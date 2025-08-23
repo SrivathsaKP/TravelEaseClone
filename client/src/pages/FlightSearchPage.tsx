@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Flight } from '@/lib/types';
 import { selectFlightSearch, setFlightSearch } from '@/store/searchSlice';
+import { fetchFlightSearchResults } from '@/lib/api';
 import FlightSearchDataGrid from '@/components/FlightSearchDataGrid';
 import FlightResults from '@/components/FlightResults';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
@@ -76,23 +77,10 @@ const FlightSearchPage = () => {
   // Fetch flights from API
   const fetchFlights = async () => {
     try {
-      // Always fetch the default flights for any search parameters for demonstration
-      const response = await fetch(`/api/flights/search?source=${source}&destination=${destination}&date=${departureDate}`);
-      const responseData = await response.json();
-      
-      console.log("Flight search API response:", responseData);
-      
-      // The API now returns { success: true, data: [...] }
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setFlights(responseData.data);
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        // Handle different response formats
-        setFlights(responseData.data);
-      } else {
-        console.warn("Unexpected API response format:", responseData);
-        // For development purposes, still show some data even if API format is unexpected
-        setFlights([]);
-      }
+      // Use the integrated API function that includes mock data fallback
+      const flights = await fetchFlightSearchResults(source, destination, departureDate);
+      console.log("Flight search results:", flights);
+      setFlights(flights);
     } catch (error) {
       console.error("Error fetching flights:", error);
       setFlights([]);

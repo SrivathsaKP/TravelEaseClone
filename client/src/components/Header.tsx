@@ -1,12 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { MenuIcon, PlaneTakeoff, Gift, Headphones } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MenuIcon, PlaneTakeoff, Gift, Headphones, User, LogOut, Settings } from "lucide-react";
+import { User as UserType } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [location] = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
+  const [, setLocationPath] = useLocation();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadUser = () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          if (userData.isLoggedIn) {
+            setUser(userData);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+      }
+    };
+
+    loadUser();
+
+    // Listen for storage changes (for cross-tab login/logout)
+    const handleStorageChange = () => {
+      loadUser();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    setLocationPath('/');
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -43,9 +85,58 @@ const Header = () => {
               Test Checkout
             </Button>
           </Link>
-          <Button variant="default" className="bg-primary hover:bg-primary/90" onClick={() => window.location.href = '/api/login'}>
-            Log In
-          </Button>
+          
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    {user.firstName || user.name || 'User'}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem disabled>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-xs text-gray-500">{user.email}</p>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <PlaneTakeoff className="mr-2 h-4 w-4" />
+                  <span>My Trips</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Link href="/login">
+                <Button variant="outline" className="hover:bg-secondary/20">
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button variant="default" className="bg-primary hover:bg-primary/90">
+                  Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
@@ -89,16 +180,39 @@ const Header = () => {
                       Test Checkout
                     </Button>
                   </Link>
-                  <Button 
-                    className="w-full" 
-                    variant="default"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      window.location.href = '/api/login';
-                    }}
-                  >
-                    Log In
-                  </Button>
+                  
+                  {user ? (
+                    <div className="space-y-2">
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          handleLogout();
+                        }}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                        <Button className="w-full" variant="outline">
+                          Log In
+                        </Button>
+                      </Link>
+                      <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
+                        <Button className="w-full" variant="default">
+                          Sign Up
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </SheetContent>

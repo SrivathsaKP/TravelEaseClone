@@ -28,6 +28,7 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { InsurancePlan } from '@/lib/types';
 import { selectInsuranceSearch, setInsuranceSearch } from '@/store/searchSlice';
+import { fetchInsurancePlanSearchResults } from '@/lib/api';
 import FlightIcon from '@mui/icons-material/Flight';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -107,23 +108,10 @@ const InsuranceSearchPage = () => {
   // Fetch insurance plans from API
   const fetchInsurancePlans = async () => {
     try {
-      // Always fetch the default insurance plans for any search parameters for demonstration
-      const response = await fetch(`/api/insurance-plans/search?coverageType=${travelType}&duration=${duration}`);
-      const responseData = await response.json();
-      
-      console.log("Insurance search API response:", responseData);
-      
-      // Handle different API response formats
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setInsurancePlans(responseData.data);
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        setInsurancePlans(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setInsurancePlans(responseData);
-      } else {
-        console.warn("Unexpected API response format:", responseData);
-        setInsurancePlans([]);
-      }
+      // Use the integrated API function that includes mock data fallback
+      const plans = await fetchInsurancePlanSearchResults(travelType, duration);
+      console.log("Insurance plan search results:", plans);
+      setInsurancePlans(plans);
     } catch (error) {
       console.error("Error fetching insurance plans:", error);
       setInsurancePlans([]);

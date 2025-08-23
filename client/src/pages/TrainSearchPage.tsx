@@ -24,6 +24,7 @@ import {
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Train } from '@/lib/types';
 import { selectTrainSearch, setTrainSearch } from '@/store/searchSlice';
+import { fetchTrainSearchResults } from '@/lib/api';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PersonIcon from '@mui/icons-material/Person';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -94,23 +95,10 @@ const TrainSearchPage = () => {
   // Fetch trains from API
   const fetchTrains = async () => {
     try {
-      // Always fetch the default trains for any search parameters for demonstration
-      const response = await fetch(`/api/trains/search?source=${source}&destination=${destination}&date=${date}`);
-      const responseData = await response.json();
-      
-      console.log("Train search API response:", responseData);
-      
-      // Handle different API response formats
-      if (responseData.success && Array.isArray(responseData.data)) {
-        setTrains(responseData.data);
-      } else if (responseData.data && Array.isArray(responseData.data)) {
-        setTrains(responseData.data);
-      } else if (Array.isArray(responseData)) {
-        setTrains(responseData);
-      } else {
-        console.warn("Unexpected API response format:", responseData);
-        setTrains([]);
-      }
+      // Use the integrated API function that includes mock data fallback
+      const trains = await fetchTrainSearchResults(source, destination, date);
+      console.log("Train search results:", trains);
+      setTrains(trains);
     } catch (error) {
       console.error("Error fetching trains:", error);
       setTrains([]);
