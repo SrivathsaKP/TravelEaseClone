@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MuiSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "@/lib/icons";
 import { Badge } from "@/components/ui/badge";
@@ -34,28 +34,28 @@ export default function InsuranceSearch() {
         <div className="bg-white rounded-lg shadow-md p-4 mb-4">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <Skeleton className="h-8 w-40 mb-2" />
-              <Skeleton className="h-6 w-64" />
+              <MuiSkeleton className="h-8 w-40 mb-2" />
+              <MuiSkeleton className="h-6 w-64" />
             </div>
-            <Skeleton className="h-10 w-32" />
+            <MuiSkeleton className="h-10 w-32" />
           </div>
           <div className="border-t pt-4">
-            <Skeleton className="h-6 w-full mb-2" />
-            <Skeleton className="h-6 w-3/4" />
+            <MuiSkeleton className="h-6 w-full mb-2" />
+            <MuiSkeleton className="h-6 w-3/4" />
           </div>
         </div>
         {[...Array(3)].map((_, idx) => (
           <div key={idx} className="bg-white rounded-lg shadow-md p-4 mb-4">
             <div className="flex justify-between items-center mb-4">
-              <div>
-                <Skeleton className="h-8 w-40 mb-2" />
-                <Skeleton className="h-6 w-64" />
-              </div>
-              <Skeleton className="h-10 w-32" />
+                          <div>
+              <MuiSkeleton className="h-8 w-40 mb-2" />
+              <MuiSkeleton className="h-6 w-64" />
             </div>
-            <div className="border-t pt-4">
-              <Skeleton className="h-6 w-full mb-2" />
-              <Skeleton className="h-6 w-3/4" />
+            <MuiSkeleton className="h-10 w-32" />
+          </div>
+          <div className="border-t pt-4">
+            <MuiSkeleton className="h-6 w-full mb-2" />
+            <MuiSkeleton className="h-6 w-3/4" />
             </div>
           </div>
         ))}

@@ -16,6 +16,7 @@ import {
   Divider,
   Rating
 } from '@mui/material';
+import { SearchResultsSkeleton } from '@/components/ui/skeleton';
 import { Hotel } from '@/lib/types';
 import { selectHotelSearch, setHotelSearch } from '@/store/searchSlice';
 import { fetchHotelSearchResults } from '@/lib/api';
@@ -287,9 +288,7 @@ const HotelSearchPage = () => {
         {/* Results */}
         <Box sx={{ flex: 1 }}>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <SearchResultsSkeleton type="hotel" count={6} />
           ) : hotels.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No hotels found</Typography>

@@ -21,6 +21,7 @@ import {
   IconButton,
   CircularProgress,
 } from "@mui/material";
+import { FlightDataGridSkeleton } from "@/components/ui/skeleton";
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
@@ -404,9 +405,7 @@ const FlightResults: React.FC<FlightResultsProps> = ({
           </Box>
           
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <FlightDataGridSkeleton rows={5} />
           ) : sortedFlights.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No flights found</Typography>

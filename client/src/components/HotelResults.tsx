@@ -22,6 +22,7 @@ import {
   Rating,
   Badge,
 } from "@mui/material";
+import { SearchResultsSkeleton } from "@/components/ui/skeleton";
 import KingBedIcon from '@mui/icons-material/KingBed';
 import FreeBreakfastIcon from '@mui/icons-material/FreeBreakfast';
 import WifiIcon from '@mui/icons-material/Wifi';
@@ -399,9 +400,7 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
           </Box>
           
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <SearchResultsSkeleton type="hotel" count={6} />
           ) : sortedHotels.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No hotels found</Typography>

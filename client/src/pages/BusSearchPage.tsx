@@ -23,6 +23,7 @@ import {
   AccordionDetails,
   IconButton
 } from '@mui/material';
+import { SearchResultsSkeleton } from '@/components/ui/skeleton';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Bus } from '@/lib/types';
 import { selectBusSearch, setBusSearch } from '@/store/searchSlice';
@@ -668,9 +669,7 @@ const BusSearchPage = () => {
         {/* Results */}
         <Box sx={{ flex: 1 }}>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <SearchResultsSkeleton type="bus" count={5} />
           ) : buses.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No buses found</Typography>

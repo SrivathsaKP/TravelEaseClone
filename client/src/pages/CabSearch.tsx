@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { fetchFlightById } from "@/lib/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
+import { MuiSkeleton, SearchResultsSkeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { MapPinIcon, CalendarIcon, ArrowRightIcon } from "@/lib/icons";
 
@@ -31,34 +31,7 @@ export default function CabSearch() {
     return (
       <div className="container mx-auto p-4 md:p-6">
         <h1 className="text-2xl font-bold mb-6">Finding Cabs from {from} to {to}</h1>
-        <div className="bg-white rounded-lg shadow-md p-4 mb-4">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <Skeleton className="h-8 w-40 mb-2" />
-              <Skeleton className="h-6 w-64" />
-            </div>
-            <Skeleton className="h-10 w-32" />
-          </div>
-          <div className="border-t pt-4">
-            <Skeleton className="h-6 w-full mb-2" />
-            <Skeleton className="h-6 w-3/4" />
-          </div>
-        </div>
-        {[...Array(3)].map((_, idx) => (
-          <div key={idx} className="bg-white rounded-lg shadow-md p-4 mb-4">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <Skeleton className="h-8 w-40 mb-2" />
-                <Skeleton className="h-6 w-64" />
-              </div>
-              <Skeleton className="h-10 w-32" />
-            </div>
-            <div className="border-t pt-4">
-              <Skeleton className="h-6 w-full mb-2" />
-              <Skeleton className="h-6 w-3/4" />
-            </div>
-          </div>
-        ))}
+        <SearchResultsSkeleton type="cab" count={5} />
       </div>
     );
   }

@@ -21,6 +21,7 @@ import {
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
+import { SearchResultsSkeleton } from '@/components/ui/skeleton';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { Cab } from '@/lib/types';
 import { selectCabSearch, setCabSearch } from '@/store/searchSlice';
@@ -507,9 +508,7 @@ const CabSearchPage = () => {
         {/* Results */}
         <Box sx={{ flex: 1 }}>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <SearchResultsSkeleton type="cab" count={5} />
           ) : cabs.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No cabs found</Typography>

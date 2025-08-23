@@ -25,6 +25,7 @@ import {
   ListItemText,
   Stack
 } from '@mui/material';
+import { SearchResultsSkeleton } from '@/components/ui/skeleton';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar } from '@mui/x-data-grid';
 import { InsurancePlan } from '@/lib/types';
 import { selectInsuranceSearch, setInsuranceSearch } from '@/store/searchSlice';
@@ -514,9 +515,7 @@ const InsuranceSearchPage = () => {
         {/* Results */}
         <Box sx={{ flex: 1 }}>
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-              <CircularProgress />
-            </Box>
+            <SearchResultsSkeleton type="insurance" count={5} />
           ) : insurancePlans.length === 0 ? (
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <Typography variant="h6" gutterBottom>No insurance plans found</Typography>

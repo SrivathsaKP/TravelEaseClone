@@ -17,6 +17,7 @@ import {
   Grid,
   CircularProgress
 } from '@mui/material';
+import { SearchResultsSkeleton } from '@/components/ui/skeleton';
 import { Flight } from '@/lib/types';
 import { selectFlightSearch, setFlightSearch } from '@/store/searchSlice';
 import { fetchFlightSearchResults } from '@/lib/api';
@@ -295,9 +296,7 @@ const FlightSearchPage = () => {
       
       {/* Results */}
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
+        <SearchResultsSkeleton type="flight" count={5} />
       ) : flights.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: 'center' }}>
           <Typography variant="h6" gutterBottom>No flights found</Typography>
