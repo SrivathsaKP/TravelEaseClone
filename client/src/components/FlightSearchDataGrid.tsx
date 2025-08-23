@@ -96,6 +96,103 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
     });
   };
 
+  // Get airline logo or create styled initials
+  const getAirlineDisplay = (airlineName: string, flightNumber?: string) => {
+    // Airline logo mapping
+    const airlineLogos: { [key: string]: string } = {
+      'IndiGo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/IndiGo_logo.svg/1200px-IndiGo_logo.svg.png',
+      'Air India': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Air_India_Logo.svg/1200px-Air_India_Logo.svg.png',
+      'SpiceJet': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/SpiceJet_logo.svg/1200px-SpiceJet_logo.svg.png',
+      'GoAir': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/GoAir_logo.svg/1200px-GoAir_logo.svg.png',
+      'Vistara': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Vistara_logo.svg/1200px-Vistara_logo.svg.png',
+      'AirAsia': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/AirAsia_logo.svg/1200px-AirAsia_logo.svg.png',
+      'Akasa Air': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Akasa_Air_logo.svg/1200px-Akasa_Air_logo.svg.png'
+    };
+
+    const logoUrl = airlineLogos[airlineName];
+    
+    if (logoUrl) {
+      return (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box 
+            component="img"
+            src={logoUrl}
+            alt={airlineName}
+            sx={{ 
+              width: 32, 
+              height: 32, 
+              mr: 1,
+              objectFit: 'contain',
+              borderRadius: '4px'
+            }}
+            onError={(e) => {
+              // Fallback to styled initials if image fails to load
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              target.nextElementSibling?.setAttribute('style', 'display: flex !important');
+            }}
+          />
+          <Box 
+            sx={{ 
+              display: 'none',
+              width: 32, 
+              height: 32, 
+              mr: 1,
+              bgcolor: '#008cff',
+              borderRadius: '4px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}
+          >
+            {airlineName.charAt(0)}
+          </Box>
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              {airlineName}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {flightNumber || ''}
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    // Fallback to styled initials
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box 
+          sx={{ 
+            width: 32, 
+            height: 32, 
+            mr: 1,
+            bgcolor: '#008cff',
+            borderRadius: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }}
+        >
+          {airlineName.charAt(0)}
+        </Box>
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+            {airlineName}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {flightNumber || ''}
+          </Typography>
+        </Box>
+      </Box>
+    );
+  };
+
   // Column definitions for DataGrid
   const columns: GridColDef[] = [
     { 
@@ -107,28 +204,7 @@ const FlightSearchDataGrid: React.FC<FlightSearchDataGridProps> = ({
         const airlineName = typeof params.value === 'string' ? params.value : 
                            typeof params.value === 'object' && params.value?.name ? params.value.name : 'Unknown';
         
-        // Get logo from either row or directly from the airline object
-        const logoUrl = params.row.airlineLogo || 
-                        (typeof params.value === 'object' && params.value?.logo ? params.value.logo : '');
-        
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box 
-              component="img"
-              src={logoUrl || `https://via.placeholder.com/32?text=${airlineName.charAt(0)}`}
-              alt={airlineName}
-              sx={{ width: 32, height: 32, mr: 1 }}
-            />
-            <Box>
-              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                {airlineName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {params.row.flightNumber || ''}
-              </Typography>
-            </Box>
-          </Box>
-        );
+        return getAirlineDisplay(airlineName, params.row.flightNumber);
       }
     },
     { 

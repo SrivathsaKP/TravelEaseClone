@@ -45,6 +45,22 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
   const [expandedHotels, setExpandedHotels] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<string>("price-low-high");
   const [activeTab, setActiveTab] = useState(0);
+
+  // Hotel image mapping - using the same reliable images as landing page
+  const getHotelImage = (hotelName: string, hotelId: number) => {
+    // Use the same reliable Unsplash images as the landing page
+    const hotelImages = [
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
+      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
+      "https://images.unsplash.com/photo-1631049035182-249067d7618e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
+      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500"
+    ];
+    
+    // Use hotel ID to consistently assign images
+    return hotelImages[hotelId % hotelImages.length];
+  };
   
   // Filter options
   const starRatingOptions = [5, 4, 3, 2, 1];
@@ -429,57 +445,55 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                       </Box>
                     )}
                     
-                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
-                      {/* Hotel Image */}
+                    {/* Hotel Image - Full Width like landing page */}
+                    <Box sx={{ 
+                      width: '100%', 
+                      height: '280px',
+                      position: 'relative'
+                    }}>
+                      <img 
+                        src="https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=500"
+                        alt={hotel.name}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
                       <Box sx={{ 
-                        width: { xs: '100%', md: '240px' }, 
-                        height: { xs: '200px', md: '100%' },
-                        position: 'relative'
+                        position: 'absolute', 
+                        top: '12px', 
+                        right: '12px',
+                        bgcolor: 'white',
+                        borderRadius: '6px',
+                        p: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
-                        <Box 
-                          component="img"
-                          src={hotel.images && Array.isArray(hotel.images) && hotel.images.length > 0 
-                            ? hotel.images[0].url 
-                            : 'https://via.placeholder.com/300x200?text=Hotel+Image'}
-                          alt={hotel.name}
-                          sx={{ 
-                            width: '100%', 
-                            height: '100%', 
-                            objectFit: 'cover',
-                            display: 'block'
-                          }}
-                        />
-                        <Box sx={{ 
-                          position: 'absolute', 
-                          top: '8px', 
-                          right: '8px',
-                          bgcolor: 'white',
-                          borderRadius: '4px',
-                          p: 0.5,
-                          display: 'flex',
-                          alignItems: 'center'
-                        }}>
-                          <Typography variant="body2" sx={{ fontWeight: 'bold', mr: 0.5 }}>
-                            {avgRating.toFixed(1)}
-                          </Typography>
-                          <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                        </Box>
-                        <IconButton
-                          size="small"
-                          sx={{ 
-                            position: 'absolute', 
-                            top: '8px', 
-                            left: '8px',
-                            bgcolor: 'rgba(255,255,255,0.8)',
-                            '&:hover': { bgcolor: 'white' }
-                          }}
-                        >
-                          <Heart size={16} />
-                        </IconButton>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', mr: 0.5 }}>
+                          {avgRating.toFixed(1)}
+                        </Typography>
+                        <Star size={16} className="fill-yellow-400 text-yellow-400" />
                       </Box>
-                      
-                      {/* Hotel Details */}
-                      <Box sx={{ p: 2, flex: 1 }}>
+                      <IconButton
+                        size="small"
+                        sx={{ 
+                          position: 'absolute', 
+                          top: '12px', 
+                          left: '12px',
+                          bgcolor: 'rgba(255,255,255,0.9)',
+                          '&:hover': { bgcolor: 'white' },
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        <Heart size={18} />
+                      </IconButton>
+                    </Box>
+                    
+                    {/* Hotel Details - Below image like landing page */}
+                    <Box sx={{ p: 3 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Box>
                             <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
@@ -586,7 +600,6 @@ const HotelResults = ({ hotels, loading, city, checkIn, checkOut }: HotelResults
                           </Box>
                         </Box>
                       </Box>
-                    </Box>
                     
                     {/* Additional options */}
                     <Box sx={{ 
