@@ -368,9 +368,16 @@ const CabSearchPage = () => {
       </Paper>
       
       {/* Results */}
-      <Box sx={{ display: 'flex', gap: 3 }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: { xs: 'column', md: 'row' },
+        gap: 3 
+      }}>
         {/* Filters */}
-        <Box sx={{ width: 280 }}>
+        <Box sx={{ 
+          width: { xs: '100%', sm: '240px', md: '280px' },
+          display: { xs: 'none', md: 'block' }
+        }}>
           <Paper sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" fontWeight="bold" mb={2}>
               FILTERS
@@ -429,7 +436,14 @@ const CabSearchPage = () => {
             
             <Divider />
             
-            <Accordion defaultExpanded elevation={0} sx={{ '&::before': { display: 'none' } }}>
+            <Accordion 
+              defaultExpanded 
+              elevation={0} 
+              sx={{ 
+                '&::before': { display: 'none' },
+                display: { xs: 'none', md: 'block' }
+              }}
+            >
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ px: 0 }}
@@ -467,7 +481,14 @@ const CabSearchPage = () => {
             
             <Divider />
             
-            <Accordion defaultExpanded elevation={0} sx={{ '&::before': { display: 'none' } }}>
+            <Accordion 
+              defaultExpanded 
+              elevation={0} 
+              sx={{ 
+                '&::before': { display: 'none' },
+                display: { xs: 'none', md: 'block' }
+              }}
+            >
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ px: 0 }}
@@ -506,7 +527,10 @@ const CabSearchPage = () => {
         </Box>
         
         {/* Results */}
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ 
+          flex: 1,
+          width: { xs: '100%', md: 'auto' }
+        }}>
           {loading ? (
             <SearchResultsSkeleton type="cab" count={5} />
           ) : cabs.length === 0 ? (
@@ -526,7 +550,13 @@ const CabSearchPage = () => {
                 {dayjs(pickupDate).format('ddd, MMM D, YYYY')} at {formatTime(pickupTime)}
               </Typography>
               
-              <Paper elevation={2} sx={{ overflow: 'hidden', mt: 2 }}>
+              <Paper elevation={2} sx={{ 
+                overflow: 'hidden', 
+                mt: 2,
+                '& .MuiDataGrid-root': {
+                  overflow: { xs: 'auto', md: 'hidden' }
+                }
+              }}>
                 <DataGrid
                   rows={cabs}
                   columns={columns}
