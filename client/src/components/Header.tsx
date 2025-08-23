@@ -232,7 +232,7 @@ const Header = () => {
                   Log In
                 </Button>
               </Link>
-              <Link href="/signup">
+              <Link href="/signup" className="hidden sm:block">
                 <Button variant="default" className="bg-primary hover:bg-primary/90">
                   Sign Up
                 </Button>
