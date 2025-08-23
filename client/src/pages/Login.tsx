@@ -9,8 +9,8 @@ import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('demo@example.com');
+  const [password, setPassword] = useState('password');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,12 +29,17 @@ const Login = () => {
       // Mock validation
       if (email === 'demo@example.com' && password === 'password') {
         // Store user session
-        localStorage.setItem('user', JSON.stringify({
+        const userData = {
           id: '1',
           email: email,
           name: 'Demo User',
           isLoggedIn: true
-        }));
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Dispatch custom event for immediate UI update
+        window.dispatchEvent(new CustomEvent('userLogin'));
         
         toast({
           title: "Login successful!",
